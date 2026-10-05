@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>JOB DNA Engine 1.2</title>
+<style>
+:root{--bg:#f4f4f2;--card:#fff;--text:#171717;--muted:#707070;--line:#e6e6e3;--soft:#f8f8f6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+.wrap{max-width:860px;margin:auto;padding:18px 14px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;margin:14px 0;box-shadow:0 4px 18px rgba(0,0,0,.035)}
+h1{font-size:42px;line-height:1.02;margin:8px 0 12px;letter-spacing:-1.5px}
+h2{font-size:25px;margin:0 0 14px;letter-spacing:-.5px}
+h3{font-size:18px;margin:0 0 8px}
+.muted{color:var(--muted)}
+.kicker{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#777}
+.progress{height:7px;background:#e8e8e5;border-radius:10px;overflow:hidden;margin:14px 0 22px}
+.progress i{display:block;height:100%;width:0;background:#171717}
+.q{font-size:22px;font-weight:700;line-height:1.25;margin:16px 0 18px}
+.answers{display:grid;gap:10px}
+.answer{border:1px solid var(--line);background:#fff;border-radius:16px;padding:15px;text-align:left;cursor:pointer;font-size:15px;transition:.15s}
+.answer:hover{transform:translateY(-1px);border-color:#bbb}
+.answer b{display:block;margin-bottom:4px}
+button{border:0;border-radius:14px;background:#171717;color:#fff;padding:13px 18px;font-weight:750;cursor:pointer}
+button.secondary{background:#eee;color:#171717}
+.actions{display:flex;justify-content:space-between;gap:10px;margin-top:18px}
+.hidden{display:none!important}
+.badge{display:inline-block;border:1px solid var(--line);background:var(--soft);padding:5px 9px;border-radius:999px;font-size:12px;margin:3px}
+.scoregrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.score{border:1px solid var(--line);border-radius:16px;padding:13px}
+.scoretop{display:flex;justify-content:space-between;gap:8px;font-weight:750}
+.bar{height:6px;background:#ececea;border-radius:8px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:#171717}
+.conf{font-size:12px;color:#777;margin-top:5px}
+.hero{padding:28px}
+.profileName{font-size:40px;font-weight:900;line-height:1.02;letter-spacing:-1.5px;margin:8px 0}
+.sub{font-size:15px;color:#666}
+.callout{border-left:3px solid #171717;padding:2px 0 2px 15px;margin:16px 0}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.role{border:1px solid var(--line);border-radius:16px;padding:15px;margin:10px 0}
+.green{font-weight:800}
+.small{font-size:13px}
+.choice48{display:grid;gap:10px}
+.choice48 button{background:#fff;color:#171717;border:1px solid var(--line);text-align:left}
+.choice48 button.selected{border:2px solid #171717}
+@media(max-width:650px){h1{font-size:35px}.q{font-size:20px}.scoregrid,.cols{grid-template-columns:1fr}.profileName{font-size:34px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section id="start" class="card hero">
+<div class="kicker">JOB DNA · Engine 1.2</div>
+<h1>Tak naturalnie działasz w pracy.</h1>
+<p class="muted">Nie szukaj najlepszej odpowiedzi. Wybierz tę, która jest bliższa temu, jak naprawdę działasz. To prototyp narzędzia do odkrywania sposobu pracy — nie diagnoza psychologiczna.</p>
+<button onclick="startTest()">Rozpocznij test</button>
+</section>
+
+<section id="test" class="card hidden">
+<div class="kicker" id="counter"></div>
+<div class="progress"><i id="prog"></i></div>
+<div class="q" id="question"></div>
+<div class="answers" id="answers"></div>
+<div class="actions">
+<button class="secondary" onclick="prevQ()">Wstecz</button>
+<span></span>
+</div>
+</section>
+
+<section id="sanity" class="card hidden">
+<div class="kicker">Ostatni krok</div>
+<h2>Który sposób pracy brzmi najbardziej jak coś, co chciałbyś robić?</h2>
+<p class="muted">To pytanie nie zmienia głównego wyniku. Służy jako niezależne sprawdzenie spójności profilu.</p>
+<div class="choice48" id="choice48"></div>
+</section>
+
+<section id="report" class="hidden">
+<div id="reportContent"></div>
+</section>
+</div>
+
+<script>
+const Q = [];
+const M = {1:['depth','exploration',1,-1],2:['decisiveness','depth',1,-1],3:['analytical','decisiveness',1,-1],4:['depth','variety',1,-1],5:['depth',null,1,0],6:['decisiveness','depth',1,-1],7:['decisiveness','depth',1,-1],8:['depth','analytical',1,-1],9:['autonomy','structure',1,-1],10:['autonomy','stability',1,-1],11:['influence','autonomy',1,-1],12:['structure','autonomy',-1,1],13:['exploration','stability',1,-1],14:['stability','exploration',1,-1],15:['depth','tempo',1,-1],16:['result','tempo',1,-1],17:['exploration','variety',1,-1],18:['exploration','structure',1,-1],19:['exploration','stability',1,-1],20:['autonomy','structure',1,-1],21:['result','stability',1,-1],22:['tempo','result',-1,1],23:['autonomy','relationality',-1,1],24:['exploration','stability',1,-1],25:['stability','autonomy',-1,1],26:['variety','tempo',1,-1],27:['depth','variety',1,-1],28:['stability','variety',1,-1],29:['exploration','result',1,-1],30:['result','stability',1,-1],31:['influence','autonomy',1,-1],32:['relationality','tempo',1,-1],33:['autonomy','result',1,-1],34:['influence','relationality',1,-1],35:['autonomy','structure',1,-1],36:['relationality','autonomy',-1,1],37:['relationality','tempo',1,-1],38:['influence','autonomy',1,-1],39:['depth','tempo',1,-1],40:['autonomy','stability',1,-1],41:['result',null,1,0],42:['exploration','stability',1,-1],43:['depth','variety',1,-1],44:['autonomy','structure',1,-1],45:['tempo','result',-1,1],46:['exploration','depth',1,-1],47:['influence','autonomy',1,-1]};
+
+const DIMS = ["depth","analytical","decisiveness","autonomy","structure","tempo","exploration","result","stability","variety","influence","relationality"];
+const LABELS = {
+depth:"Głębia", analytical:"Analityczność", decisiveness:"Decyzyjność", autonomy:"Autonomia",
+structure:"Struktura", tempo:"Tempo", exploration:"Eksploracja", result:"Wynik",
+stability:"Stabilność", variety:"Różnorodność", influence:"Wpływ", relationality:"Relacyjność"
+};
+const DESCRIPTIONS = {
+depth:"potrzeba zrozumienia problemu, produktu lub mechanizmu przed działaniem",
+analytical:"tendencja do porównywania informacji, zależności i konsekwencji",
+decisiveness:"gotowość do podejmowania decyzji mimo niepełnych informacji",
+autonomy:"potrzeba wyboru własnego sposobu dojścia do celu",
+structure:"potrzeba uporządkowanego sposobu działania i jasnych ram",
+tempo:"preferowane tempo działania, decyzji i zamykania tematów",
+exploration:"gotowość do testowania nowych rozwiązań i odkrywania możliwości",
+result:"znaczenie konkretnego, widocznego efektu działania",
+stability:"potrzeba przewidywalności, ciągłości i bezpieczeństwa",
+variety:"potrzeba zmienności tematów, zadań i bodźców",
+influence:"potrzeba wpływania na kierunek decyzji, produktu lub wyniku",
+relationality:"znaczenie kontaktu z ludźmi jako naturalnej części pracy"
+};
+
+const state = {answers:Array(Q.length).fill(null), index:0, sanity:null};
+
+function startTest(){document.getElementById("start").classList.add("hidden");document.getElementById("test").classList.remove("hidden");renderQ();}
+function renderQ(){
+ const i=state.index, q=Q[i];
+ document.getElementById("counter").textContent=`PYTANIE ${i+1} Z ${Q.length}`;
+ document.getElementById("prog").style.width=((i)/Q.length*100)+"%";
+ document.getElementById("question").textContent=q[0]||"";
+ const box=document.getElementById("answers"); box.innerHTML="";
+ [["A","A zdecydowanie","A jest wyraźnie bliższa"],["AR","A raczej","A jest trochę bliższa"],["BR","B raczej","B jest trochę bliższa"],["B","B zdecydowanie","B jest wyraźnie bliższa"]].forEach(x=>{
+   const b=document.createElement("button");b.className="answer";
+   b.innerHTML=`<b>${x[1]}</b><span class="muted">${x[2]}</span>`;
+   if(state.answers[i]===x[0]) b.style.borderColor="#171717";
+   b.onclick=()=>choose(x[0]); box.appendChild(b);
+ });
+}
+function choose(v){
+ state.answers[state.index]=v;
+ if(state.index<Q.length-1){state.index++;renderQ();}
+ else showSanity();
+}
+function prevQ(){if(state.index>0){state.index--;renderQ();}}
+function showSanity(){
+ document.getElementById("test").classList.add("hidden");
+ document.getElementById("sanity").classList.remove("hidden");
+ const items=[
+ ["A","Dostaję trudny problem, mam czas go zrozumieć i samodzielnie znaleźć rozwiązanie."],
+ ["B","Dostaję konkretny cel, dużą swobodę i odpowiadam za rezultat."],
+ ["C","Dostaję produkt lub rynek z potencjałem i mam zbudować jego pozycję."],
+ ["D","Dostaję istniejący proces i stabilne środowisko, które mam konsekwentnie rozwijać."]
+ ];
+ const box=document.getElementById("choice48");box.innerHTML="";
+ items.forEach(x=>{const b=document.createElement("button");b.textContent=x[1];b.onclick=()=>{state.sanity=x[0];document.getElementById("sanity").classList.add("hidden");buildReport();};box.appendChild(b);});
+}
+function signal(v){return v==="A"?1:v==="AR"?0.5:v==="BR"?-0.5:-1;}
+
+function calculate(){
+ let sum=Object.fromEntries(DIMS.map(d=>[d,0])), wt=Object.fromEntries(DIMS.map(d=>[d,0]));
+ let obs=Object.fromEntries(DIMS.map(d=>[d,[]]));
+ for(let i=0;i<M.length && i<state.answers.length;i++){
+   if(state.answers[i]==null) continue;
+   const m=M[i], s=signal(state.answers[i]);
+   if(!m) continue;
+   for(const side of [0,1]){
+      const d=m[side*2], w=Number(m[side*2+1]||0);
+      if(d && w){sum[d]+=s*w;wt[d]+=w;obs[d].push(s);}
+   }
+ }
+ let score={};
+ for(const d of DIMS) score[d]=wt[d]?Math.round((sum[d]/wt[d]+1)*50):50;
+ return {score,obs};
+}
+
+/* ---- 1.2: configuration engine ---- */
+const CONFIG_RULES=[
+ {when:s=>s.depth>=68&&s.autonomy>=64&&s.result>=62, name:"ARCHITEKT ROZWIĄZAŃ", sub:["Głębia","Autonomia","Wynik"], text:"Najpierw chcesz zrozumieć problem. Kiedy widzisz sens rozwiązania, najlepiej działasz wtedy, gdy możesz sam zdecydować, jak je przeprowadzić i odpowiadasz za konkretny efekt."},
+ {when:s=>s.exploration>=68&&s.influence>=62&&s.result>=62, name:"INICJATOR RYNKU", sub:["Eksploracja","Wpływ","Wynik"], text:"Najbardziej naturalne jest dla Ciebie znajdowanie możliwości, uruchamianie nowych kierunków i przekładanie ich na konkretny rezultat."},
+ {when:s=>s.depth>=68&&s.analytical>=66&&s.variety<=48, name:"PROJEKTANT ZŁOŻONOŚCI", sub:["Głębia","Analityczność","Skupienie"], text:"Dobrze funkcjonujesz wtedy, gdy możesz wejść w trudny temat, rozłożyć go na zależności i dojść do rozwiązania bez ciągłego przeskakiwania między tematami."},
+ {when:s=>s.tempo>=68&&s.result>=68&&s.decisiveness>=64, name:"OPERATOR REZULTATU", sub:["Tempo","Wynik","Decyzyjność"], text:"Najlepiej działasz w środowisku, w którym trzeba podejmować decyzje, zamykać kolejne etapy i dowozić wynik bez nadmiernego przeciągania procesu."},
+ {when:s=>s.relationality>=68&&s.influence>=62, name:"PARTNER KIERUNKU", sub:["Relacyjność","Wpływ"], text:"Kontakt z ludźmi jest dla Ciebie czymś więcej niż dodatkiem do pracy — pomaga Ci wpływać na kierunek, budować porozumienie i osiągać rezultat razem z innymi."},
+ {when:s=>s.exploration>=70&&s.variety>=68&&s.stability<=48, name:"POSZUKIWACZ MOŻLIWOŚCI", sub:["Eksploracja","Różnorodność","Elastyczność"], text:"Potrzebujesz nowych tematów, możliwości i przestrzeni do sprawdzania, co może zadziałać. Zbyt przewidywalne środowisko może szybko ograniczać Twoje zaangażowanie."},
+ {when:s=>s.stability>=70&&s.structure>=66, name:"PROJEKTANT SYSTEMU", sub:["Stabilność","Struktura"], text:"Najlepiej działasz tam, gdzie zasady są jasne, środowisko przewidywalne, a Twoją wartością jest konsekwentne porządkowanie i rozwijanie sposobu działania."},
+ {when:s=>s.autonomy>=68&&s.stability>=66, name:"SAMODZIELNOŚĆ W RAMACH", sub:["Autonomia","Stabilność"], text:"Nie potrzebujesz chaosu ani ciągłej zmiany. Potrzebujesz raczej stabilnego środowiska, w którym masz swobodę decydowania, jak osiągnąć cel."},
+ {when:s=>s.influence>=68&&s.autonomy>=68&&s.relationality<52, name:"ARCHITEKT KIERUNKU", sub:["Wpływ","Autonomia"], text:"Chcesz mieć realny wpływ na kierunek, ale niekoniecznie potrzebujesz dużej liczby uzgodnień. Najlepiej działa na Ciebie odpowiedzialność połączona ze sprawczością."}
+];
+
+function confidence(obs){
+ if(!obs.length) return 0;
+ const mean=obs.reduce((a,b)=>a+b,0)/obs.length;
+ const variance=obs.reduce((a,b)=>a+(b-mean)**2,0)/obs.length;
+ const consistency=1-Math.min(1,Math.sqrt(variance));
+ return Math.round(Math.min(1,obs.length/7)*.55*100 + consistency*.45*100);
+}
+function classify(v,c){
+ if(c<48) return "niejednoznaczne";
+ if(v>=68) return "wysokie";
+ if(v<=32) return "niskie";
+ return "umiarkowane";
+}
+
+function deriveProfile(score){
+ const sorted=[...DIMS].sort((a,b)=>score[b]-score[a]);
+ const matched=CONFIG_RULES.filter(r=>r.when(score));
+ if(matched.length) return matched[0];
+ // Dynamic fallback: own naming language, assembled from strongest configuration.
+ const a=sorted[0], b=sorted[1], c=sorted[2];
+ const map={depth:"ROZWIĄZAŃ",analytical:"ZŁOŻONOŚCI",decisiveness:"DECYZJI",autonomy:"SPRAWCZOŚCI",structure:"SYSTEMU",tempo:"REZULTATU",exploration:"MOŻLIWOŚCI",result:"WYNIKU",stability:"RAM",variety:"PERSPEKTYW",influence:"KIERUNKU",relationality:"WSPÓŁPRACY"};
+ const first={depth:"ARCHITEKT",analytical:"PROJEKTANT",decisiveness:"INICJATOR",autonomy:"KREATOR",structure:"PROJEKTANT",tempo:"OPERATOR",exploration:"POSZUKIWACZ",result:"KREATOR",stability:"PROJEKTANT",variety:"ŁĄCZNIK",influence:"ARCHITEKT",relationality:"PARTNER"}[a];
+ return {name:first+" "+map[b],sub:[LABELS[a],LABELS[b],LABELS[c]],text:`Twój profil nie układa się w jeden sztywny typ. Najsilniej łączą się u Ciebie: ${LABELS[a]}, ${LABELS[b]} i ${LABELS[c]}. To właśnie ich połączenie, a nie pojedynczy wynik, najlepiej opisuje Twój sposób działania.`};
+}
+
+function buildReport(){
+ const {score,obs}=calculate();
+ const conf=Object.fromEntries(DIMS.map(d=>[d,confidence(obs[d])]));
+ const p=deriveProfile(score);
+ const sorted=[...DIMS].sort((a,b)=>score[b]-score[a]);
+ const core=sorted.filter(d=>conf[d]>=48).slice(0,4);
+ const lows=[...DIMS].sort((a,b)=>score[a]-score[b]).slice(0,4);
+ const env=[];
+ if(score.autonomy>=65) env.push("swoboda w sposobie realizacji celu");
+ if(score.structure>=65) env.push("jasne ramy i proces");
+ if(score.tempo<=35) env.push("czas na spokojne domykanie trudnych tematów");
+ if(score.tempo>=65) env.push("dynamiczne tempo i częste decyzje");
+ if(score.stability>=65) env.push("przewidywalność i ciągłość");
+ if(score.variety>=65) env.push("zmienność tematów");
+ if(score.relationality>=65) env.push("regularny kontakt z ludźmi");
+ if(score.relationality<=35) env.push("dużo samodzielnej pracy");
+ if(score.influence>=65) env.push("realny wpływ na kierunek");
+ const roleFamilies=roleFit(score);
+ let html=`<div class="card hero"><div class="kicker">TWOJE JOB DNA</div><div class="profileName">${p.name}</div><div class="sub">${p.sub.join(" · ")}</div><div class="callout"><b>${p.text}</b></div><div class="small muted">Profil dynamiczny — wynik opisuje konfigurację odpowiedzi w tym teście, nie stałą cechę człowieka.</div></div>`;
+ html+=`<div class="card"><h2>Twój rdzeń</h2><p class="muted">Najmocniejsze sygnały, które jednocześnie mają wystarczającą pewność.</p><div class="cols">`;
+ core.forEach(d=>html+=`<div class="score"><div class="scoretop"><span>${LABELS[d]}</span><span>${score[d]}</span></div><div class="bar"><i style="width:${score[d]}%"></i></div><div class="conf">${DESCRIPTIONS[d]} · pewność ${conf[d]}%</div></div>`);
+ html+=`</div></div>`;
+ html+=`<div class="card"><h2>Twoja mapa 12 wymiarów</h2><div class="scoregrid">`;
+ DIMS.forEach(d=>html+=`<div class="score"><div class="scoretop"><span>${LABELS[d]}</span><span>${score[d]}</span></div><div class="bar"><i style="width:${score[d]}%"></i></div><div class="conf">${classify(score[d],conf[d])} · pewność ${conf[d]}%</div></div>`);
+ html+=`</div></div>`;
+ html+=`<div class="card"><h2>Co z tego wynika w praktyce?</h2><div class="callout"><b>Jak działasz:</b><br>${actionText(score)}</div><p><b>Środowisko, które może Ci sprzyjać:</b> ${env.length?env.join(", "):"wynik nie daje jeszcze wyraźnego sygnału środowiskowego"}.</p><p><b>Potencjalny koszt:</b> ${costText(score)}</p></div>`;
+ html+=`<div class="card"><h2>Kierunki zawodowe</h2><p class="muted">To rodziny ról do sprawdzenia, a nie nakaz wyboru zawodu.</p>`;
+ roleFamilies.forEach(r=>html+=`<div class="role"><b>${r.label}</b> <span class="badge">${r.level}</span><p>${r.why}</p><div class="small muted">Warto sprawdzić: ${r.check}</div></div>`);
+ html+=`</div>`;
+ html+=`<div class="card"><h2>Co jeszcze warto sprawdzić?</h2><p>Jeżeli pewność któregoś z wymiarów jest niska, JOB DNA nie powinno udawać pewności. Ten wynik wskazuje miejsca, które warto pogłębić dodatkowymi pytaniami.</p><p class="muted">Sanity check: ${state.sanity||"brak"}</p></div>`;
+ document.getElementById("reportContent").innerHTML=html;
+ document.getElementById("report").classList.remove("hidden");
+ window.scrollTo(0,0);
+}
+
+function actionText(s){
+ const parts=[];
+ if(s.depth>=65) parts.push("najpierw chcesz dobrze zrozumieć problem");
+ if(s.autonomy>=65) parts.push("potem potrzebujesz przestrzeni, żeby wybrać własny sposób działania");
+ if(s.result>=65) parts.push("a na końcu ważne jest, żeby praca przełożyła się na konkretny efekt");
+ if(s.tempo>=65) parts.push("lubisz też sprawnie zamykać kolejne etapy");
+ if(s.tempo<=35) parts.push("nie potrzebujesz ciągłego pośpiechu, żeby działać skutecznie");
+ if(s.variety>=65) parts.push("energia rośnie, gdy pojawiają się nowe tematy");
+ if(s.variety<=35) parts.push("łatwiej Ci wejść głęboko, gdy możesz ograniczyć liczbę równoległych tematów");
+ return parts.length?parts.join(". ")+".":"profil nie pokazuje jeszcze jednego dominującego sposobu działania.";
+}
+function costText(s){
+ const c=[];
+ if(s.tempo<=35) c.push("ciągłe gaszenie pożarów i presja natychmiastowego działania");
+ if(s.tempo>=65) c.push("przeciągające się decyzje i nadmiar procedur");
+ if(s.autonomy<=35) c.push("niejasne oczekiwania bez określonych ram");
+ if(s.autonomy>=65) c.push("mikrozarządzanie");
+ if(s.relationality<=35) c.push("praca oparta niemal wyłącznie na spotkaniach i uzgodnieniach");
+ if(s.relationality>=65) c.push("długotrwała praca bez kontaktu z ludźmi");
+ if(s.stability>=70) c.push("ciągła niepewność i brak przewidywalności");
+ return c.length?c.join(", "):"brak jednego wyraźnego kosztu na podstawie tego wyniku.";
+}
+function roleFit(s){
+ const r=[];
+ const add=(label,level,why,check)=>r.push({label,level,why,check});
+ if(s.depth>=62&&s.autonomy>=58&&s.result>=58) add("Ekspertyza techniczna / Product / Solutions","WYSOKIE","Łączy rozumienie złożonego produktu z samodzielnym rozwiązywaniem problemów i odpowiedzialnością za efekt.","ile pracy wymaga głębokiego wejścia w produkt oraz ile swobody daje rola.");
+ else if(s.depth>=62) add("Ekspertyza techniczna / Product","MOŻLIWE","Profil sugeruje komfort z trudnymi tematami i potrzebę zrozumienia mechanizmu.","czy rola nie jest zbyt monotonna i czy efekt pracy jest widoczny.");
+ if(s.exploration>=62&&s.influence>=55&&s.result>=58) add("Business Development / rozwój rynku","WYSOKIE","Potencjalnie dobre połączenie odkrywania możliwości, wpływu i przełożenia działań na wynik.","udział w budowaniu rynku versus obsługa istniejącej sprzedaży.");
+ else if(s.exploration>=62&&s.result>=58) add("Rozwój produktu / rynku","MOŻLIWE","Nowe możliwości są atrakcyjne, a wynik pozostaje ważnym punktem odniesienia.","poziom ryzyka, autonomia i dostęp do decyzji.");
+ if(s.relationality>=62&&s.influence>=55) add("Partnerstwo / sprzedaż konsultacyjna / KAM","WYSOKIE","Kontakt z ludźmi może być naturalnym narzędziem budowania wpływu i rezultatu.","czy relacja jest środkiem do wyniku, czy główną treścią pracy.");
+ if(s.tempo>=62&&s.result>=62&&s.decisiveness>=58) add("Realizacja / operacyjne dowożenie","WYSOKIE","Konfiguracja sprzyja szybkim decyzjom i domykaniu rezultatów.","czy tempo nie jest okupione ciągłym chaosem.");
+ if(s.structure>=65&&s.stability>=65) add("Proces / jakość / systemy","WYSOKIE","Jasne ramy i przewidywalność mogą być środowiskiem, w którym łatwo budować konsekwencję.","czy zakres zmian i eksperymentowania jest dla Ciebie wystarczający.");
+ if(!r.length) add("Role hybrydowe / specjalistyczne","DO SPRAWDZENIA","Profil nie wskazuje jeszcze jednej dominującej rodziny ról — to może być realna elastyczność albo efekt niejednoznaczności odpowiedzi.","powtórzenie testu po czasie i sprawdzenie sytuacji, w których sposób działania faktycznie się zmienia.");
+ return r.slice(0,5);
+}
+</script>
+</body></html>
