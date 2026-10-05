@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>JOB DNA V3</title>
+<style>
+:root{--bg:#f7f7f5;--card:#fff;--ink:#17181a;--muted:#6d6f73;--line:#e3e2de;--soft:#efeeea}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wrap{max-width:760px;margin:auto;padding:20px 18px 42px}.top{display:flex;justify-content:space-between;letter-spacing:.18em;font-weight:800;font-size:14px;padding:10px 2px 28px}.screen{min-height:calc(100vh - 100px);display:flex;flex-direction:column}.card{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:30px 24px;box-shadow:0 8px 30px #00000008}.eyebrow{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800}.hero h1{font-size:42px;line-height:1.03;margin:18px 0}.hero p{font-size:20px;line-height:1.5;color:#55585d}.meta{font-weight:750;color:#55585d;margin:28px 0}.btn{width:100%;border:0;border-radius:20px;background:#17181a;color:#fff;font-size:18px;font-weight:800;padding:19px;cursor:pointer}.note{font-size:14px;line-height:1.5;color:var(--muted);margin-top:18px}
+.progress{height:5px;background:#e3e2de;border-radius:10px;overflow:hidden;margin:0 0 28px}.progress i{display:block;height:100%;background:#17181a;border-radius:10px}
+.qnum{font-size:14px;color:var(--muted);font-weight:750;margin-bottom:14px}.question{font-size:29px;line-height:1.14;margin:0 0 24px}.answers{display:grid;gap:12px}.answer{border:1px solid var(--line);background:#fff;border-radius:18px;padding:18px;text-align:left;font-size:17px;line-height:1.35;cursor:pointer}.answer:active{transform:scale(.99)}.footer{display:flex;gap:10px;margin-top:18px}.ghost{background:var(--soft);color:var(--ink)}
+.result h1{font-size:42px;line-height:1.05;margin:16px 0}.result .lead{font-size:19px;line-height:1.5;color:#55585d}.signal{display:inline-block;background:var(--soft);border-radius:999px;padding:10px 14px;margin:5px 4px 0 0;font-weight:750}.barrow{margin:20px 0}.barhead{display:flex;justify-content:space-between;font-weight:750;margin-bottom:8px}.bar{height:10px;background:#e5e4e0;border-radius:10px;overflow:hidden}.bar i{display:block;height:100%;background:#17181a}.section{margin-top:26px;padding-top:24px;border-top:1px solid var(--line)}.section h2{font-size:24px;margin:0 0 14px}.section p,.section li{font-size:17px;line-height:1.55;color:#4f5257}.section ul{padding-left:22px}.disclaimer{background:#efeeea;border-radius:22px;padding:20px;margin-top:26px;font-size:14px;line-height:1.5;color:#55585d}
+@media(max-width:520px){.wrap{padding:14px 16px 34px}.card{padding:26px 20px;border-radius:24px}.hero h1,.result h1{font-size:36px}.question{font-size:26px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><span>JOB DNA</span><span>V3</span></div>
+<div id="app"></div>
+</div>
+<script>
+const dimensions={
+autonomia:{name:"Autonomia",desc:"Potrzeba wpływu na sposób działania i swobody w decyzjach."},
+struktura:{name:"Struktura",desc:"Potrzeba jasnych zasad, porządku i przewidywalności."},
+roznorodnosc:{name:"Różnorodność",desc:"Potrzeba zmiany, nowych bodźców i wielu wątków."},
+glebia:{name:"Głębia",desc:"Skłonność do wchodzenia w temat i rozumienia mechanizmu."},
+ludzie:{name:"Ludzie",desc:"Naturalne czerpanie energii ze współpracy, relacji i wymiany."},
+wplyw:{name:"Wpływ",desc:"Potrzeba przekonywania, negocjowania i kształtowania decyzji."},
+tempo:{name:"Tempo",desc:"Preferencja szybkiego działania i domykania spraw."},
+ostroznosc:{name:"Ostrożność",desc:"Skłonność do oceny ryzyka i zabezpieczania decyzji."},
+eksperyment:{name:"Eksperyment",desc:"Ciekawość testowania nowych sposobów i hipotez."},
+wynik:{name:"Rezultat",desc:"Nacisk na konkretny efekt, postęp i mierzalny rezultat."}
+};
+
+const profiles=[
+{test:(s)=>s.roznorodnosc+s.eksperyment+s.autonomia, name:"Eksplorator", text:"Najlepiej działasz, gdy możesz łączyć różne wątki, sprawdzać nowe możliwości i mieć wpływ na kierunek działania."},
+{test:(s)=>s.struktura+s.ostroznosc+s.glebia, name:"Architekt", text:"Naturalnie budujesz porządek złożonych tematów. Dobrze służą Ci środowiska, w których liczy się jakość, logika i przewidywalny sposób działania."},
+{test:(s)=>s.wplyw+s.ludzie+s.wynik, name:"Mobilizator", text:"Najmocniej uruchamia Cię wpływ na ludzi i doprowadzanie spraw do konkretnego rezultatu."},
+{test:(s)=>s.glebia+s.wynik+s.autonomia, name:"Specjalista z wpływem", text:"Potrzebujesz kompetencji, ale nie chcesz być wyłącznie wykonawcą. Najlepiej działasz, gdy wiedza przekłada się na decyzje i rezultat."},
+{test:(s)=>s.ludzie+s.roznorodnosc+s.tempo, name:"Łącznik", text:"Dobrze odnajdujesz się na styku ludzi, tematów i szybkich zmian. Twoją siłą jest poruszanie spraw do przodu."},
+{test:(s)=>s.struktura+s.wynik+s.autonomia, name:"Operator", text:"Lubisz, gdy odpowiedzialność jest konkretna, zasady czytelne, a efekt pracy możliwy do zobaczenia."}
+];
+
+const qs=[
+["Wyobraź sobie, że dostajesz nowy problem bez instrukcji. Co robisz najpierw?",["Sam ustalam sposób działania i ruszam","Szukam podobnego przypadku lub zasad","Rozmawiam z kimś, kto może dać kontekst","Rozbijam problem na kilka hipotez"],["autonomia","struktura","ludzie","eksperyment"]],
+["Masz wolne popołudnie i możesz wybrać jedno zajęcie.",["Zrobić coś, co od dawna odkładam","Poczytać lub zgłębić interesujący temat","Spotkać się z kimś i pogadać","Spróbować czegoś, czego jeszcze nie robiłem"],["wynik","glebia","ludzie","eksperyment"]],
+["W projekcie pojawia się nagle zmiana kierunku.",["Dopasowuję plan i działam dalej","Najpierw chcę wiedzieć, co dokładnie się zmieniło","Sprawdzam, jak zmiana wpłynie na innych","Widzę w niej okazję do nowego rozwiązania"],["tempo","ostroznosc","ludzie","eksperyment"]],
+["Kiedy uczysz się czegoś nowego, najbardziej satysfakcjonuje Cię…",["samodzielne dojście do sposobu działania","zrozumienie, jak wszystko jest ze sobą połączone","możliwość omówienia tego z innymi","sprawdzenie wiedzy w praktyce"],["autonomia","glebia","ludzie","wynik"]],
+["Dostajesz cztery zadania na dziś. Najchętniej…",["wybieram kolejność sam","układam je według jasnego planu","ustalam priorytety z zainteresowanymi osobami","zaczynam od tego, co da najszybszy efekt"],["autonomia","struktura","ludzie","tempo"]],
+["Co bardziej Ci przeszkadza?",["ktoś mówi mi dokładnie, jak mam pracować","nie wiadomo, czego właściwie oczekujemy","każdy pracuje według innej logiki","ciągle robimy to samo"],["autonomia","struktura","ludzie","roznorodnosc"]],
+["Masz podjąć decyzję przy niepełnych danych.",["Podejmuję ją i koryguję później","Zbieram jeszcze najważniejsze informacje","Konsultuję ją z osobą, której dotyczy","Porównuję kilka możliwych scenariuszy"],["tempo","ostroznosc","ludzie","glebia"]],
+["W pracy najbardziej cenisz moment, kiedy…",["masz realny wpływ na rozwiązanie","wiesz dokładnie, co zostało ustalone","wszyscy zaczynają działać w jednym kierunku","udało się znaleźć lepszy sposób"],["autonomia","struktura","wplyw","eksperyment"]],
+["Gdy temat jest ciekawy, naturalnie…",["przeskakuję między powiązanymi wątkami","wchodzę coraz głębiej w szczegóły","szukam ludzi, którzy znają temat","sprawdzam, co można z tym zrobić"],["roznorodnosc","glebia","ludzie","wynik"]],
+["W rozmowie z kimś, kto się z Tobą nie zgadza…",["bronię swojego rozwiązania, jeśli w nie wierzę","pytam o konkretne przesłanki","szukam punktu wspólnego","testuję argument na przykładzie"],["wplyw","glebia","ludzie","eksperyment"]],
+["Jeśli masz zrobić coś ważnego, wolisz…",["mieć swobodę wyboru metody","mieć jasne kryteria sukcesu","mieć możliwość konsultacji","mieć przestrzeń na poprawki po drodze"],["autonomia","struktura","ludzie","eksperyment"]],
+["Co daje Ci większe poczucie dobrze wykonanej pracy?",["że zrobiłem to po swojemu","że nic istotnego nie zostało pominięte","że inni mogą na tym polegać","że efekt jest widoczny"],["autonomia","ostroznosc","ludzie","wynik"]],
+["W sytuacji presji czasu…",["upraszczam i podejmuję decyzję","trzymam się najważniejszych zasad","dzielę zadania z innymi","szukam skrótu lub nowej metody"],["tempo","struktura","ludzie","eksperyment"]],
+["Gdy widzisz proces, który działa, ale mógłby działać lepiej…",["zmieniam go po swojemu","najpierw analizuję, gdzie dokładnie jest problem","pytam użytkowników procesu o doświadczenia","robię mały test nowego rozwiązania"],["autonomia","glebia","ludzie","eksperyment"]],
+["Która sytuacja jest dla Ciebie najbardziej atrakcyjna?",["mam jeden cel, ale dużą swobodę","mam jasny system i trudne zadanie","mam wielu interesariuszy i trzeba ich zgrać","mam nieznany problem do rozwiązania"],["autonomia","struktura","wplyw","eksperyment"]],
+["Kiedy coś nie wychodzi za pierwszym razem…",["zmieniam podejście","szukam przyczyny","pytam kogoś o perspektywę","próbuję kolejnej wersji"],["tempo","glebia","ludzie","eksperyment"]],
+["Wolisz pracować nad…",["kilkoma różnymi tematami","jednym złożonym tematem","tematem wymagającym współpracy","tematem, gdzie można coś ulepszyć"],["roznorodnosc","glebia","ludzie","wynik"]],
+["Gdy masz przekonać kogoś do rozwiązania…",["pokazuję mu korzyść","pokazuję logiczne przesłanki","poznaję jego punkt widzenia","proponuję mały test"],["wplyw","glebia","ludzie","eksperyment"]],
+["Najbardziej frustruje Cię, gdy…",["nie masz wpływu na decyzję","zasady zmieniają się bez wyjaśnienia","ludzie nie komunikują się ze sobą","nie widać żadnego postępu"],["autonomia","struktura","ludzie","wynik"]],
+["Jeśli możesz wybrać sposób organizacji dnia…",["sam ustalam kolejność","planuję go z góry","zostawiam miejsce na rozmowy i współpracę","zostawiam duży margines na zmiany"],["autonomia","struktura","ludzie","roznorodnosc"]],
+["Przed ważną decyzją częściej…",["patrzę na możliwość działania","sprawdzam ryzyko","sprawdzam, kogo decyzja dotknie","porównuję warianty"],["tempo","ostroznosc","ludzie","glebia"]],
+["Kiedy dostajesz odpowiedzialność za obszar…",["chcesz decydować o sposobie działania","ustalasz zasady i standard","budujesz relacje z osobami wokół obszaru","szukasz szybkich usprawnień"],["autonomia","struktura","ludzie","wynik"]],
+["Co bardziej Cię przyciąga?",["nowy kierunek","jasno określony standard","trudna rozmowa","możliwość poprawienia wyniku"],["eksperyment","struktura","wplyw","wynik"]],
+["Jeśli masz godzinę na rozwiązanie problemu…",["działam od razu","najpierw definiuję problem","szukam informacji od ludzi","robię szybki eksperyment"],["tempo","glebia","ludzie","eksperyment"]],
+["W dobrym zespole…",["każdy ma swobodę","wiadomo, kto za co odpowiada","ludzie otwarcie wymieniają informacje","można próbować nowych rzeczy"],["autonomia","struktura","ludzie","eksperyment"]],
+["Gdy temat zaczyna Cię nudzić…",["szukasz nowego sposobu podejścia","kończysz go porządnie mimo wszystko","angażujesz kogoś do współpracy","szukasz kolejnego wyzwania"],["eksperyment","wynik","ludzie","roznorodnosc"]],
+["W konflikcie interesów najbardziej pomaga…",["stanowczość","fakty i zasady","zrozumienie potrzeb stron","znalezienie rozwiązania testowalnego"],["wplyw","struktura","ludzie","eksperyment"]],
+["Kiedy masz dużo informacji…",["wybieram to, co pozwala działać","porządkuję je w system","rozmawiam z osobami, które mają kontekst","szukam wzorców i zależności"],["tempo","struktura","ludzie","glebia"]],
+["Najbardziej naturalne jest dla Ciebie…",["branie odpowiedzialności za decyzję","pilnowanie jakości","łączenie ludzi wokół tematu","szukanie możliwości"],["autonomia","ostroznosc","wplyw","eksperyment"]],
+["W projekcie pojawia się ryzyko opóźnienia.",["przejmuję decyzję i skracam ścieżkę","sprawdzam, gdzie dokładnie jest ryzyko","ustalam z ludźmi, co można przesunąć","szukam alternatywnego rozwiązania"],["tempo","ostroznosc","ludzie","eksperyment"]],
+["Jeśli ktoś daje Ci bardzo ogólny cel…",["sam definiuję sposób dojścia","proszę o kryteria i ograniczenia","ustalam oczekiwania z zainteresowanymi","rozważam kilka dróg dojścia"],["autonomia","struktura","ludzie","roznorodnosc"]],
+["Najbardziej lubisz zadania, w których…",["możesz decydować","trzeba być dokładnym","trzeba przekonać innych","trzeba coś wymyślić"],["autonomia","ostroznosc","wplyw","eksperyment"]],
+["Gdy masz wybrać między szybciej a lepiej…",["wybieram szybkość, jeśli można poprawić później","wybieram jakość przy ważnych konsekwencjach","sprawdzam oczekiwania odbiorcy","szukam rozwiązania łączącego oba"],["tempo","ostroznosc","ludzie","glebia"]],
+["Po udanym projekcie najbardziej interesuje Cię…",["co następnym razem zrobię inaczej","czy standard można powtórzyć","co zadziałało ludziom","jak zwiększyć efekt"],["eksperyment","struktura","ludzie","wynik"]],
+["Kiedy ktoś prosi Cię o pomoc…",["dajesz mu sposób, żeby sam to zrobił","wyjaśniasz dokładną procedurę","rozmawiasz, żeby zrozumieć problem","pokazujesz rozwiązanie na przykładzie"],["autonomia","struktura","ludzie","wynik"]],
+["Jeżeli przez miesiąc miałbyś robić jeden typ zadania…",["potrzebowałbym swobody w sposobie","chciałbym mieć jasny standard","chciałbym pracować z różnymi osobami","szukałbym sposobu na usprawnienie"],["autonomia","struktura","ludzie","wynik"]],
+["W nowym środowisku najpierw zauważasz…",["gdzie można coś zmienić","jak tu działają zasady","kto z kim współpracuje","co jest nieefektywne"],["autonomia","struktura","ludzie","wynik"]],
+["Gdy pomysł jest niepewny, ale ciekawy…",["sprawdzam go małym kosztem","czekam na więcej danych","konsultuję go z kimś","buduję warianty i porównuję"],["eksperyment","ostroznosc","ludzie","glebia"]],
+["Ważniejsze jest dla Ciebie…",["mieć wpływ na metodę","mieć stabilne zasady","mieć dobre relacje robocze","widzieć postęp"],["autonomia","struktura","ludzie","wynik"]],
+["Gdy zadanie jest bardzo złożone…",["ustalam własną strategię","dzielę je na logiczne części","szukam osób z potrzebną wiedzą","szukam kilku możliwych rozwiązań"],["autonomia","glebia","ludzie","roznorodnosc"]],
+["Jeśli możesz zmienić jedną rzecz w swojej pracy…",["więcej swobody","większa klarowność","lepsza współpraca","więcej nowych wyzwań"],["autonomia","struktura","ludzie","roznorodnosc"]],
+["Co najbardziej skłania Cię do działania?",["poczucie wpływu","poczucie bezpieczeństwa","ludzie, z którymi pracuję","ciekawość, co z tego wyniknie"],["autonomia","ostroznosc","ludzie","eksperyment"]],
+["Na koniec trudnego zadania najbardziej cenisz…",["że mogłem podjąć decyzje","że zrobiłem to solidnie","że wspólnie dowieźliśmy temat","że powstało coś lepszego"],["autonomia","ostroznosc","ludzie","wynik"]]
+];
+
+let i=0, scores={}; Object.keys(dimensions).forEach(k=>scores[k]=0);
+const app=document.getElementById("app");
+
+function start(){i=0;scores={};Object.keys(dimensions).forEach(k=>scores[k]=0);renderQ();}
+function renderIntro(){app.innerHTML=`<div class="screen"><div class="card hero">
+<div class="eyebrow">Neutralny test profilu pracy</div><h1>Nie zgaduj, jaka praca do Ciebie pasuje.</h1>
+<p>Nie pytamy Cię o zawód, branżę ani stanowisko. Zamiast tego sprawdzamy wzorce Twoich wyborów w sytuacjach zawodowych i codziennych.</p>
+<div class="meta">40 pytań · około 8–10 minut</div>
+<button class="btn" onclick="start()">Zaczynamy</button>
+<div class="note">Nie pokazujemy, co mierzy dane pytanie. Wynik pojawi się dopiero po zakończeniu.</div>
+</div></div>`}
+function renderQ(){
+ const q=qs[i], pct=Math.round(i/qs.length*100);
+ app.innerHTML=`<div class="screen"><div class="progress"><i style="width:${pct}%"></i></div><div class="card">
+<div class="qnum">PYTANIE ${i+1} Z ${qs.length}</div><h1 class="question">${q[0]}</h1>
+<div class="answers">${q[1].map((a,n)=>`<button class="answer" onclick="answer(${n})">${a}</button>`).join("")}</div>
+<div class="footer"><button class="btn ghost" ${i===0?"disabled":""} onclick="back()">Wstecz</button></div>
+</div></div>`;
+}
+function answer(n){scores[qs[i][2][n]]+=1;if(i<qs.length-1){i++;renderQ()}else renderResult()}
+function back(){if(i>0){i--;renderQ()}}
+function result(){
+ const vals=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+ const max=4, top=vals.slice(0,3), pct=k=>Math.round(scores[k]/max*100);
+ let best=profiles.map(p=>({p,score:p.test(scores)})).sort((a,b)=>b.score-a.score)[0].p;
+ let sig=top.map(([k])=>dimensions[k].name);
+ return {vals,top,pct,best,sig};
+}
+function renderResult(){
+ const r=result();
+ app.innerHTML=`<div class="screen"><div class="card result">
+<div class="eyebrow">Twój profil</div><h1>${r.best.name}</h1><p class="lead">${r.best.text}</p>
+<div class="section"><h2>Najsilniejsze sygnały</h2>${r.sig.map(x=>`<span class="signal">${x}</span>`).join("")}<p>Nie traktuj pojedynczego wymiaru jak etykiety. Liczy się układ kilku mocnych preferencji.</p></div>
+<div class="section"><h2>Mapa profilu</h2>${r.vals.map(([k])=>`<div class="barrow"><div class="barhead"><span>${dimensions[k].name}</span><span>${r.pct(k)}%</span></div><div class="bar"><i style="width:${r.pct(k)}%"></i></div></div>`).join("")}</div>
+<div class="section"><h2>Środowisko do sprawdzenia</h2><ul><li>miejsce, w którym zakres odpowiedzialności jest konkretny</li><li>warunki pozwalające korzystać z Twoich najmocniejszych preferencji</li><li>praca, w której sposób działania nie jest całkowicie narzucony</li><li>środowisko, w którym można wykorzystać więcej niż jedną mocną stronę</li></ul></div>
+<div class="section"><h2>Co może męczyć</h2><ul>${r.vals.slice(-2).map(([k])=>`<li>Długotrwała przewaga obszaru „${dimensions[k].name}” może być mniej naturalna dla Twojego profilu.</li>`).join("")}</ul></div>
+<div class="disclaimer"><b>Wersja eksperymentalna.</b><br>Ten test nie jest narzędziem psychometrycznym ani podstawą decyzji rekrutacyjnych. Najpierw będziemy porównywać wyniki i poprawiać konstrukcję testu.</div>
+<div style="margin-top:24px"><button class="btn" onclick="renderIntro()">Zrób test ponownie</button></div>
+</div></div>`;
+}
+renderIntro();
+</script>
+</body>
+</html>
