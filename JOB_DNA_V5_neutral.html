@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>JOB DNA V5</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f5f2;color:#171717;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wrap{max-width:760px;margin:auto;padding:18px 16px 40px}
+.top{display:flex;justify-content:space-between;letter-spacing:.28em;font-weight:800;font-size:14px;padding:8px 2px 18px}
+.card{background:white;border:1px solid #ddd;border-radius:28px;padding:26px 22px;box-shadow:0 4px 18px #00000008}
+.kicker{font-size:13px;letter-spacing:.16em;color:#777;font-weight:800;margin-bottom:16px}
+h1{font-size:30px;line-height:1.15;margin:0 0 14px}
+h2{font-size:23px;margin:0 0 14px}
+p{font-size:18px;line-height:1.5;color:#555}
+.progress{height:8px;background:#e4e4e1;border-radius:99px;overflow:hidden;margin:8px 0 25px}
+.bar{height:100%;background:#171717;width:0}
+.qnum{color:#777;font-size:14px;margin-bottom:9px}
+.question{font-size:22px;line-height:1.35;font-weight:750;margin-bottom:20px}
+.option{display:block;width:100%;text-align:left;background:#fff;border:1px solid #d8d8d5;border-radius:17px;padding:17px 16px;margin:10px 0;font-size:17px;line-height:1.4;color:#171717;cursor:pointer}
+.option:active,.option.sel{background:#f0f0ed;border-color:#171717}
+.nav{display:flex;gap:10px;margin-top:18px}
+.navb{border:0;border-radius:16px;padding:15px 18px;font-size:16px;font-weight:750;cursor:pointer}
+.back{background:#eee;color:#333}.next{background:#171717;color:white;flex:1}
+.note{background:#efefeb;border-radius:20px;padding:17px;color:#555;font-size:14px;line-height:1.5;margin-top:18px}
+.resultRow{margin:17px 0}.rhead{display:flex;justify-content:space-between;font-weight:750;font-size:17px;margin-bottom:7px}
+.track{height:12px;background:#e5e5e2;border-radius:99px;overflow:hidden}.fill{height:100%;background:#171717}
+.pill{display:inline-block;background:#efefeb;border-radius:999px;padding:10px 14px;margin:5px 5px 0 0;font-weight:750}
+ul{padding-left:23px;font-size:17px;line-height:1.6;color:#444}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><span>JOB DNA</span><span>V5</span></div>
+<div id="app"></div>
+</div>
+<script>
+const questions = [{"q": "Masz dostać nowe zadanie, ale nikt dokładnie nie powiedział Ci, jak je wykonać. Co robisz najczęściej?", "o": ["Najpierw ustalam, jaki ma być końcowy efekt, a potem sam wybieram sposób działania.", "Pytam, jak inni robili podobne rzeczy i od tego zaczynam.", "Szukam zasad, instrukcji albo przykładu, żeby wiedzieć, czego się trzymać.", "Zaczynam działać i po drodze sprawdzam, co działa najlepiej."], "a": [0, 3]}, {"q": "Ważne zadanie trzeba nagle skończyć wcześniej. Co robisz jako pierwsze?", "o": ["Ustalam, co naprawdę musi być zrobione i skupiam się na tym.", "Szybko zmieniam plan i działam, nawet jeśli nie wszystko jest jasne.", "Sprawdzam, co można przesunąć, żeby nie narobić bałaganu w innych sprawach.", "Rozmawiam z osobami, których zmiana dotyczy, i ustalamy nowy plan."], "a": [4, 2]}, {"q": "Masz przez cały dzień wykonywać tylko jeden rodzaj zadania. Co jest Ci najbliższe?", "o": ["Jeśli zadanie ma sens i daje konkretny efekt, może mi to odpowiadać.", "Po kilku godzinach zaczynam potrzebować zmiany albo nowego bodźca.", "Lubię powtarzalność, jeśli dzięki niej mogę robić coś coraz lepiej.", "Ważniejsze od rodzaju zadania jest dla mnie to, czy mogę decydować, jak je wykonać."], "a": [9, 1]}, {"q": "Masz wybrać między pracą bardzo przewidywalną a taką, w której jest więcej swobody, ale mniej pewności. Na co patrzysz?", "o": ["Czy będę dokładnie wiedzieć, czego się ode mnie oczekuje.", "Czy będę mógł sam podejmować decyzje.", "Czy będę mieć możliwość uczenia się nowych rzeczy.", "Czy będę mieć jasny sposób oceniania efektów mojej pracy."], "a": [2, 1]}, {"q": "Ktoś prosi Cię o pomoc, ale sam masz już dużo pracy. Co robisz?", "o": ["Najpierw ustalam, co jest naprawdę pilne, i dopiero decyduję.", "Jeśli mogę pomóc szybko, robię to bez większego zastanawiania.", "Mówię wprost, czego nie dam rady zrobić i proponuję inny termin.", "Jeśli pomoc jest ważna dla wspólnego wyniku, szukam sposobu, żeby ją znaleźć."], "a": [7, 0]}, {"q": "Masz wybrać między trudnym, ciekawym zadaniem a łatwym i dobrze znanym. Co częściej wybierasz?", "o": ["Trudne, jeśli mogę się dzięki niemu czegoś nauczyć.", "Łatwe, jeśli dzięki temu szybko zamknę temat.", "Trudne, jeśli będę mieć swobodę w znalezieniu własnego rozwiązania.", "To zależy od tego, jak ważny dla całej sprawy jest wynik."], "a": [5, 9]}, {"q": "Ktoś krytykuje sposób, w jaki wykonałeś zadanie. Co najbardziej pomaga Ci przyjąć taką uwagę?", "o": ["Konkret: co było nie tak i jak można to poprawić.", "Informacja, jaki efekt chcieliśmy osiągnąć.", "Możliwość samodzielnego sprawdzenia, co rzeczywiście nie zadziałało.", "Spokojna rozmowa bez szukania winnego."], "a": [0, 7]}, {"q": "Masz rozpocząć projekt, ale kilka ważnych informacji jest jeszcze niepewnych. Co robisz?", "o": ["Zaczynam od tego, co już wiadomo, i zostawiam miejsce na zmiany.", "Czekam na najważniejsze informacje, zanim ruszę.", "Ustalam prosty plan i szybko sprawdzam go w praktyce.", "Ustalam z innymi, jakie ryzyko możemy zaakceptować."], "a": [8, 2]}, {"q": "Co daje Ci największą satysfakcję po zakończeniu dnia pracy?", "o": ["Wiem dokładnie, co udało mi się zrobić.", "Mam poczucie, że posunąłem sprawę do przodu, nawet jeśli nie wszystko jest skończone.", "Mam poczucie, że zrobiłem coś po swojemu i podjąłem dobre decyzje.", "Mam poczucie, że dzięki mojej pracy inni mogli sprawniej działać."], "a": [0, 1]}, {"q": "Pojawia się problem, którego wcześniej nikt nie przewidział. Co robisz jako pierwsze?", "o": ["Próbuję dokładnie zrozumieć, co się stało.", "Szukam kilku możliwych rozwiązań i wybieram jedno do sprawdzenia.", "Ustalam, co trzeba zrobić natychmiast.", "Patrzę, jaki wpływ problem ma na cały plan, a nie tylko na jeden fragment."], "a": [5, 3]}, {"q": "Możesz nauczyć się nowej umiejętności, ale nie wiesz, czy kiedyś Ci się przyda. Co myślisz?", "o": ["Jeśli mnie zainteresuje, chętnie spróbuję.", "Najpierw sprawdzę, czy rzeczywiście może mi się przydać.", "Jeśli nauka jest praktyczna, warto poświęcić na nią czas.", "Wolę rozwijać coś, co już wiem, że będzie potrzebne."], "a": [8, 9]}, {"q": "Pracujesz z osobą, która ma zupełnie inny sposób działania niż Ty. Co jest dla Ciebie najważniejsze?", "o": ["Żebyśmy wspólnie osiągnęli ustalony wynik.", "Żebyśmy mieli jasny podział odpowiedzialności.", "Żebyśmy mogli otwarcie mówić sobie, co nie działa.", "Żeby każdy miał trochę przestrzeni na własny sposób pracy."], "a": [7, 6]}, {"q": "Wynik projektu będzie widoczny dopiero za kilka miesięcy. Co najbardziej pomaga Ci w takiej sytuacji?", "o": ["Widoczne etapy po drodze.", "Częstsze, nawet małe efekty.", "Jasny cel i świadomość, po co to robimy.", "Możliwość zmieniania kierunku, jeśli pojawią się nowe informacje."], "a": [0, 2]}, {"q": "W pracy zmienia się system, z którego korzystasz. Co robisz?", "o": ["Najpierw chcę zobaczyć, co dokładnie się zmieniło.", "Szybko zaczynam go używać, żeby się przyzwyczaić.", "Pytam, dlaczego zmiana jest potrzebna i co ma poprawić.", "Sprawdzam, czy nowy sposób rzeczywiście jest wygodniejszy."], "a": [4, 8]}, {"q": "Masz przygotować coś ważnego dla innych osób. Co robisz przed wysłaniem?", "o": ["Sprawdzam najważniejsze szczegóły.", "Patrzę przede wszystkim, czy materiał prowadzi do oczekiwanego efektu.", "Proszę kogoś o szybkie spojrzenie z zewnątrz.", "Jeśli termin jest napięty, sprawdzam tylko rzeczy naprawdę istotne."], "a": [3, 5]}, {"q": "Kiedy masz dużo decyzji do podjęcia, co najbardziej Ci pomaga?", "o": ["Jasne zasady i informacje.", "Możliwość samodzielnego wyboru bez ciągłego pytania innych.", "Ustalenie, która decyzja ma największe znaczenie.", "Rozmowa z kimś, kto zna sytuację z innej perspektywy."], "a": [1, 6]}, {"q": "Firma daje dodatkowe pieniądze za osiągnięcie konkretnego wyniku. Co myślisz?", "o": ["To motywujące, bo wiem dokładnie, do czego dążę.", "To ciekawe, jeśli wynik rzeczywiście zależy ode mnie.", "Sam pieniądz nie wystarczy, jeśli sposób pracy będzie mi nie odpowiadał.", "Ważne, żeby zasady były jasne i uczciwe."], "a": [0, 4]}, {"q": "Masz godzinę wolnego w pracy. Co najczęściej robisz?", "o": ["Porządkuję rzeczy, które później ułatwią mi pracę.", "Zabieram się za coś nowego.", "Kończę mały temat, który od dawna czeka.", "Sprawdzam, czy gdzieś nie ma problemu, który mogę rozwiązać."], "a": [3, 9]}, {"q": "Ktoś mówi: „Zawsze robiliśmy to w ten sposób”. Jak reagujesz?", "o": ["Jeśli sposób działa, nie zmieniam go bez powodu.", "Pytam, czy da się zrobić to prościej albo skuteczniej.", "Chcę wiedzieć, dlaczego właśnie tak się robi.", "Jeśli mam możliwość, chętnie przetestuję inną opcję."], "a": [1, 2]}, {"q": "Masz dostać odpowiedzialność za obszar, którego wcześniej nie prowadziłeś. Co jest najlepszym początkiem?", "o": ["Dokładne poznanie zasad i oczekiwań.", "Jasny cel i swoboda w dojściu do niego.", "Kilka pierwszych zadań, na których można nauczyć się obszaru.", "Rozmowa z osobami, które znają ten obszar od środka."], "a": [8, 3]}, {"q": "Współpracownik popełnia błąd, który może wpłynąć na wspólny wynik. Co robisz?", "o": ["Najpierw zabezpieczam sytuację, żeby problem się nie powiększył.", "Rozmawiam z nim i ustalamy, jak to naprawić.", "Sprawdzam przyczynę, żeby sytuacja się nie powtórzyła.", "Skupiam się na swojej części i działamy dalej."], "a": [0, 7]}, {"q": "Masz wybrać między pracą z jasnymi zasadami a pracą, w której często trzeba improwizować. Co brzmi lepiej?", "o": ["Jasne zasady, ale z możliwością ich rozsądnego zmieniania.", "Improwizacja, jeśli daje większą swobodę.", "Jasne zasady, bo dzięki nim wiadomo, czego się trzymać.", "Nie ma to dużego znaczenia, jeśli cel jest jasny."], "a": [2, 4]}, {"q": "Pojawia się nowy pomysł. Co sprawia, że traktujesz go poważnie?", "o": ["Ma szansę dać lepszy efekt.", "Można go szybko sprawdzić w praktyce.", "Jest dobrze przemyślany i ma logiczne uzasadnienie.", "Może otworzyć możliwości, których wcześniej nie było."], "a": [8, 0]}, {"q": "Co najbardziej przeszkadza Ci w bardzo ogólnym poleceniu?", "o": ["Nie wiem, po czym poznamy, że zadanie jest wykonane dobrze.", "Nie wiem, jakie mam prawo do podejmowania decyzji.", "Nie wiem, co jest najważniejsze, a co można pominąć.", "Nie wiem, kto jeszcze jest zaangażowany w sprawę."], "a": [3, 1]}, {"q": "Masz tydzień na rozwiązanie jednego trudnego problemu. Co robisz?", "o": ["Wchodzę głębiej i próbuję naprawdę zrozumieć problem.", "Szukam różnych sposobów rozwiązania i porównuję je.", "Buduję plan i krok po kroku dochodzę do rozwiązania.", "Najpierw sprawdzam rozwiązanie na małej skali."], "a": [5, 8]}, {"q": "Co jest dla Ciebie bardziej frustrujące?", "o": ["Robienie czegoś, co nie prowadzi do konkretnego efektu.", "Ciągłe czekanie na zgodę innych.", "Brak jasnych zasad i ciągłe zmienianie ustaleń.", "Robienie przez długi czas dokładnie tego samego."], "a": [4, 2]}, {"q": "Masz rozwiązać problem, którego wcześniej nie widziałeś. Od czego zaczynasz?", "o": ["Szukam przykładu podobnej sytuacji.", "Wymyślam własne rozwiązanie i szybko je sprawdzam.", "Rozkładam problem na mniejsze części.", "Pytam kogoś, kto może mieć inne spojrzenie."], "a": [6, 7]}, {"q": "Masz bardzo dobre wyniki, ale nikt ich specjalnie nie zauważa. Jak to odbierasz?", "o": ["Jeśli wiem, że zrobiłem dobrą robotę, to samo w sobie ma znaczenie.", "Po czasie zaczyna mi brakować informacji zwrotnej.", "Chcę wiedzieć, czy moja praca rzeczywiście pomaga osiągać cele.", "Uważam, że dobre wyniki powinny być zauważane i doceniane."], "a": [0, 3]}, {"q": "Dostajesz większą odpowiedzialność. Co jest dla Ciebie najważniejsze?", "o": ["Żebym miał realny wpływ na decyzje dotyczące tego obszaru.", "Żebym dokładnie wiedział, za co odpowiadam.", "Żebym mógł nauczyć się czegoś nowego.", "Żebym miał odpowiednie zasoby i wsparcie."], "a": [1, 6]}, {"q": "Plan dnia nagle się rozsypuje. Co robisz?", "o": ["Układam nową kolejność rzeczy.", "Wybieram najważniejszy temat i zaczynam od niego.", "Sprawdzam, co naprawdę musi się zmienić.", "Dostosowuję się, jeśli jest taka potrzeba, choć wolę mieć plan."], "a": [9, 2]}, {"q": "Masz wykonać zadanie według instrukcji, ale widzisz prostszy sposób. Co robisz?", "o": ["Jeśli zasada jest ważna, trzymam się jej.", "Jeśli mogę poprawić efekt, proponuję zmianę.", "Najpierw sprawdzam, dlaczego instrukcja wygląda właśnie tak.", "Jeśli ryzyko jest małe, testuję prostszy sposób."], "a": [4, 8]}, {"q": "Która pochwała najbardziej do Ciebie trafia?", "o": ["„Dzięki Tobie udało się osiągnąć konkretny wynik.”", "„Dobrze poradziłeś sobie w trudnej sytuacji.”", "„Można na Tobie polegać.”", "„Znalazłeś lepszy sposób niż wcześniej.”"], "a": [0, 5]}, {"q": "Masz wybrać, czy pracujesz sam, czy z kilkoma osobami. Co bierzesz pod uwagę?", "o": ["Czy zadanie wymaga wymiany pomysłów.", "Czy będę mógł się skupić bez ciągłego przerywania.", "Czy wspólna praca rzeczywiście poprawi wynik.", "Czy odpowiedzialność będzie jasno podzielona."], "a": [3, 7]}, {"q": "Widzisz, że proces w firmie jest niepotrzebnie skomplikowany. Co robisz?", "o": ["Zbieram konkretne przykłady, żeby pokazać problem.", "Próbuję znaleźć prostsze rozwiązanie.", "Jeśli mogę, wdrażam zmianę na swoim odcinku.", "Najpierw sprawdzam, czy inni też widzą ten sam problem."], "a": [8, 9]}, {"q": "Masz przejąć zadanie, którego nikt wcześniej nie prowadził. Co najbardziej Cię przekonuje?", "o": ["Jasny cel i możliwość zbudowania sposobu działania.", "Ciekawość, co z tego wyjdzie.", "Możliwość zostawienia po sobie czegoś konkretnego.", "To, że będę mieć wpływ na ważną sprawę."], "a": [1, 0]}];
+const dims = ["Rezultat", "Autonomia", "Stabilność", "Struktura", "Tempo", "Głębia", "Wpływ", "Ludzie", "Eksperyment", "Różnorodność"];
+const profiles = [["Operator", "Najmocniej działa na Ciebie połączenie konkretnego efektu, uporządkowania i odpowiedzialności.", [0, 3, 2]], ["Samodzielny wykonawca", "Najlepiej działasz, gdy znasz cel, ale masz swobodę w wyborze drogi.", [1, 0, 6]], ["Odkrywca", "Najbardziej napędza Cię możliwość uczenia się, testowania i szukania nowych rozwiązań.", [8, 9, 5]], ["Łącznik", "Dużą rolę odgrywa dla Ciebie współpraca, wpływ na innych i wspólne osiąganie efektu.", [7, 6, 0]], ["Analityk", "Najlepiej działasz, gdy możesz zrozumieć problem, sprawdzić szczegóły i dojść do sensownego rozwiązania.", [5, 3, 8]], ["Stabilizator", "Potrzebujesz przewidywalnych zasad i spokojnego środowiska, w którym można konsekwentnie robić dobrą pracę.", [2, 3, 0]]];
+let answers = Array(questions.length).fill(null);
+let current = 0;
+
+function intro(){
+document.getElementById('app').innerHTML = `
+<div class="card">
+<div class="kicker">WERSJA V5 · TEST PROTOTYPOWY</div>
+<h1>Odpowiadaj jak człowiek, nie jak kandydat.</h1>
+<p>Przeczytaj sytuację i wybierz odpowiedź, która jest <b>najbliższa temu, co zrobiłbyś naprawdę</b>. Nie wybieraj odpowiedzi dlatego, że brzmi rozsądniej, bardziej profesjonalnie albo „lepiej”.</p>
+<p>Niektóre pytania są podobne do siebie. To celowe — chcemy sprawdzić, czy pewne preferencje powtarzają się w różnych sytuacjach.</p>
+<div class="note"><b>Ważne:</b> nie ma tutaj dobrych ani złych odpowiedzi. To wersja eksperymentalna, a wynik jest hipotezą do sprawdzenia, nie diagnozą ani narzędziem rekrutacyjnym.</div>
+<div class="nav"><button class="navb next" onclick="start()">Zaczynam</button></div>
+</div>`;
+}
+
+function start(){ current=0; renderQ(); }
+
+function renderQ(){
+const x=questions[current];
+const pct=Math.round((current/questions.length)*100);
+document.getElementById('app').innerHTML=`
+<div class="card">
+<div class="qnum">Pytanie ${current+1} z ${questions.length}</div>
+<div class="progress"><div class="bar" style="width:${pct}%"></div></div>
+<div class="question">${x.q}</div>
+<div id="opts"></div>
+<div class="nav">
+<button class="navb back" onclick="prev()" ${current===0?'disabled':''}>Wstecz</button>
+<button class="navb next" id="next" onclick="next()" disabled>${current===questions.length-1?'Zobacz wynik':'Dalej'}</button>
+</div>
+</div>`;
+const box=document.getElementById('opts');
+x.o.forEach((o,i)=>{
+const b=document.createElement('button');
+b.className='option';
+b.textContent=o;
+b.onclick=()=>{
+answers[current]=i;
+[...box.children].forEach(z=>z.classList.remove('sel'));
+b.classList.add('sel');
+document.getElementById('next').disabled=false;
+};
+box.appendChild(b);
+});
+}
+
+function prev(){ if(current>0){ current--; renderQ(); } }
+function next(){ if(answers[current]===null)return; if(current<questions.length-1){current++;renderQ();}else result(); }
+
+function result(){
+let raw=Array(dims.length).fill(0);
+let max=Array(dims.length).fill(0);
+
+questions.forEach((x,qi)=>{
+const a=answers[qi];
+for(let d=0;d<dims.length;d++){raw[d]+=0.20;max[d]+=0.20;}
+const p=x.a[0], s=x.a[1];
+const pat=[[2,1],[1,2],[2,0],[0,2]][a];
+raw[p]+=pat[0]; max[p]+=2;
+raw[s]+=pat[1]; max[s]+=2;
+});
+
+let scores=raw.map((v,i)=>Math.round(100*v/max[i]));
+scores=scores.map(v=>Math.max(4,Math.min(96,v)));
+let ranked=scores.map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]);
+let top=ranked.slice(0,3);
+let best=-Infinity, prof=profiles[0];
+profiles.forEach(p=>{
+let s=p[2].reduce((sum,d)=>sum+scores[d],0);
+if(s>best){best=s;prof=p;}
+});
+let pills=top.map(([v,i])=>`<span class="pill">${dims[i]}</span>`).join('');
+let bars=scores.map((v,i)=>`
+<div class="resultRow">
+<div class="rhead"><span>${dims[i]}</span><span>${v}%</span></div>
+<div class="track"><div class="fill" style="width:${v}%"></div></div>
+</div>`).join('');
+
+document.getElementById('app').innerHTML=`
+<div class="card">
+<div class="kicker">TWÓJ WZORZEC</div>
+<h1>${prof[0]}</h1>
+<p>${prof[1]}</p>
+<div>${pills}</div>
+<hr style="border:0;border-top:1px solid #ddd;margin:24px 0">
+<h2>Mapa profilu</h2>
+${bars}
+<hr style="border:0;border-top:1px solid #ddd;margin:25px 0">
+<h2>Co warto sprawdzić</h2>
+<ul>
+<li>Jak zachowujesz się wtedy, gdy masz dużo swobody, ale mało jasnych zasad.</li>
+<li>Jak reagujesz, gdy trzeba długo pracować bez szybkiego efektu.</li>
+<li>W jakim środowisku kilka Twoich mocnych stron może działać jednocześnie.</li>
+</ul>
+<div class="note"><b>Wersja eksperymentalna.</b> V5 została napisana językiem codziennych sytuacji. Wynik traktujemy jako hipotezę. Najpierw będziemy porównywać wyniki różnych osób i sprawdzać, czy test daje stabilne wzorce.</div>
+<div class="nav"><button class="navb next" onclick="answers=Array(questions.length).fill(null);current=0;renderQ()">Zrób test ponownie</button></div>
+</div>`;
+}
+intro();
+</script>
+</body>
+</html>
