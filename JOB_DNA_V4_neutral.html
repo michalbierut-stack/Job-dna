@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>JOB DNA V4</title>
+<style>
+:root{--bg:#f5f4f1;--card:#fff;--ink:#17181a;--muted:#686b70;--line:#deddd8;--soft:#eceae5}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+body{min-height:100vh}.wrap{max-width:760px;margin:auto;padding:24px 18px 48px}
+.top{display:flex;justify-content:space-between;align-items:center;margin:4px 4px 28px;font-size:14px;font-weight:800;letter-spacing:.22em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:28px 24px;box-shadow:0 2px 12px rgba(0,0,0,.03)}
+h1{font-size:46px;line-height:1.02;margin:12px 0 20px;letter-spacing:-.045em}
+h2{font-size:31px;line-height:1.08;letter-spacing:-.03em;margin:0 0 18px}
+p{font-size:18px;line-height:1.55;color:var(--muted);margin:0 0 18px}.lead{font-size:20px}
+.kicker{font-size:14px;font-weight:800;letter-spacing:.16em;color:#777;margin-bottom:14px}
+.meta{font-weight:700;color:#4e5156;margin:24px 0}.btn{width:100%;border:0;border-radius:20px;background:#17181a;color:#fff;font-size:19px;font-weight:800;padding:18px 20px;cursor:pointer}
+.btn.secondary{background:var(--soft);color:var(--ink)}.progress{height:7px;background:#e5e3de;border-radius:99px;overflow:hidden;margin:0 0 28px}.progress i{display:block;height:100%;background:#17181a;width:0}
+.qnum{font-size:14px;color:#777;font-weight:800;margin-bottom:16px}.question{font-size:27px;line-height:1.18;font-weight:800;letter-spacing:-.025em;margin-bottom:22px}
+.answers{display:grid;gap:12px}.ans{appearance:none;text-align:left;border:1px solid var(--line);background:#fff;border-radius:18px;padding:18px 16px;font-size:17px;line-height:1.35;color:var(--ink);cursor:pointer}
+.ans:active{transform:scale(.995)}.ans.selected{border-color:#17181a;background:#f0efeb;box-shadow:inset 0 0 0 2px #17181a}
+.nav{display:flex;gap:10px;margin-top:18px}.nav .btn{flex:1}.nav .btn:first-child{flex:0 0 32%;background:var(--soft);color:var(--ink)}
+.note{margin-top:18px;font-size:13px;line-height:1.45;color:#777}.hide{display:none}
+.result .hero{padding-bottom:22px;border-bottom:1px solid var(--line);margin-bottom:22px}.profile-name{font-size:43px;line-height:1.02;font-weight:850;letter-spacing:-.045em;margin:6px 0 14px}.profile-sub{font-size:19px;line-height:1.45;color:var(--muted)}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}.pill{background:var(--soft);border-radius:999px;padding:10px 14px;font-weight:800}
+.section{padding:24px 0;border-bottom:1px solid var(--line)}.section:last-of-type{border-bottom:0}.section h3{font-size:23px;margin:0 0 15px;letter-spacing:-.02em}
+.barrow{margin:14px 0}.barhead{display:flex;justify-content:space-between;font-weight:750;font-size:16px;margin-bottom:7px}.bar{height:11px;border-radius:99px;background:#e5e3de;overflow:hidden}.bar i{display:block;height:100%;background:#17181a;border-radius:99px}
+ul{padding-left:22px;margin:0}li{font-size:17px;line-height:1.48;margin:9px 0}.warning{background:#eeece7;border-radius:20px;padding:18px;font-size:14px;line-height:1.5;color:#555}
+.smallcaps{font-size:12px;font-weight:850;letter-spacing:.15em;color:#777}.confidence{font-size:16px;color:#555;line-height:1.45}
+@media(max-width:480px){.wrap{padding:20px 14px 38px}.card{padding:24px 19px;border-radius:25px}h1{font-size:42px}.question{font-size:25px}.profile-name{font-size:39px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span>JOB DNA</span><span>V4</span></div>
+
+  <section id="intro" class="card">
+    <div class="kicker">NEUTRALNY TEST WZORCÓW PRACY</div>
+    <h1>Nie odpowiadaj tak, jak „powinieneś”.</h1>
+    <p class="lead">Ten test nie pyta o zawód, branżę ani stanowisko. Pokazuje, jak spontanicznie reagujesz na różne sytuacje w pracy.</p>
+    <div class="meta">48 sytuacji · około 10–12 minut</div>
+    <button class="btn" onclick="start()">Zaczynamy</button>
+    <div class="note">Nie będziemy podpowiadać, co mierzy dane pytanie. Wynik jest eksperymentalny i nie służy do decyzji rekrutacyjnych.</div>
+  </section>
+
+  <section id="test" class="card hide">
+    <div class="progress"><i id="prog"></i></div>
+    <div class="qnum" id="qnum"></div>
+    <div class="question" id="question"></div>
+    <div class="answers" id="answers"></div>
+    <div class="nav">
+      <button class="btn" onclick="back()">Wstecz</button>
+      <button class="btn" id="next" onclick="next()">Dalej</button>
+    </div>
+    <div class="note">Wybierz odpowiedź, która jest Ci bliższa w praktyce — nie tę, która brzmi najlepiej.</div>
+  </section>
+
+  <section id="result" class="card result hide"></section>
+</div>
+
+<script>
+const dims = {
+  wynik:{name:"Rezultat"},
+  struktura:{name:"Struktura"},
+  tempo:{name:"Tempo"},
+  autonomia:{name:"Autonomia"},
+  wplyw:{name:"Wpływ"},
+  ludzie:{name:"Ludzie"},
+  glebia:{name:"Głębia"},
+  eksperyment:{name:"Eksperyment"},
+  ostroznosc:{name:"Ostrożność"},
+  roznorodnosc:{name:"Różnorodność"},
+  stabilnosc:{name:"Stabilność"},
+  elastycznosc:{name:"Elastyczność"}
+};
+
+const qs = [
+["Dostajesz zadanie, którego końcowy efekt jest niejasny. Co robisz najpierw?",[
+["Ustalam, po czym poznamy, że zadanie jest wykonane.",{wynik:2,struktura:1}],
+["Zaczynam od małego kroku i sprawdzam, co z niego wyniknie.",{eksperyment:2,elastycznosc:1}],
+["Próbuję zrozumieć, skąd w ogóle wziął się problem.",{glebia:2,ostroznosc:1}],
+["Pytam osoby zaangażowane, jak one widzą sytuację.",{ludzie:2,wplyw:1}]]],
+["Masz godzinę wolnego czasu przed ważnym spotkaniem. Najbardziej naturalne jest dla Ciebie:",[
+["Dopracowanie konkretów i materiałów.",{struktura:2,ostroznosc:1}],
+["Przygotowanie kilku wariantów na wypadek zmian.",{elastycznosc:2,ostroznosc:1}],
+["Przemyślenie, jakie pytania mogą paść.",{glebia:2,stabilnosc:1}],
+["Zastanowienie się, jak poprowadzić rozmowę.",{wplyw:2,ludzie:1}]]],
+["W połowie pracy ktoś zmienia założenia. Co irytuje Cię najbardziej?",[
+["Że trzeba porzucić coś, co było już prawie gotowe.",{wynik:2,tempo:1}],
+["Że nie wiadomo jeszcze, co dokładnie będzie dalej.",{stabilnosc:2,ostroznosc:1}],
+["Że zmiana jest narzucona bez wyjaśnienia.",{autonomia:2,wplyw:1}],
+["Że przez zmianę trzeba myśleć zupełnie inaczej.",{roznorodnosc:2,eksperyment:1}]]],
+["Masz do wyboru prostą metodę, która działa, i nową metodę, która może działać znacznie lepiej. Wybierasz:",[
+["Prostą — ważniejsze jest dowiezienie.",{wynik:2,stabilnosc:1}],
+["Nową — warto sprawdzić, czy daje przewagę.",{eksperyment:2,roznorodnosc:1}],
+["Najpierw porównuję dane i ryzyka.",{glebia:2,ostroznosc:1}],
+["Pytam innych, co widzą z własnej perspektywy.",{ludzie:2,elastycznosc:1}]]],
+["Kiedy masz problem, którego nikt wcześniej nie rozwiązał, najbliżej Ci do:",[
+["Szybkiego prototypu i testu.",{eksperyment:2,tempo:1}],
+["Rozłożenia problemu na części.",{glebia:2,struktura:1}],
+["Samodzielnego znalezienia drogi.",{autonomia:2,wynik:1}],
+["Zebrania ludzi i różnych punktów widzenia.",{ludzie:2,wplyw:1}]]],
+["Co daje Ci większą satysfakcję?",[
+["Zamknięcie sprawy i widoczny efekt.",{wynik:2,tempo:1}],
+["Uporządkowanie czegoś, co wcześniej było chaotyczne.",{struktura:2,stabilnosc:1}],
+["Odkrycie, dlaczego coś działa tak, a nie inaczej.",{glebia:2,ostroznosc:1}],
+["Znalezienie rozwiązania, którego wcześniej nie było.",{eksperyment:2,roznorodnosc:1}]]],
+["W grupie dyskusja krąży w kółko. Co najczęściej robisz?",[
+["Proponuję decyzję i kolejny krok.",{wynik:2,wplyw:1}],
+["Porządkuję argumenty i kryteria.",{struktura:2,glebia:1}],
+["Dopytuję o brakujące informacje.",{glebia:2,ostroznosc:1}],
+["Próbuję zmienić sposób rozmowy.",{wplyw:2,elastycznosc:1}]]],
+["Otrzymujesz zadanie z bardzo dużą swobodą. Pierwsza reakcja to:",[
+["Wreszcie mogę zrobić to po swojemu.",{autonomia:2,eksperyment:1}],
+["Potrzebuję najpierw ustalić ramy.",{struktura:2,stabilnosc:1}],
+["Ciekawi mnie, dokąd można z tym dojść.",{roznorodnosc:2,eksperyment:1}],
+["Chcę wiedzieć, czego oczekują inni.",{ludzie:2,wplyw:1}]]],
+["Masz wykonać coś po raz dziesiąty. Najbardziej prawdopodobne jest, że:",[
+["Chcę zrobić to szybciej.",{tempo:2,wynik:1}],
+["Chcę zrobić to lepiej i bardziej powtarzalnie.",{struktura:2,stabilnosc:1}],
+["Zastanawiam się, czy nadal trzeba robić to właśnie tak.",{eksperyment:2,autonomia:1}],
+["Zwracam uwagę, czy innym też to działa.",{ludzie:2,elastycznosc:1}]]],
+["Ktoś przedstawia Ci rozwiązanie bardzo pewnym tonem, ale bez danych. Co robisz?",[
+["Sprawdzam, co konkretnie ma z tego wyniknąć.",{wynik:2,glebia:1}],
+["Proszę o podstawy i dowody.",{ostroznosc:2,glebia:1}],
+["Jeżeli osoba zna temat, daję jej przestrzeń.",{ludzie:2,stabilnosc:1}],
+["Pytam, czy można szybko zrobić próbę.",{eksperyment:2,tempo:1}]]],
+["W pracy najbardziej cenisz sytuację, w której:",[
+["Wiesz, za co odpowiadasz i masz na to wpływ.",{autonomia:2,struktura:1}],
+["Wiesz, co jest celem i możesz szybko działać.",{wynik:2,tempo:1}],
+["Masz czas wejść w temat naprawdę głęboko.",{glebia:2,stabilnosc:1}],
+["Możesz zmieniać kierunek, gdy pojawiają się nowe informacje.",{elastycznosc:2,roznorodnosc:1}]]],
+["Gdy coś nie wychodzi mimo wysiłku, najpierw:",[
+["Zmniejszam problem i próbuję ponownie.",{eksperyment:2,tempo:1}],
+["Sprawdzam, gdzie dokładnie powstał błąd.",{glebia:2,ostroznosc:1}],
+["Szukam sposobu, żeby doprowadzić sprawę do końca.",{wynik:2}],
+["Rozmawiam z kimś, kto może zobaczyć to inaczej.",{ludzie:2,elastycznosc:1}]]],
+["Masz ważne zadanie i dwie możliwe drogi. Jedna jest znana, druga daje większą swobodę. Wolisz:",[
+["Znany schemat i spokojne wykonanie.",{stabilnosc:2,struktura:1}],
+["Swobodę i możliwość własnego rozwiązania.",{autonomia:2,eksperyment:1}],
+["Drogę, która daje szybszy efekt.",{tempo:2,wynik:1}],
+["Drogę, którą można łatwo zmieniać po drodze.",{elastycznosc:2,roznorodnosc:1}]]],
+["Kiedy ktoś ocenia Twoją pracę, najbardziej cenisz:",[
+["Konkretną informację, co działa, a co nie.",{wynik:2,glebia:1}],
+["Jasne kryteria oceny.",{struktura:2,ostroznosc:1}],
+["Możliwość dyskusji i obrony swojego podejścia.",{autonomia:2,wplyw:1}],
+["Wskazanie nowych możliwości.",{roznorodnosc:2,eksperyment:1}]]],
+["W sytuacji napięcia między dwiema osobami najczęściej:",[
+["Skupiasz rozmowę na rozwiązaniu.",{wynik:2,wplyw:1}],
+["Próbujesz zrozumieć interesy obu stron.",{ludzie:2,glebia:1}],
+["Trzymasz się faktów i ustaleń.",{struktura:2,ostroznosc:1}],
+["Szukasz trzeciej opcji.",{elastycznosc:2,eksperyment:1}]]],
+["Masz poczucie, że proces jest niepotrzebnie skomplikowany. Co robisz?",[
+["Skracam go.",{tempo:2,wynik:1}],
+["Opisuję go i porządkuję.",{struktura:2,stabilnosc:1}],
+["Szukam przyczyny, dlaczego tak powstał.",{glebia:2,ostroznosc:1}],
+["Sprawdzam, czy można podejść do niego całkiem inaczej.",{eksperyment:2,roznorodnosc:1}]]],
+["Jeśli masz podjąć decyzję bez pełnej informacji:",[
+["Decyduję, jeśli koszt zwłoki jest większy.",{wynik:2,tempo:1}],
+["Czekam na minimum potrzebnych danych.",{ostroznosc:2,stabilnosc:1}],
+["Podejmuję ją sam, jeśli obszar jest mój.",{autonomia:2,wplyw:1}],
+["Robię mały krok zamiast dużej decyzji.",{eksperyment:2,elastycznosc:1}]]],
+["Nowy tydzień zaczyna się bez jasnej listy priorytetów. Najbardziej naturalne jest:",[
+["Samodzielnie ustalić, co dowieźć.",{autonomia:2,wynik:1}],
+["Zbudować plan i kolejność.",{struktura:2,tempo:1}],
+["Zorientować się, co zmieniło się od poprzedniego tygodnia.",{elastycznosc:2,roznorodnosc:1}],
+["Sprawdzić, czego potrzebują inni.",{ludzie:2,wplyw:1}]]],
+["Co bardziej Ci przeszkadza?",[
+["Praca bez wyraźnego efektu.",{wynik:2,tempo:1}],
+["Ciągłe zmiany reguł.",{stabilnosc:2,struktura:1}],
+["Brak możliwości decydowania o własnym obszarze.",{autonomia:2,wplyw:1}],
+["Powtarzalność bez możliwości ulepszania.",{roznorodnosc:2,eksperyment:1}]]],
+["Ktoś mówi: „zawsze tak robiliśmy”. Twoja reakcja:",[
+["Jeżeli działa, nie ma problemu.",{stabilnosc:2,ostroznosc:1}],
+["Chcę wiedzieć, czy nadal działa najlepiej.",{eksperyment:2,glebia:1}],
+["Sprawdzam, czy mamy dane.",{glebia:2,ostroznosc:1}],
+["Pytam, czy ktoś próbował inaczej.",{roznorodnosc:2,elastycznosc:1}]]],
+["Dostajesz kilka zadań naraz. Najbardziej pomaga Ci:",[
+["Wybrać jedno najważniejsze i je skończyć.",{wynik:2,tempo:1}],
+["Ułożyć kolejność i terminy.",{struktura:2,stabilnosc:1}],
+["Przełączać się między nimi zależnie od sytuacji.",{elastycznosc:2,roznorodnosc:1}],
+["Ustalić, kto jeszcze może coś przejąć.",{ludzie:2,wplyw:1}]]],
+["Gdy uczysz się czegoś nowego, wolisz:",[
+["Od razu użyć tego w praktyce.",{eksperyment:2,tempo:1}],
+["Zrozumieć zasady działania.",{glebia:2,stabilnosc:1}],
+["Dostać jasną strukturę i przykład.",{struktura:2,ostroznosc:1}],
+["Samodzielnie dojść do rozwiązania.",{autonomia:2,roznorodnosc:1}]]],
+["Jeśli masz przekonać kogoś do zmiany, najbardziej naturalne jest:",[
+["Pokazać konkretny efekt.",{wynik:2,wplyw:1}],
+["Dopasować argument do tej osoby.",{ludzie:2,wplyw:1}],
+["Przedstawić logiczne przesłanki.",{glebia:2,ostroznosc:1}],
+["Zaproponować mały test zamiast przekonywania słowami.",{eksperyment:2,tempo:1}]]],
+["Wolisz projekt, w którym:",[
+["Widać postęp niemal co tydzień.",{tempo:2,wynik:1}],
+["Można dopracować sposób działania.",{struktura:2,glebia:1}],
+["Można odkrywać nowe kierunki.",{roznorodnosc:2,eksperyment:1}],
+["Masz swobodę decyzji w swoim kawałku.",{autonomia:2,stabilnosc:1}]]],
+["Jeżeli musisz długo czekać na decyzję innych, zwykle:",[
+["Robisz to, co możesz zrobić bez nich.",{autonomia:2,tempo:1}],
+["Pilnujesz ustaleń i terminów.",{struktura:2,wynik:1}],
+["Próbujesz znaleźć alternatywną drogę.",{elastycznosc:2,eksperyment:1}],
+["Sprawdzasz, co blokuje drugą stronę.",{ludzie:2,glebia:1}]]],
+["W nowym środowisku pracy najpierw zwracasz uwagę na:",[
+["Jak naprawdę podejmuje się decyzje.",{wplyw:2,ludzie:1}],
+["Jak wygląda odpowiedzialność i proces.",{struktura:2,stabilnosc:1}],
+["Jakie są możliwości działania.",{autonomia:2,roznorodnosc:1}],
+["Jak szybko można osiągnąć pierwsze rezultaty.",{wynik:2,tempo:1}]]],
+["Masz dostać odpowiedzialność za coś, czego jeszcze nie znasz. Co brzmi najlepiej?",[
+["Mam przestrzeń, żeby się tego nauczyć.",{autonomia:2,glebia:1}],
+["Mam jasny zakres i punkt odniesienia.",{stabilnosc:2,struktura:1}],
+["Mogę od razu sprawdzać różne podejścia.",{eksperyment:2,elastycznosc:1}],
+["Mam konkretny cel do osiągnięcia.",{wynik:2,tempo:1}]]],
+["Kiedy projekt zaczyna działać dobrze, masz większą ochotę:",[
+["Zwiększyć skalę.",{wynik:2,tempo:1}],
+["Ustabilizować sposób działania.",{stabilnosc:2,struktura:1}],
+["Zobaczyć, co jeszcze można ulepszyć.",{eksperyment:2,roznorodnosc:1}],
+["Przekazać wiedzę innym.",{ludzie:2,glebia:1}]]],
+["Jeśli ktoś popełnia błąd, który można było przewidzieć:",[
+["Chcesz, żeby problem nie powtórzył się.",{struktura:2,ostroznosc:1}],
+["Chcesz zrozumieć, dlaczego do niego doszło.",{glebia:2,stabilnosc:1}],
+["Jeśli szkoda jest mała, traktujesz to jako naukę.",{eksperyment:2,elastycznosc:1}],
+["Rozmawiasz z osobą, żeby ustalić, co się stało.",{ludzie:2,wplyw:1}]]],
+["Co robisz, gdy plan przestaje mieć sens?",[
+["Zmieniam plan.",{elastycznosc:2,wynik:1}],
+["Wracam do celu i buduję nowy plan.",{struktura:2,wynik:1}],
+["Sprawdzam, która informacja zmieniła sytuację.",{glebia:2,ostroznosc:1}],
+["Pytam osoby, których dotyczy zmiana.",{ludzie:2,wplyw:1}]]],
+["W pracy najbardziej cenisz przełożonego, który:",[
+["Daje jasny cel i rozlicza efekt.",{wynik:2,stabilnosc:1}],
+["Daje ramy, ale pozwala działać po swojemu.",{autonomia:2,struktura:1}],
+["Rozmawia i daje przestrzeń do dyskusji.",{ludzie:2,wplyw:1}],
+["Zachęca do testowania nowych rozwiązań.",{eksperyment:2,roznorodnosc:1}]]],
+["Kiedy widzisz nową możliwość, pierwsza myśl częściej brzmi:",[
+["Czy da się z tego zrobić konkretny rezultat?",{wynik:2,eksperyment:1}],
+["Czy to rzeczywiście ma sens?",{ostroznosc:2,glebia:1}],
+["Czy mogę to poprowadzić po swojemu?",{autonomia:2,wplyw:1}],
+["Co jeszcze można z tym zrobić?",{roznorodnosc:2,elastycznosc:1}]]],
+["Jeśli musisz wybrać między szybkością a dopracowaniem:",[
+["Szybkość, jeśli można później poprawić.",{tempo:2,elastycznosc:1}],
+["Dopracowanie, jeśli błąd będzie kosztowny.",{ostroznosc:2,glebia:1}],
+["Zależy od celu — najpierw ustalam kryterium.",{struktura:2,wynik:1}],
+["Szukam trzeciej drogi.",{eksperyment:2,roznorodnosc:1}]]],
+["W rozmowie z kimś, kto ma inne zdanie, najbardziej interesuje Cię:",[
+["Co konkretnie chce osiągnąć.",{wynik:2,ludzie:1}],
+["Na czym opiera swoje zdanie.",{glebia:2,ostroznosc:1}],
+["Czy możemy znaleźć rozwiązanie pośrodku.",{elastycznosc:2,wplyw:1}],
+["Czy da się przekonać go do mojego podejścia.",{wplyw:2,autonomia:1}]]],
+["Gdy dostajesz bardzo ogólne polecenie, wolisz:",[
+["Samodzielnie ustalić szczegóły.",{autonomia:2,elastycznosc:1}],
+["Dopytać o kryteria sukcesu.",{struktura:2,wynik:1}],
+["Zacząć i doprecyzować po drodze.",{eksperyment:2,tempo:1}],
+["Zrozumieć szerszy kontekst.",{glebia:2,stabilnosc:1}]]],
+["W dłuższym projekcie najbardziej utrzymuje Twoje zaangażowanie:",[
+["Widoczny postęp.",{wynik:2,tempo:1}],
+["Poczucie, że coraz lepiej rozumiesz temat.",{glebia:2,stabilnosc:1}],
+["Możliwość zmiany i ulepszania.",{roznorodnosc:2,eksperyment:1}],
+["Poczucie wpływu na kierunek.",{autonomia:2,wplyw:1}]]],
+["Gdy masz dużo informacji, ale mało czasu:",[
+["Wybieram to, co potrzebne do decyzji.",{wynik:2,tempo:1}],
+["Szukam kluczowego wzorca.",{glebia:2,ostroznosc:1}],
+["Ustalam prostą procedurę działania.",{struktura:2,stabilnosc:1}],
+["Pytam kogoś, kto może szybko zawęzić temat.",{ludzie:2,elastycznosc:1}]]],
+["Jeśli możesz poprawić jedną rzecz w pracy zespołu, najchętniej:",[
+["Usunąć zbędne kroki.",{tempo:2,wynik:1}],
+["Ustalić jasne zasady odpowiedzialności.",{struktura:2,stabilnosc:1}],
+["Poprawić sposób wymiany informacji.",{ludzie:2,wplyw:1}],
+["Wprowadzić nowy sposób pracy.",{eksperyment:2,roznorodnosc:1}]]],
+["Kiedy pojawia się problem między teorią a praktyką:",[
+["Ważniejsza jest dla mnie praktyka.",{wynik:2,tempo:1}],
+["Sprawdzam, skąd bierze się rozbieżność.",{glebia:2,ostroznosc:1}],
+["Zmieniam sposób działania, jeśli praktyka tego wymaga.",{elastycznosc:2,eksperyment:1}],
+["Szukam reguły, która pogodzi oba podejścia.",{struktura:2,autonomia:1}]]],
+["Jeżeli masz pracować przez kilka godzin bez kontaktu z innymi:",[
+["To dobry czas na skupienie.",{glebia:2,autonomia:1}],
+["Ważne, żeby było wiadomo, co ma być gotowe.",{wynik:2,struktura:1}],
+["Chętnie wykorzystuję go na eksperymentowanie.",{eksperyment:2,roznorodnosc:1}],
+["Wolę mieć możliwość szybkiej konsultacji.",{ludzie:2,stabilnosc:1}]]],
+["Co bardziej przypomina Twoje podejście do ryzyka?",[
+["Podejmuję je, gdy potencjalny efekt jest konkretny.",{wynik:2,eksperyment:1}],
+["Ograniczam je, jeśli konsekwencje są trudne do odwrócenia.",{ostroznosc:2,stabilnosc:1}],
+["Ryzyko jest akceptowalne, jeśli decyzja należy do mnie.",{autonomia:2,wplyw:1}],
+["Lubię testować małe ryzyka.",{eksperyment:2,elastycznosc:1}]]],
+["Jeśli możesz wybrać sposób rozwiązania problemu, najważniejsze jest dla Ciebie:",[
+["Żeby działał.",{wynik:2,tempo:1}],
+["Żeby był zrozumiały i powtarzalny.",{struktura:2,stabilnosc:1}],
+["Żeby dawał możliwość dalszego rozwoju.",{eksperyment:2,roznorodnosc:1}],
+["Żeby odpowiadał realnym potrzebom ludzi.",{ludzie:2,glebia:1}]]],
+["Kiedy ktoś próbuje narzucić Ci sposób działania, łatwiej to akceptujesz, jeśli:",[
+["Rozumiesz, jaki efekt ma przynieść.",{wynik:2,stabilnosc:1}],
+["Ma to logiczne uzasadnienie.",{glebia:2,ostroznosc:1}],
+["Masz możliwość dostosowania szczegółów.",{autonomia:2,elastycznosc:1}],
+["Widzisz, że działa na innych.",{ludzie:2,eksperyment:1}]]],
+["Na końcu udanego projektu najbardziej chcesz móc powiedzieć:",[
+["„Zrobiliśmy to.”",{wynik:2,tempo:1}],
+["„Teraz wiemy, jak robić to dobrze.”",{struktura:2,glebia:1}],
+["„Odkryliśmy coś nowego.”",{eksperyment:2,roznorodnosc:1}],
+["„Ludzie naprawdę to wykorzystują.”",{ludzie:2,wplyw:1}]]],
+["Jeśli masz wybrać między pracą przewidywalną a pracą bardziej zmienną:",[
+["Przewidywalna, jeśli daje odpowiedzialność i spokój.",{stabilnosc:2,autonomia:1}],
+["Zmienna, jeśli daje możliwość wpływania na kierunek.",{roznorodnosc:2,autonomia:1}],
+["Przewidywalna, jeśli można osiągać konkretne wyniki.",{wynik:2,struktura:1}],
+["Zmienna, jeśli można szybko reagować.",{elastycznosc:2,tempo:1}]]],
+["Gdybyś miał opisać dobry dzień pracy bez używania nazw stanowisk, byłby to dzień, w którym:",[
+["Na koniec widać, co zostało osiągnięte.",{wynik:2,tempo:1}],
+["Wszystko ma swoje miejsce i wiadomo, co dalej.",{struktura:2,stabilnosc:1}],
+["Udało się rozwiązać coś nietypowego.",{eksperyment:2,roznorodnosc:1}],
+["Miałeś realny wpływ na decyzje.",{autonomia:2,wplyw:1}]]],
+["Jeżeli masz poprawić coś, co działa, ale nie idealnie:",[
+["Najpierw ustalam, czy poprawa jest warta wysiłku.",{wynik:2,ostroznosc:1}],
+["Szukam dokładnego miejsca, które można ulepszyć.",{glebia:2,struktura:1}],
+["Po prostu próbuję lepszego wariantu.",{eksperyment:2,tempo:1}],
+["Pytam użytkowników, co im przeszkadza.",{ludzie:2,wplyw:1}]]],
+["W sytuacji niepewności najbardziej pomaga Ci:",[
+["Jasny cel.",{wynik:2,struktura:1}],
+["Dostęp do informacji.",{glebia:2,ostroznosc:1}],
+["Możliwość samodzielnego działania.",{autonomia:2,elastycznosc:1}],
+["Możliwość konsultacji.",{ludzie:2,stabilnosc:1}]]],
+["Kiedy coś zmienia się kilka razy w krótkim czasie:",[
+["Skupiam się na tym, co nadal jest aktualne.",{elastycznosc:2,wynik:1}],
+["Potrzebuję zatrzymać się i uporządkować sytuację.",{struktura:2,stabilnosc:1}],
+["Ciekawi mnie, co spowodowało kolejne zmiany.",{glebia:2,eksperyment:1}],
+["Sprawdzam, jak zmiany wpływają na ludzi.",{ludzie:2,wplyw:1}]]],
+["Jeśli nikt nie sprawdza Twojej pracy, najbardziej naturalne jest:",[
+["Samemu ustalić standard.",{autonomia:2,struktura:1}],
+["Skupić się na efekcie.",{wynik:2,tempo:1}],
+["Testować własne rozwiązania.",{eksperyment:2,roznorodnosc:1}],
+["Zastanowić się, kto będzie z tego korzystał.",{ludzie:2,glebia:1}]]],
+["Gdy masz przekazać komuś złożony temat:",[
+["Pokazuję, jaki ma być efekt.",{wynik:2,tempo:1}],
+["Układam temat krok po kroku.",{struktura:2,glebia:1}],
+["Daję kontekst i pozwalam dojść do rozwiązania.",{autonomia:2,ludzie:1}],
+["Pokazuję kilka możliwych dróg.",{elastycznosc:2,roznorodnosc:1}]]],
+["Ostatnia sytuacja: dostajesz propozycję pracy, o której wiesz niewiele. Co najbardziej chcesz sprawdzić?",[
+["Za co będę odpowiadać i jaki ma być efekt.",{wynik:2,autonomia:1}],
+["Jak wygląda sposób pracy i zasady.",{struktura:2,stabilnosc:1}],
+["Jak dużo jest przestrzeni na własne pomysły.",{eksperyment:2,roznorodnosc:1}],
+["Z kim będę pracować i jak podejmuje się decyzje.",{ludzie:2,wplyw:1}]]]
+];
+
+let answers = Array(qs.length).fill(null), idx=0;
+function start(){idx=0;answers.fill(null);document.getElementById('intro').classList.add('hide');document.getElementById('result').classList.add('hide');document.getElementById('test').classList.remove('hide');render();}
+function render(){
+ const q=qs[idx];document.getElementById('qnum').textContent=`SYTUACJA ${idx+1} / ${qs.length}`;
+ document.getElementById('question').textContent=q[0];
+ document.getElementById('prog').style.width=((idx+1)/qs.length*100)+'%';
+ const box=document.getElementById('answers');box.innerHTML='';
+ q[1].forEach((a,n)=>{const b=document.createElement('button');b.className='ans'+(answers[idx]===n?' selected':'');b.textContent=a[0];b.onclick=()=>{answers[idx]=n;render()};box.appendChild(b)});
+ document.getElementById('next').textContent=idx===qs.length-1?'Pokaż wynik':'Dalej';
+}
+function next(){if(answers[idx]===null){alert('Wybierz jedną odpowiedź.');return}if(idx<qs.length-1){idx++;render()}else{showResult()}}
+function back(){if(idx>0){idx--;render()}}
+function showResult(){
+ const raw={};Object.keys(dims).forEach(k=>raw[k]=0);
+ const counts={};Object.keys(dims).forEach(k=>counts[k]=0);
+ qs.forEach(q=>q[1].forEach(a=>Object.keys(a[1]).forEach(k=>{if(dims[k])counts[k]++})));
+ answers.forEach((sel,i)=>{const map=qs[i][1][sel][1];Object.entries(map).forEach(([k,v])=>{raw[k]+=v})});
+ const score={};Object.keys(dims).forEach(k=>score[k]=counts[k]?Math.round(raw[k]/(counts[k]*2)*100):0);
+ const sorted=Object.keys(dims).sort((a,b)=>score[b]-score[a]);
+ const top=sorted.slice(0,3);
+
+ const profiles=[
+  {name:"Realizator",desc:"Najmocniej ciągnie Cię do zamykania spraw, widocznego efektu i praktycznego działania.",need:["konkretny rezultat","jasna odpowiedzialność","możliwość przechodzenia od decyzji do działania"],test:s=>s.wynik*.5+s.tempo*.2+s.autonomia*.15+s.elastycznosc*.15},
+  {name:"Architekt",desc:"Najmocniej naturalne jest dla Ciebie porządkowanie, rozumienie i budowanie sposobu działania.",need:["czytelne zasady","czas na dopracowanie","odpowiedzialność za jakość procesu"],test:s=>s.struktura*.4+s.glebia*.3+s.stabilnosc*.2+s.ostroznosc*.1},
+  {name:"Odkrywca",desc:"Najmocniej działa na Ciebie możliwość testowania, zmiany kierunku i znajdowania nowych dróg.",need:["przestrzeń na eksperyment","różnorodne problemy","swoboda modyfikowania podejścia"],test:s=>s.eksperyment*.4+s.roznorodnosc*.3+s.elastycznosc*.2+s.autonomia*.1},
+  {name:"Integrator",desc:"Najmocniej działa na Ciebie łączenie perspektyw, wpływ na kierunek i praca poprzez ludzi.",need:["współpraca","realny wpływ","możliwość łączenia różnych punktów widzenia"],test:s=>s.ludzie*.4+s.wplyw*.3+s.elastycznosc*.15+s.glebia*.15},
+  {name:"Operator",desc:"Najmocniej działa na Ciebie połączenie konkretnego efektu, porządku i odpowiedzialności.",need:["konkretna odpowiedzialność","czytelne zasady","widoczny efekt"],test:s=>s.wynik*.35+s.struktura*.25+s.stabilnosc*.2+s.autonomia*.2}
+ ];
+ const best=profiles.sort((a,b)=>b.test(score)-a.test(score))[0];
+ const confidence=Math.round((best.test(score)/100)*100);
+ const environment=[];
+ if(score.wynik>=60)environment.push("zadania, w których można zobaczyć efekt");
+ if(score.struktura>=60)environment.push("czytelne zasady i odpowiedzialność");
+ if(score.autonomia>=60)environment.push("realna przestrzeń do samodzielnych decyzji");
+ if(score.eksperyment>=60)environment.push("miejsce na testowanie i ulepszanie");
+ if(score.ludzie>=60)environment.push("współpraca i wymiana perspektyw");
+ if(score.stabilnosc>=60)environment.push("przewidywalne ramy działania");
+ if(score.roznorodnosc>=60)environment.push("różnorodne problemy zamiast jednej rutyny");
+ if(!environment.length)environment.push("środowisko mieszane, bez skrajnej dominacji jednego sposobu pracy");
+
+ const low=sorted.slice(-2);
+ document.getElementById('test').classList.add('hide');
+ const r=document.getElementById('result');r.classList.remove('hide');
+ r.innerHTML=`
+ <div class="hero"><div class="kicker">TWÓJ WZORZEC</div><div class="profile-name">${best.name}</div><div class="profile-sub">${best.desc}</div><div class="pills">${top.map(k=>`<span class="pill">${dims[k].name}</span>`).join('')}</div></div>
+ <div class="section"><h3>Najsilniejsze sygnały</h3><p class="confidence">Najważniejsze nie jest to, czy jeden wynik jest wysoki. Liczy się układ kilku powtarzających się preferencji.</p></div>
+ <div class="section"><h3>Mapa profilu</h3>${sorted.map(k=>`<div class="barrow"><div class="barhead"><span>${dims[k].name}</span><span>${score[k]}%</span></div><div class="bar"><i style="width:${score[k]}%"></i></div></div>`).join('')}</div>
+ <div class="section"><h3>Środowisko do sprawdzenia</h3><ul>${environment.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+ <div class="section"><h3>Co może męczyć</h3><ul>${low.map(k=>`<li>Długotrwała przewaga obszaru „${dims[k].name}” może być mniej naturalna dla Twojego profilu.</li>`).join('')}</ul></div>
+ <div class="warning"><b>Wersja eksperymentalna.</b><br>V4 wykorzystuje pytania kontrolne i wielowymiarowe odpowiedzi, ale nie jest narzędziem psychometrycznym ani podstawą decyzji rekrutacyjnych. Najpierw porównujemy wyniki i stabilność testu.</div>
+ <button class="btn" style="margin-top:18px" onclick="start()">Zrób test ponownie</button>`;
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
