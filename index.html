@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101114">
+<title>JOB DNA — test zawodowy</title>
+<style>
+:root{--bg:#f5f4f1;--card:#fff;--ink:#17181b;--muted:#74767d;--line:#e6e3dd;--accent:#17181b;--soft:#eeece7;--good:#1f7a55}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:680px;margin:auto;min-height:100vh;padding:20px 18px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;font-size:13px;color:var(--muted)}
+.brand{font-weight:800;letter-spacing:.12em;color:var(--ink)}
+.screen{display:none}.screen.active{display:block}
+h1{font-size:36px;line-height:1.02;margin:28px 0 14px;letter-spacing:-.04em}
+h2{font-size:25px;line-height:1.12;margin:10px 0 12px;letter-spacing:-.025em}
+.lead{font-size:18px;line-height:1.5;color:#4e5056}
+.note{background:var(--soft);padding:16px;border-radius:16px;font-size:14px;line-height:1.5;margin:24px 0}
+button{border:0;font:inherit;cursor:pointer}
+.primary{width:100%;background:var(--accent);color:white;padding:16px 18px;border-radius:14px;font-weight:700;font-size:16px}
+.secondary{background:transparent;border:1px solid var(--line);padding:13px 16px;border-radius:12px}
+.progress{height:4px;background:#dedbd4;border-radius:9px;overflow:hidden;margin-bottom:30px}.bar{height:100%;background:#17181b;width:0}
+.qmeta{font-size:13px;color:var(--muted);margin-bottom:12px}
+.question{font-size:26px;line-height:1.18;font-weight:750;letter-spacing:-.025em;margin-bottom:20px}
+.options{display:grid;gap:10px}
+.option{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:16px;text-align:left;line-height:1.35;min-height:58px;transition:.15s}
+.option.selected{border:2px solid var(--ink);padding:15px;background:#faf9f7}
+.scale{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin:22px 0 8px}
+.scale button{aspect-ratio:1;background:var(--card);border:1px solid var(--line);border-radius:10px}.scale button.selected{background:var(--ink);color:white}
+.scale-labels{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}
+textarea{width:100%;min-height:150px;border:1px solid var(--line);border-radius:15px;padding:15px;font:inherit;resize:vertical;background:var(--card)}
+.nav{display:flex;gap:10px;margin-top:24px}.nav .primary{flex:1}
+.result-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;margin:14px 0}
+.tag{display:inline-block;background:var(--soft);padding:7px 10px;border-radius:999px;font-size:12px;margin:4px 4px 0 0}
+.score{margin:16px 0}.scoreline{display:flex;justify-content:space-between;font-size:13px;margin-bottom:7px}.track{height:8px;background:#e8e5df;border-radius:9px;overflow:hidden}.fill{height:100%;background:#17181b;border-radius:9px}
+.small{font-size:13px;color:var(--muted);line-height:1.5}
+ul{padding-left:20px;line-height:1.6}
+@media(max-width:420px){h1{font-size:32px}.question{font-size:23px}.scale{gap:3px}.scale button{border-radius:8px}}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="top"><span class="brand">JOB DNA</span><span id="counter"></span></div>
+
+<section id="intro" class="screen active">
+<h1>Znajdź pracę, która pasuje do Ciebie.</h1>
+<p class="lead">To nie jest test osobowości ani egzamin. Chcemy odkryć, <b>jakiego rodzaju praca daje Ci energię, w czym masz przewagę i czego powinieneś unikać.</b></p>
+<div class="note"><b>Jak odpowiadać?</b><br>Spontanicznie. Nie wybieraj odpowiedzi, która brzmi najlepiej. Wybierz tę, która jest najbardziej prawdziwa.</div>
+<div class="result-card"><b>Około 10–15 minut</b><br><span class="small">40 pytań • telefon • wynik na końcu</span></div>
+<button class="primary" onclick="start()">Zaczynamy →</button>
+</section>
+
+<section id="quiz" class="screen">
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="qmeta" id="qmeta"></div>
+<div class="question" id="qtext"></div>
+<div id="answer"></div>
+<div class="nav"><button class="secondary" onclick="back()">← Wstecz</button><button class="primary" id="next" onclick="next()">Dalej →</button></div>
+</section>
+
+<section id="result" class="screen">
+<div class="qmeta">TWÓJ WYNIK</div>
+<h1 id="resultTitle"></h1>
+<p class="lead" id="resultIntro"></p>
+<div class="result-card" id="scores"></div>
+<div class="result-card"><h2>Twoje naturalne przewagi</h2><div id="strengths"></div></div>
+<div class="result-card"><h2>Środowisko, w którym możesz rozkwitać</h2><div id="environment"></div></div>
+<div class="result-card"><h2>Na co uważać</h2><div id="risks"></div></div>
+<div class="result-card"><h2>Kierunki warte sprawdzenia</h2><div id="directions"></div></div>
+<div class="note"><b>To jest wersja prototypowa.</b><br>Ten wynik nie jest jeszcze finalną diagnozą. Jego zadaniem jest sprawdzić, czy pytania i sposób analizy trafnie opisują Ciebie.</div>
+<button class="primary" onclick="restart()">Zrób test ponownie</button>
+</section>
+</div>
+
+<script>
+const qs=[
+{t:"Co daje Ci większą satysfakcję?",o:["Zdobycie klienta i dobry wynik sprzedaży","Rozwiązanie trudnego problemu","Stworzenie czegoś od zera","Doprowadzenie chaosu do porządku"],s:[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]},
+{t:"Kiedy ktoś mówi „tego się nie da zrobić”, co robisz najczęściej?",o:["Szukam sposobu, żeby jednak się dało","Sprawdzam dokładnie, dlaczego się nie da","Pytam innych, jak oni by do tego podeszli","Jeśli rzeczywiście się nie da, odpuszczam"],s:[[1,0,1,0],[0,1,0,1],[0,0,1,0],[0,0,0,1]]},
+{t:"W pracy najbardziej przeszkadza Ci, gdy…",o:["ktoś kontroluje każdy mój krok","nie wiadomo, kto za co odpowiada","jest dużo gadania i mało działania","wszystko musi być robione według procedury"],s:[[0,1,0,1],[0,0,1,0],[1,0,1,0],[0,1,0,1]]},
+{t:"Która sytuacja brzmi dla Ciebie najlepiej?",o:["Mam produkt i mam zbudować dla niego rynek","Mam dużego klienta i mam go zdobyć","Mam problem firmy i mam znaleźć rozwiązanie","Mam zespół i mam odpowiadać za wynik"],s:[[1,0,1,1],[1,0,1,0],[0,1,1,1],[1,1,0,1]]},
+{t:"Jak reagujesz na zmianę planu w ostatniej chwili?",o:["Lubię to — działam na bieżąco","Denerwuje mnie, ale sobie radzę","Wolę mieć plan B wcześniej","Bardzo mnie to wybija z rytmu"],s:[[1,0,1,0],[1,0,0,0],[0,1,0,1],[0,1,0,0]]},
+{t:"Jak bardzo potrzebujesz swobody w sposobie wykonywania pracy?",scale:true,dim:0},
+{t:"Jak dobrze czujesz się w sytuacji, gdy wynik zależy głównie od Ciebie?",scale:true,dim:1},
+{t:"Jak bardzo lubisz przekonywać innych do swojego rozwiązania?",scale:true,dim:2},
+{t:"Jak bardzo lubisz analizować produkty, ceny, parametry i porównywać opcje?",scale:true,dim:3},
+{t:"Po całym dniu intensywnych rozmów z ludźmi czujesz się…",o:["Naładowany","W porządku","Zmęczony","Mam dość ludzi"],s:[[1,0,1,0],[0,0,0,0],[0,1,0,0],[0,1,0,0]]},
+{t:"Wolisz pracować…",o:["samodzielnie, z dużą odpowiedzialnością","w małym, mocnym zespole","z dużą liczbą ludzi","z klientami i partnerami"],s:[[1,1,0,0],[0,1,1,1],[0,0,1,0],[1,0,1,0]]},
+{t:"Co bardziej Cię motywuje?",o:["Pieniądze","Wygranie / osiągnięcie wyniku","Niezależność","Poczucie, że jestem naprawdę dobry w tym, co robię"],s:[[1,0,0,0],[1,0,0,0],[0,1,0,0],[0,1,0,1]]},
+{t:"Jak reagujesz, gdy przełożony mówi Ci dokładnie, jak masz coś zrobić?",o:["Jeśli ma rację — OK","Wolę znać cel i sam wybrać drogę","Zaczynam dyskutować","To mi nie przeszkadza"],s:[[0,0,0,0],[0,1,1,0],[0,1,0,1],[0,0,0,0]]},
+{t:"Co jest dla Ciebie ciekawsze?",o:["Nowy produkt","Nowy rynek","Nowy klient","Nowy sposób rozwiązania problemu"],s:[[0,0,1,0],[1,0,1,1],[1,0,1,0],[0,1,1,1]]},
+{t:"Czy potrafisz zadzwonić do obcej firmy i rozpocząć rozmowę handlową?",o:["Tak, bez problemu","Tak, jeśli mam dobry powód","Nie lubię, ale potrafię","Bardzo tego nie lubię"],s:[[1,0,1,0],[1,0,1,0],[0,0,1,0],[0,0,0,0]]},
+{t:"Klient mówi: „Konkurencja jest 20% tańsza”. Co robisz?",o:["Pytam, co dokładnie porównuje","Pokazuję różnicę w wartości","Próbuję zejść z ceny","Jeśli nie widzi wartości, odpuszczam"],s:[[0,1,1,1],[1,0,1,0],[1,0,0,0],[0,1,0,0]]},
+{t:"Wolisz mieć…",o:["10 dużych klientów","100 małych klientów","Kilku partnerów i dystrybutorów","Dużo różnych projektów"],s:[[1,0,1,0],[1,0,0,0],[1,1,1,0],[0,1,0,1]]},
+{t:"Czy łatwo zauważasz, że jakiś proces jest bez sensu?",o:["Bardzo łatwo","Często","Tylko gdy mnie dotyczy","Raczej nie"],s:[[0,1,0,1],[0,1,0,1],[0,0,0,0],[0,0,0,0]]},
+{t:"Co przychodzi Ci łatwiej niż innym?",o:["Rozmowa i przekonywanie","Organizowanie i pilnowanie tematów","Zrozumienie produktu","Wymyślanie rozwiązania"],s:[[1,0,1,0],[0,1,0,1],[0,1,1,0],[1,1,1,1]]},
+{t:"Gdy uczysz kogoś czegoś, co jest Ci znane…",o:["Lubię to","Potrafię, ale nie jest to moja ulubiona rzecz","Wolę pokazać niż tłumaczyć","Nie mam cierpliwości"],s:[[0,1,1,0],[0,1,0,0],[1,0,1,0],[0,0,0,0]]},
+{t:"Jak bardzo przeszkadza Ci powtarzalność?",scale:true,dim:4},
+{t:"Wybierasz pracę: 12 tys. zł stabilnie albo 8 tys. zł + duży potencjał wyniku. Co wybierasz?",o:["12 tys. — zdecydowanie","Raczej 12 tys.","Raczej 8 tys. + wynik","8 tys. + wynik — zdecydowanie"],s:[[0,0,0,0],[0,0,0,0],[1,0,1,0],[1,0,1,0]]},
+{t:"Jak bardzo lubisz negocjować?",scale:true,dim:2},
+{t:"Jak ważne jest dla Ciebie, żeby praca miała wyraźny wpływ na wynik firmy?",scale:true,dim:1},
+{t:"Jak bardzo lubisz mieć wpływ na decyzje?",scale:true,dim:0},
+{t:"Co bardziej Cię męczy?",o:["Rozwiązywanie cudzych problemów bez wpływu na źródło","Siedzenie nad tabelkami","Ciągłe dzwonienie","Brak jasnego celu"],s:[[0,1,0,0],[1,0,0,0],[0,1,0,0],[0,0,1,0]]},
+{t:"Gdy dostajesz bałagan organizacyjny, pierwsza myśl to…",o:["„Trzeba to uporządkować”","„Kto za to odpowiada?”","„Jak to najszybciej naprawić?”","„Nie mój problem”"],s:[[0,1,0,1],[0,1,0,0],[1,0,1,0],[0,0,0,0]]},
+{t:"Czy lubisz odkrywać niszowe produkty i firmy, których inni jeszcze nie znają?",o:["Bardzo","Tak","Trochę","Nie"],s:[[1,0,1,1],[1,0,1,0],[0,0,1,0],[0,0,0,0]]},
+{t:"Jak bardzo potrzebujesz poczucia bezpieczeństwa?",scale:true,dim:5},
+{t:"Jak bardzo interesuje Cię możliwość zarabiania znacznie więcej dzięki własnemu wynikowi?",scale:true,dim:1},
+{t:"Wolisz, żeby Twoja praca była przede wszystkim…",o:["spokojna","dochodziła do konkretnego wyniku","ciekawa","dobrze płatna"],s:[[0,0,0,0],[1,0,0,0],[0,0,1,0],[1,0,0,0]]},
+{t:"Jak bardzo przeszkadza Ci konieczność proszenia o zgodę na drobne decyzje?",scale:true,dim:0},
+{t:"Które zdanie jest Ci najbliższe?",o:["„Daj mi cel, a sam znajdę drogę.”","„Daj mi problem, a go rozłożę.”","„Daj mi produkt, a znajdę mu klienta.”","„Daj mi chaos, a go uporządkuję.”"],s:[[1,0,1,0],[0,1,0,1],[1,0,1,0],[0,1,0,1]]},
+{t:"Jak bardzo lubisz odpowiedzialność za rezultat, którego nie da się zrzucić na innych?",scale:true,dim:1},
+{t:"Gdy masz wybrać między „ciekawsze” a „bezpieczniejsze”…",o:["Prawie zawsze ciekawsze","Raczej ciekawsze","Raczej bezpieczniejsze","Prawie zawsze bezpieczniejsze"],s:[[0,0,1,0],[0,0,1,0],[0,0,0,0],[0,0,0,0]]},
+{t:"Co najbardziej chciałbyś, żeby praca Ci dawała?",o:["Niezależność","Duże pieniądze","Satysfakcję z kompetencji","Spokój"],s:[[1,1,0,0],[1,0,0,0],[0,1,1,0],[0,0,0,1]]},
+{t:"W jakim środowisku najłatwiej wyobrażasz sobie siebie?",o:["Mała firma / właściciel blisko biznesu","Duża międzynarodowa firma","Własna działalność","Nie ma znaczenia — liczy się rola"],s:[[1,1,0,1],[0,1,1,0],[1,1,1,1],[0,0,0,0]]},
+{t:"Jedno zdanie: jakiej pracy absolutnie nie chcesz już wykonywać?",text:true},
+{t:"Jedno zdanie: czego chciałbyś spróbować zawodowo, gdybyś nie bał się, że „to nie dla mnie”?",text:true},
+{t:"Podaj jedną sytuację zawodową, w której pomyślałeś: „kurde, naprawdę dobrze mi to wyszło”.",text:true}
+];
+
+let i=0, answers=[], dims=[0,0,0,0,0,0];
+
+function start(){document.getElementById('intro').classList.remove('active');document.getElementById('quiz').classList.add('active');render()}
+function render(){
+ const q=qs[i]; document.getElementById('counter').textContent=`${i+1} / ${qs.length}`;
+ document.getElementById('qmeta').textContent=`PYTANIE ${i+1}`;
+ document.getElementById('qtext').textContent=q.t;
+ document.getElementById('bar').style.width=((i)/qs.length*100)+'%';
+ const a=document.getElementById('answer');a.innerHTML='';
+ if(q.text){const ta=document.createElement('textarea');ta.placeholder='Napisz po swojemu…';ta.value=answers[i]||'';ta.addEventListener('input',()=>{answers[i]=ta.value});a.appendChild(ta)}
+ else if(q.scale){
+   const wrap=document.createElement('div');wrap.className='scale';
+   for(let n=1;n<=10;n++){let b=document.createElement('button');b.textContent=n;b.onclick=()=>{answers[i]=n;b.classList.add('selected');[...wrap.children].forEach(x=>{if(x!==b)x.classList.remove('selected')})};if(answers[i]===n)b.classList.add('selected');wrap.appendChild(b)}
+   a.appendChild(wrap);let labs=document.createElement('div');labs.className='scale-labels';labs.innerHTML='<span>zupełnie nie</span><span>zdecydowanie tak</span>';a.appendChild(labs)
+ } else {
+   const wrap=document.createElement('div');wrap.className='options';
+   q.o.forEach((x,k)=>{let b=document.createElement('button');b.className='option';b.textContent=x;b.onclick=()=>{answers[i]=k;[...wrap.children].forEach(z=>z.classList.remove('selected'));b.classList.add('selected')};if(answers[i]===k)b.classList.add('selected');wrap.appendChild(b)});a.appendChild(wrap)
+ }
+ document.getElementById('next').textContent=i===qs.length-1?'Zobacz wynik →':'Dalej →';
+}
+function next(){
+ const q=qs[i];const a=document.getElementById('answer');if(answers[i]===undefined||answers[i]===''){a.animate([{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:180});return}
+ if(i<qs.length-1){i++;render()}else finish()
+}
+function back(){if(i>0){i--;render()}}
+function finish(){
+ document.getElementById('quiz').classList.remove('active');document.getElementById('result').classList.add('active');
+ let d=[0,0,0,0,0,0], counts=[0,0,0,0,0,0];
+ qs.forEach((q,n)=>{let v=answers[n];if(q.scale){let val=(v-1)/9;d[q.dim]+=val;counts[q.dim]++}else if(q.s&&typeof v==='number'){let ss=q.s[v];ss.forEach((x,j)=>{d[j]+=x;counts[j]++})}});
+ d=d.map((x,j)=>Math.round((x/(counts[j]||1))*100));
+ const names=["Autonomia","Orientacja na wynik","Wpływ / relacje","Analityka / produkt","Potrzeba różnorodności","Potrzeba bezpieczeństwa"];
+ const sorted=d.map((v,j)=>({v,j})).sort((a,b)=>b.v-a.v);
+ let title;
+ if(d[1]>=75&&d[0]>=70) title="Niezależny gracz wynikowy";
+ else if(d[2]>=75&&d[3]>=65) title="Strategiczny doradca";
+ else if(d[3]>=75&&d[0]>=65) title="Samodzielny ekspert";
+ else if(d[4]>=75&&d[0]>=65) title="Łowca okazji i zmian";
+ else if(d[5]>=75) title="Stabilny profesjonalista";
+ else title="Wszechstronny operator";
+ document.getElementById('resultTitle').textContent=title;
+ document.getElementById('resultIntro').textContent="To pierwszy szkic Twojego profilu. Najciekawsze będą nie pojedyncze wyniki, ale ich połączenie.";
+ let s=document.getElementById('scores');s.innerHTML='<h2>Twój profil</h2>';
+ sorted.forEach(x=>{s.innerHTML+=`<div class="score"><div class="scoreline"><span>${names[x.j]}</span><b>${x.v}%</b></div><div class="track"><div class="fill" style="width:${x.v}%"></div></div></div>`});
+ const st=sorted.slice(0,3).map(x=>names[x.j]);document.getElementById('strengths').innerHTML=`<p>Najmocniej zaznaczają się: ${st.map(x=>`<span class="tag">${x}</span>`).join('')}</p><ul><li>Potencjalnie dobrze działasz tam, gdzie efekt pracy jest widoczny.</li><li>Warto szukać roli, która wykorzystuje Twoje mocne strony zamiast zmuszać Cię do walki z nimi.</li><li>Największa wartość może powstawać na przecięciu kilku kompetencji, nie w jednej specjalizacji.</li></ul>`;
+ let env=d[0]>65?"Duża autonomia, jasno określony cel i swoboda dojścia do wyniku.":d[5]>70?"Przewidywalne środowisko, jasne zasady i odpowiedzialność za konkretny obszar.":"Środowisko łączące samodzielność, ludzi i konkretne cele.";
+ document.getElementById('environment').innerHTML=`<p>${env}</p><p class="small">Szczególnie ważne będzie dopasowanie przełożonego i kultury firmy — sama nazwa stanowiska może być myląca.</p>`;
+ document.getElementById('risks').innerHTML='<ul><li>Unikaj ról, w których większość dnia polega na czynnościach sprzecznych z Twoim naturalnym stylem działania.</li><li>Uważaj na stanowiska, które brzmią atrakcyjnie, ale w praktyce są głównie gaszeniem pożarów.</li><li>Nie oceniaj oferty tylko po tytule i wynagrodzeniu — środowisko może mieć większe znaczenie.</li></ul>';
+ let dirs=[];
+ if(d[1]>65)dirs.push("Business Development / rozwój rynku");
+ if(d[2]>65)dirs.push("Sprzedaż doradcza B2B / Key Account");
+ if(d[3]>65)dirs.push("Product Specialist / Product Manager");
+ if(d[0]>65)dirs.push("Partner / Channel Manager");
+ if(d[4]>65)dirs.push("Rozwój nowych produktów i rynków");
+ if(!dirs.length)dirs=["Role łączące sprzedaż, produkt i samodzielność","Business Development","Product / Commercial roles"];
+ document.getElementById('directions').innerHTML='<ul>'+dirs.slice(0,5).map(x=>`<li><b>${x}</b></li>`).join('')+'</ul>';
+}
+function restart(){i=0;answers=[];document.getElementById('result').classList.remove('active');document.getElementById('intro').classList.add('active');document.getElementById('counter').textContent='';}
+</script>
+</body>
+</html>
