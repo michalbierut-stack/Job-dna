@@ -2,121 +2,220 @@
 <html lang="pl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>JOB DNA V2</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JOB DNA 1.3</title>
 <style>
-:root{--ink:#17181b;--muted:#73757d;--line:#e5e2dc;--bg:#f7f6f3;--card:#fff;}
-*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
-.wrap{max-width:760px;margin:auto;padding:28px 18px 48px}
-.top{display:flex;justify-content:space-between;align-items:center;font-weight:700;letter-spacing:.12em;font-size:14px}
-.progress{height:5px;background:#e7e4df;border-radius:10px;margin:20px 0 34px;overflow:hidden} .bar{height:100%;background:#17181b;width:0;transition:.25s}
-h1{font-size:42px;line-height:1.05;margin:0 0 18px;letter-spacing:-.04em} h2{font-size:29px;line-height:1.12;letter-spacing:-.03em;margin:0 0 26px}
-p{font-size:18px;line-height:1.55;color:#4d4f56}
-.card{background:#fff;border:1px solid var(--line);border-radius:28px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,.03)}
-.start{margin-top:28px} button{font:inherit;border:0;cursor:pointer}
-.primary{width:100%;background:#17181b;color:#fff;border-radius:18px;padding:18px 20px;font-size:18px;font-weight:700;margin-top:18px}
-.option{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid #ddd9d2;border-radius:17px;padding:18px 17px;margin:12px 0;font-size:17px;line-height:1.35;transition:.15s}
-.option:active,.option.selected{background:#17181b;color:white;border-color:#17181b}
-.nav{display:flex;gap:10px;margin-top:20px} .nav button{flex:1;padding:15px;border-radius:15px;font-weight:700}
-.back{background:#e9e7e2;color:#25262a} .next{background:#17181b;color:#fff}
-.small{font-size:14px;color:var(--muted);margin-top:16px}
-.result h1{font-size:40px} .dim{margin:22px 0} .dimline{display:flex;justify-content:space-between;font-weight:700;font-size:16px} .track{height:9px;background:#e6e3de;border-radius:10px;margin-top:8px;overflow:hidden} .fill{height:100%;background:#17181b;border-radius:10px}
-.tag{display:inline-block;background:#ece9e3;border-radius:999px;padding:9px 13px;margin:5px 5px 0 0;font-size:14px}
-.list{padding-left:22px;font-size:18px;line-height:1.55} .note{background:#eeece7;border-radius:20px;padding:20px;margin-top:24px}
-.hide{display:none}
-@media(max-width:520px){h1{font-size:37px} h2{font-size:27px} .card{padding:23px;border-radius:24px}}
+:root{--bg:#f4f4f2;--card:#fff;--text:#171717;--muted:#707070;--line:#e5e5e2}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:820px;margin:auto;padding:16px 14px 50px} .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;margin:14px 0}
+h1{font-size:42px;line-height:1.03;letter-spacing:-1.5px;margin:8px 0 12px} h2{font-size:25px;margin:0 0 12px}
+.muted{color:var(--muted)} .kicker{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#777}
+.progress{height:7px;background:#e9e9e6;border-radius:9px;overflow:hidden;margin:14px 0 22px} .progress i{display:block;height:100%;background:#171717;width:0}
+.q{font-size:22px;font-weight:750;line-height:1.28;margin:16px 0} .answers{display:grid;gap:10px}
+.answer{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;cursor:pointer;font-size:15px}
+.answer:hover{border-color:#999} .answer b{display:block;margin-bottom:4px}
+button{border:0;border-radius:14px;padding:13px 18px;background:#171717;color:#fff;font-weight:750;cursor:pointer}
+.secondary{background:#ededeb;color:#171717} .actions{display:flex;justify-content:space-between;margin-top:16px}
+.hidden{display:none!important} .hero{padding:28px} .profile{font-size:39px;font-weight:900;line-height:1.03;letter-spacing:-1.5px}
+.badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:12px;margin:3px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px} .score{border:1px solid var(--line);border-radius:15px;padding:13px}
+.top{display:flex;justify-content:space-between;font-weight:750} .bar{height:6px;background:#ececea;border-radius:8px;margin-top:8px;overflow:hidden} .bar i{display:block;height:100%;background:#171717}
+.small{font-size:13px} .callout{border-left:3px solid #171717;padding-left:14px;margin:15px 0}
+.role{border:1px solid var(--line);border-radius:15px;padding:14px;margin:9px 0}
+.sanity{display:grid;gap:10px} .sanity button{background:#fff;color:#171717;border:1px solid var(--line);text-align:left}
+@media(max-width:650px){h1{font-size:35px}.profile{font-size:33px}.q{font-size:20px}.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<div id="app"></div>
+<section id="start" class="card hero">
+<div class="kicker">JOB DNA · 1.3</div>
+<h1>Tak naturalnie działasz w pracy.</h1>
+<p class="muted">Nie szukaj najlepszej odpowiedzi. Wybierz tę, która jest bliższa temu, jak naprawdę działasz. Czasem obie będą pasować — wybierz tę, którą wybrałbyś częściej.</p>
+<p class="small muted">Prototyp narzędzia do odkrywania sposobu pracy. To nie jest diagnoza psychologiczna ani zwalidowany test psychometryczny.</p>
+<button onclick="start()">Rozpocznij</button>
+</section>
+
+<section id="test" class="card hidden">
+<div class="kicker" id="counter"></div><div class="progress"><i id="bar"></i></div>
+<div class="q" id="q"></div><div class="answers" id="answers"></div>
+<div class="actions"><button class="secondary" onclick="back()">Wstecz</button><span></span></div>
+</section>
+
+<section id="sanity" class="card hidden">
+<div class="kicker">Ostatni krok</div>
+<h2>Który sposób pracy najbardziej Cię przyciąga?</h2>
+<p class="muted">To niezależny sanity check. Nie zmienia głównego wyniku.</p>
+<div class="sanity" id="sanityChoices"></div>
+</section>
+
+<section id="report" class="hidden"></section>
 </div>
+
 <script>
-const questions=[{"q": "Masz wolne popołudnie i niczego nie musisz robić. Co najczęściej robisz?", "options": ["Wymyślam sobie coś nowego do zrobienia", "Wracam do czegoś, co już dobrze znam", "Spotykam się lub rozmawiam z kimś", "Porządkuję coś albo domykam zaległą sprawę"], "weights": [0, 3, 6, 1]}, {"q": "Dostajesz zadanie bez dokładnej instrukcji. Co jest dla Ciebie najbardziej naturalne?", "options": ["Sam ustalam sposób działania", "Najpierw szukam przykładów lub zasad", "Pytam innych, czego oczekują", "Rozbijam problem na małe kroki"], "weights": [7, 1, 2, 4]}, {"q": "W projekcie pojawia się nieoczekiwana zmiana. Twoja pierwsza reakcja to raczej:", "options": ["Ciekawość, co nowego można z tego zrobić", "Sprawdzenie, co dokładnie się zmieniło", "Sprawdzenie, jak wpłynie to na ludzi", "Powrót do planu i ustalenie nowej kolejności"], "weights": [5, 3, 2, 0]}, {"q": "Która sytuacja daje Ci większe poczucie satysfakcji?", "options": ["Stworzenie czegoś po swojemu", "Doprowadzenie sprawy do przewidywalnego końca", "Przekonanie innych do wspólnego rozwiązania", "Rozwiązanie trudnego problemu"], "weights": [3, 6, 1, 4]}, {"q": "Masz wybrać między dwiema możliwościami. Jedna jest bezpieczniejsza, druga ciekawsza, ale niepewna. Co robisz najczęściej?", "options": ["Wybieram ciekawszą", "Wybieram bezpieczniejszą", "Szukam sposobu, by połączyć oba warianty", "Odkładam decyzję do czasu zdobycia większej ilości danych"], "weights": [2, 4, 5, 7]}, {"q": "W grupie ktoś przedstawia pomysł, z którym się nie zgadzasz. Co robisz najchętniej?", "options": ["Od razu przedstawiam kontrargumenty", "Najpierw próbuję zrozumieć jego tok myślenia", "Szukam rozwiązania, które połączy oba podejścia", "Jeśli sprawa nie jest kluczowa, odpuszczam"], "weights": [0, 6, 5, 3]}, {"q": "Gdy uczysz się czegoś nowego, co działa na Ciebie najlepiej?", "options": ["Eksperymentowanie i samodzielne próby", "Jasna instrukcja krok po kroku", "Rozmowa z kimś, kto już to umie", "Zrozumienie, dlaczego to działa"], "weights": [6, 1, 4, 7]}, {"q": "Wyobraź sobie, że możesz przez miesiąc pracować nad dowolnym projektem. Co najbardziej Cię przyciąga?", "options": ["Projekt, w którym można coś wymyślić od podstaw", "Projekt z jasnym celem i konkretnym końcem", "Projekt, w którym trzeba współpracować z ludźmi", "Projekt wymagający znalezienia najlepszego rozwiązania"], "weights": [5, 7, 0, 2]}, {"q": "Co bardziej Ci przeszkadza?", "options": ["Nuda i powtarzalność", "Brak jasnych zasad", "Niepotrzebne konflikty", "Brak możliwości sprawdzenia, czy coś działa"], "weights": [3, 1, 0, 6]}, {"q": "Masz dużo zadań i ograniczony czas. Co robisz najpierw?", "options": ["Wybieram to, co może przynieść największy efekt", "Ustalam kolejność według pilności", "Sprawdzam, od czego zależą inni", "Wybieram zadanie, które jest najbardziej złożone"], "weights": [1, 4, 7, 2]}, {"q": "Ktoś daje Ci odpowiedzialność za obszar, którego wcześniej nie znałeś. Jak reagujesz?", "options": ["Brzmi interesująco", "Wolę najpierw poznać oczekiwania i zasady", "Najpierw pytam, kto może mi pomóc", "Najpierw zbieram informacje i analizuję temat"], "weights": [0, 2, 3, 5]}, {"q": "Gdy masz dużo swobody, co jest dla Ciebie najtrudniejsze?", "options": ["Nic — właśnie tego potrzebuję", "Brak punktu odniesienia", "Brak ludzi, z którymi można konsultować decyzje", "Brak kryteriów, po których poznaję, czy robię to dobrze"], "weights": [6, 4, 3, 1]}, {"q": "Wolisz zadanie, którego wynik jest:", "options": ["Niepewny, ale może być wyjątkowy", "Dość przewidywalny", "Zależny od współpracy z innymi", "Możliwy do dokładnego zmierzenia"], "weights": [4, 7, 2, 5]}, {"q": "Kiedy coś nie wychodzi za pierwszym razem, co zwykle robisz?", "options": ["Próbuję innego podejścia", "Wracam do sprawdzonego sposobu", "Pytam kogoś o perspektywę", "Szukam przyczyny błędu"], "weights": [3, 5, 6, 0]}, {"q": "Co bardziej Cię motywuje?", "options": ["Możliwość decydowania o sposobie działania", "Poczucie stabilności", "Uznanie lub dobra współpraca", "Widoczny postęp i rezultat"], "weights": [1, 7, 6, 4]}, {"q": "Masz przed sobą problem, którego nikt wcześniej nie rozwiązał. Co jest dla Ciebie najbardziej atrakcyjne?", "options": ["Możliwość stworzenia własnego rozwiązania", "Możliwość zbudowania procesu, który później będzie działał", "Możliwość zebrania ludzi wokół rozwiązania", "Możliwość odkrycia, co naprawdę powoduje problem"], "weights": [7, 2, 5, 0]}, {"q": "W pracy nad czymś długoterminowym najbardziej pomaga Ci:", "options": ["Zmieniające się wyzwania", "Stały rytm działania", "Kontakt z innymi", "Możliwość obserwowania danych i postępów"], "weights": [6, 0, 1, 3]}, {"q": "Jeżeli ktoś kontroluje każdy szczegół Twojego działania, jak się czujesz?", "options": ["Szybko tracę energię", "Czuję się bezpieczniej, jeśli kontrola jest rzeczowa", "Najważniejsze, żeby można było o tym porozmawiać", "Akceptuję to, jeśli kryteria są logiczne"], "weights": [4, 2, 1, 7]}, {"q": "Masz do wyboru zadanie proste i trudne. Oba są równie ważne. Co wybierasz?", "options": ["Trudne, jeśli daje możliwość zrobienia czegoś inaczej", "Proste, jeśli pozwala szybko zamknąć temat", "To zależy od tego, kto będzie korzystał z efektu", "Trudne, jeśli wymaga myślenia"], "weights": [2, 5, 0, 3]}, {"q": "Co robisz, gdy zasady sytuacji są niejasne?", "options": ["Tworzę własne zasady działania", "Szukam osoby lub źródła, które je wyjaśni", "Sprawdzam, jak inni podchodzą do podobnych sytuacji", "Zbieram fakty i wyciągam własny wniosek"], "weights": [1, 3, 4, 6]}, {"q": "W dyskusji najbardziej naturalna jest dla Ciebie rola:", "options": ["Osoby, która proponuje nowe kierunki", "Osoby, która pilnuje konkretów", "Osoby, która szuka porozumienia", "Osoby, która sprawdza logikę argumentów"], "weights": [7, 5, 4, 2]}, {"q": "Co jest dla Ciebie większym problemem?", "options": ["Robienie ciągle tego samego", "Niepewność co do przyszłości", "Praca bez kontaktu z ludźmi", "Podejmowanie decyzji bez wystarczających informacji"], "weights": [5, 0, 3, 6]}, {"q": "Wyobraź sobie, że możesz zmienić jedną rzecz w dowolnym procesie, z którym masz kontakt. Co wybierasz?", "options": ["Dać ludziom więcej swobody", "Uprościć i ustabilizować przebieg", "Poprawić współpracę między ludźmi", "Usunąć niepotrzebne kroki na podstawie danych"], "weights": [4, 6, 7, 1]}, {"q": "Jak reagujesz, gdy ktoś kwestionuje Twoją decyzję?", "options": ["Traktuję to jako okazję do sprawdzenia własnego pomysłu", "Najpierw sprawdzam, czy nie naruszyłem ustalonych zasad", "Chcę zrozumieć jego punkt widzenia", "Sprawdzam argumenty i fakty"], "weights": [2, 0, 7, 5]}, {"q": "Które zdanie jest Ci bliższe?", "options": ["Wolę mieć możliwość zmiany kierunku", "Wolę wiedzieć, czego się spodziewać", "Wolę działać z ludźmi niż obok nich", "Wolę rozumieć mechanizm, zanim podejmę decyzję"], "weights": [0, 3, 6, 1]}, {"q": "Dostajesz bardzo ambitny cel, ale nikt nie mówi dokładnie, jak go osiągnąć. Co robisz?", "options": ["Tworzę własną strategię", "Najpierw ustalam granice i zasoby", "Szukam osób, które pomogą go osiągnąć", "Analizuję możliwe drogi dojścia"], "weights": [7, 1, 2, 4]}, {"q": "Co bardziej Cię cieszy po zakończeniu projektu?", "options": ["Że powstało coś nowego", "Że wszystko zostało uporządkowane", "Że ludzie dobrze ze sobą współpracowali", "Że rozwiązanie działa zgodnie z założeniami"], "weights": [5, 3, 2, 0]}, {"q": "Kiedy masz podjąć decyzję szybko, czego najbardziej Ci brakuje?", "options": ["Swobody, by wybrać własne rozwiązanie", "Pewności, że konsekwencje są akceptowalne", "Możliwości skonsultowania jej z kimś", "Danych potrzebnych do oceny opcji"], "weights": [3, 6, 1, 4]}, {"q": "Jeśli możesz wybrać sposób wykonania zadania, najczęściej:", "options": ["Wymyślam własny sposób", "Wybieram sprawdzony sposób", "Dostosowuję go do osób, z którymi pracuję", "Szukam sposobu najbardziej efektywnego"], "weights": [2, 4, 5, 7]}, {"q": "Co najbardziej przyciąga Twoją uwagę w nowym temacie?", "options": ["Co można z nim zrobić", "Jak można go zastosować w przewidywalny sposób", "Jak ludzie na niego reagują", "Jak działa i z czego wynika"], "weights": [0, 6, 5, 3]}, {"q": "Wolisz środowisko, w którym:", "options": ["Często pojawiają się nowe możliwości", "Zasady są stabilne i przewidywalne", "Dużo rzeczy załatwia się przez współpracę", "Decyzje opierają się na konkretnych przesłankach"], "weights": [6, 1, 4, 7]}, {"q": "Jeżeli przez kilka tygodni wszystko idzie zgodnie z planem, Twoja reakcja jest najczęściej:", "options": ["Zaczynam szukać kolejnego wyzwania", "Doceniam, że wszystko działa spokojnie", "Korzystam z czasu na poprawę relacji lub współpracy", "Sprawdzam, czy można coś jeszcze zoptymalizować"], "weights": [5, 7, 0, 2]}, {"q": "Masz do wykonania czynność, którą można zrobić na kilka sposobów. Co wybierasz?", "options": ["Najbardziej kreatywny sposób", "Najbardziej przewidywalny sposób", "Sposób najłatwiejszy dla innych osób", "Sposób, który daje najlepszy mierzalny efekt"], "weights": [3, 1, 0, 6]}, {"q": "Kiedy ktoś prosi Cię o pomoc, co najbardziej naturalnie robisz?", "options": ["Pokazuję inne możliwe podejście", "Daję mu konkretny, uporządkowany sposób", "Rozmawiam i próbuję zrozumieć sytuację", "Pomagam znaleźć przyczynę problemu"], "weights": [1, 4, 7, 2]}, {"q": "Co bardziej Cię satysfakcjonuje?", "options": ["Wpływ na kierunek, w którym coś idzie", "Poczucie, że coś jest dobrze zabezpieczone", "Dobre relacje i wzajemne zaufanie", "Rozwiązanie czegoś, co wcześniej było trudne"], "weights": [0, 2, 3, 5]}, {"q": "Wyobraź sobie dwa zespoły. W którym wolałbyś działać?", "options": ["Mały zespół, dużo swobody", "Zespół z jasnymi procedurami", "Zespół bardzo współpracujący", "Zespół mocno nastawiony na rozwiązywanie problemów"], "weights": [6, 4, 3, 1]}, {"q": "Co robisz, gdy pojawia się okazja, ale nie masz pewności, czy się opłaci?", "options": ["Sprawdzam, czy można ją przetestować małym kosztem", "Czekam, aż ryzyko będzie lepiej określone", "Pytam osoby, których ta decyzja dotyczy", "Porównuję dostępne dane"], "weights": [4, 7, 2, 5]}, {"q": "Po czym najłatwiej poznajesz, że dobrze wykonałeś zadanie?", "options": ["Mam poczucie, że zrobiłem je po swojemu", "Spełnia ustalone kryteria", "Osoby, których dotyczy, są zadowolone", "Rezultat potwierdzają konkretne informacje"], "weights": [3, 5, 6, 0]}, {"q": "Gdybyś miał przez rok robić tylko jeden rodzaj zadań, co byłoby najmniej trudne?", "options": ["Zmienianie i ulepszanie rzeczy", "Utrzymywanie czegoś w dobrym porządku", "Praca wymagająca stałego kontaktu z ludźmi", "Analizowanie i rozwiązywanie problemów"], "weights": [1, 7, 6, 4]}, {"q": "Na koniec dnia największą satysfakcję daje Ci:", "options": ["Myśl: „zrobiłem coś po swojemu”", "Myśl: „mam wszystko pod kontrolą”", "Myśl: „dobrze zadziałałem z ludźmi”", "Myśl: „rozwiązałem coś konkretnego”"], "weights": [7, 2, 5, 0]}];
-const dims=[{"name": "Autonomia", "desc": "Potrzeba wpływu na sposób działania i decydowania."}, {"name": "Stabilność", "desc": "Potrzeba przewidywalności, jasnych ram i poczucia bezpieczeństwa."}, {"name": "Różnorodność", "desc": "Potrzeba nowych bodźców, zmian i różnorodnych wyzwań."}, {"name": "Relacje", "desc": "Naturalna orientacja na ludzi, współpracę i wpływ społeczny."}, {"name": "Analityka", "desc": "Potrzeba rozumienia mechanizmów, danych i przyczyn."}, {"name": "Rezultat", "desc": "Orientacja na efekt, postęp i skuteczność."}, {"name": "Kreatywność", "desc": "Skłonność do tworzenia nowych podejść i rozwiązań."}, {"name": "Struktura", "desc": "Potrzeba porządku, procesu i domykania spraw."}];
-let answers=[];
-let idx=-1;
-const app=document.getElementById('app');
+const RAW_Q = `1|Dostajesz produkt, którego wcześniej nie znałeś.|Najpierw chcę zrozumieć, jak działa i co decyduje o jego wartości.|Najpierw chcę zobaczyć, gdzie można go zastosować i co można dzięki niemu osiągnąć.
+2|Masz podjąć ważną decyzję, ale część informacji nadal jest niedostępna.|Próbuję jeszcze uzupełnić najważniejsze braki.|Podejmuję decyzję na podstawie informacji, które już mam.
+3|Masz dwa możliwe rozwiązania problemu.|Porównuję ich konsekwencje przed wyborem.|Wybieram rozwiązanie, które na podstawie doświadczenia wydaje mi się najbardziej trafne, i sprawdzam je w praktyce.
+4|Coś naprawdę Cię zainteresowało.|Mogę długo zostać przy jednym temacie, aż dobrze go zrozumiem.|Wolę szybko złapać najważniejsze rzeczy i zobaczyć, co jeszcze jest ciekawego.
+5|Producent twierdzi, że nowe rozwiązanie daje lepszy efekt.|Chcę najpierw zrozumieć, z czego ten efekt wynika.|Chcę przede wszystkim zobaczyć dowód, że efekt rzeczywiście występuje.
+6|Masz problem, którego nie da się rozwiązać wszystkimi informacjami, jakie chciałbyś mieć.|Buduję robocze rozwiązanie na podstawie dostępnych danych.|Próbuję jeszcze zdobyć informacje, które mogą zmienić decyzję.
+7|Wiesz już wystarczająco dużo, żeby rozpocząć działanie, ale nie wszystko jest jeszcze jasne.|Zaczynam działać i uzupełniam wiedzę po drodze.|Wolę najpierw domknąć najważniejsze niewiadome.
+8|Kiedy analizujesz złożoną sytuację, częściej szukasz:|Mechanizmu, który wyjaśnia, dlaczego coś się dzieje.|Zależności między faktami, opcjami i konsekwencjami.
+9|Dostajesz cel, termin i budżet. Nikt nie określa dokładnie, jak masz go osiągnąć.|To daje mi dużą swobodę działania.|Wolałbym mieć bardziej określony sposób postępowania.
+10|W firmie zmienia się sposób wykonywania Twojego zadania.|Chcę mieć możliwość dostosowania sposobu pracy po swojemu.|Jeśli nowy sposób jest sprawdzony, nie przeszkadza mi dostosowanie się.
+11|Masz możliwość wpłynięcia na kierunek projektu.|Naturalnie chcę uczestniczyć w takiej decyzji.|Jeśli mój zakres jest jasno określony, nie muszę wpływać na kierunek całości.
+12|Proces jest dobrze opisany, ale widzisz prostszy sposób osiągnięcia tego samego celu.|Próbuję wykorzystać prostszy sposób.|Trzymam się ustalonego procesu, dopóki nie zostanie oficjalnie zmieniony.
+13|Masz możliwość przetestowania nowego rozwiązania bez dużych konsekwencji, ale obecne działa poprawnie.|Sprawdziłbym nowe rozwiązanie.|Zostałbym przy obecnym, dopóki nie pojawi się konkretny powód zmiany.
+14|Obejmujesz stanowisko, na którym sposób działania jest od lat ustalony.|Na początku daje mi to poczucie bezpieczeństwa.|Szybko zaczynam szukać możliwości zmiany lub ulepszenia.
+15|Masz zadanie, które można wykonać na dwa sposoby.|Wolę dopracować rozwiązanie i ograniczyć późniejsze poprawki.|Wolę szybko dojść do dobrego poziomu i ewentualnie poprawić szczegóły później.
+16|Masz dwa tygodnie na ważny rezultat.|Przede wszystkim pilnuję, żeby końcowy efekt był naprawdę dobry.|Równie ważne jest dla mnie szybkie zamykanie kolejnych etapów.
+17|Pojawia się możliwość wejścia w nowy obszar, którego jeszcze nie znasz.|Sama możliwość poznania czegoś nowego jest dla mnie atrakcyjna.|Najpierw chcę wiedzieć, czy nowy obszar rzeczywiście jest potrzebny.
+18|Zauważasz, że procedura utrudnia osiągnięcie celu.|Szukam sposobu obejścia lub zmiany procedury.|Najpierw sprawdzam, dlaczego procedura została tak zaprojektowana.
+19|Nowe rozwiązanie może poprawić wynik, ale nie ma pewności, że zadziała.|Warto je przetestować, jeśli potencjalna korzyść jest istotna.|Wolę rozwiązanie, którego rezultat jest bardziej przewidywalny.
+20|Masz wykonać zadanie według procedury, z którą się nie zgadzasz.|Jeśli wiem, jaki jest cel, szukam własnego sposobu jego osiągnięcia.|Najpierw staram się zrozumieć logikę procedury i działać zgodnie z nią.
+21|Kończysz duży projekt.|Największą satysfakcję daje mi konkretny efekt, który można zobaczyć lub zmierzyć.|Równie ważne jest dla mnie poczucie, że projekt daje bezpieczeństwo i ciągłość.
+22|Masz wybór między dwoma sposobami pracy.|Spokojnie realizować kolejne etapy i konsekwentnie dochodzić do celu.|Działać dynamicznie, szybko zamykać tematy i reagować na kolejne potrzeby.
+23|Projekt jest ważny, ale jego realizacja wymaga dużej liczby uzgodnień.|Jeśli prowadzi to do dobrego rezultatu, nie przeszkadza mi duża liczba uzgodnień.|Wolę mieć mniej zależności od innych i większą kontrolę nad własnym wynikiem.
+24|Firma proponuje Ci udział w nowym projekcie albo rozwijanie sprawdzonego obszaru.|Nowy projekt jest dla mnie ciekawszy.|Bardziej odpowiada mi rozwijanie czegoś, co już znamy i wiemy, że działa.
+25|Dwie oferty są podobne pod względem wynagrodzenia.|Wybieram tę, w której mam większą swobodę działania.|Wybieram tę, która daje większą przewidywalność.
+26|Wolisz tydzień, w którym:|Masz kilka większych tematów i możesz spokojnie je prowadzić.|Masz wiele krótszych tematów i często zmieniasz uwagę.
+27|Masz przez pół roku rozwijać jeden produkt.|Jeśli produkt jest interesujący, taki układ mi odpowiada.|Potrzebowałbym po drodze nowych tematów i zmian.
+28|Masz wybór:|Stanowisko przewidywalne, ale z podobnym zakresem zadań.|Stanowisko bardziej zmienne, ale dające możliwość poznawania nowych obszarów.
+29|Dostajesz odpowiedzialność za rozwój produktu, który jest dopiero wprowadzany na rynek.|Najbardziej interesuje mnie możliwość zbudowania czegoś od początku.|Bardziej odpowiadałoby mi rozwijanie produktu, którego pozycja na rynku jest już potwierdzona.
+30|Masz do wyboru projekt o dużym potencjale, ale niepewnym wyniku, oraz projekt o mniejszym potencjale, ale przewidywalnym rezultacie.|Wybieram większy potencjał.|Wybieram większą przewidywalność.
+31|Ważna decyzja dotycząca projektu może zostać podjęta przez kogoś innego albo przy Twoim udziale.|Chcę mieć możliwość wpływania na takie decyzje.|Jeśli znam swoją odpowiedzialność, nie potrzebuję uczestniczyć w każdej decyzji.
+32|Po kilku godzinach spotkań i rozmów masz przed sobą jeszcze kilka godzin pracy.|Nadal mam energię na kolejne rozmowy.|Wolałbym przejść do spokojnej pracy własnej.
+33|Dostajesz odpowiedzialność za wynik projektu, ale sposób jego osiągnięcia pozostaje po Twojej stronie.|Taki poziom odpowiedzialności mi odpowiada.|Wolałbym mieć jasno określony zakres odpowiedzialności i oczekiwań.
+34|Masz dwie role do wyboru.|Wpływam na kierunek działań, ale muszę przekonywać innych do swoich decyzji.|Odpowiadam za własny obszar i mam mniej potrzeby uzgadniania go z innymi.
+35|Masz osiągnąć konkretny cel.|Chcę sam zdecydować, jak do niego dojść.|Wolę działać według sprawdzonego sposobu.
+36|Przez większość dnia pracujesz samodzielnie, a kontakt z innymi pojawia się głównie wtedy, gdy jest potrzebny.|Taki układ jest dla mnie wygodny.|Brak regularnego kontaktu z ludźmi po pewnym czasie zacząłby mi przeszkadzać.
+37|Masz do wyboru dwa dni pracy.|Kilka ważnych rozmów, decyzji i uzgodnień.|Długie okresy spokojnej pracy bez kontaktu z innymi.
+38|Masz dwie możliwości.|Większy wpływ na decyzje, ale więcej uzgodnień i zależności od innych.|Większą niezależność, ale mniejszy wpływ na kierunek całości.
+39|Dostajesz trudny problem.|Wolę mieć więcej czasu i dojść do rozwiązania, do którego jestem naprawdę przekonany.|Wolę znaleźć dobre rozwiązanie szybciej i w razie potrzeby poprawić je później.
+40|Masz dwie podobne oferty pracy.|Większa swoboda działania.|Większa stabilność i przewidywalność.
+41|Masz osiągnąć ważny cel.|Chcę odpowiadać przede wszystkim za rezultat.|Chcę, żeby sposób dojścia do rezultatu również dawał mi satysfakcję.
+42|Firma daje Ci możliwość:|Wejścia w nowy obszar, w którym trzeba dużo odkrywać po drodze.|Rozwijania obszaru, którego zasady już dobrze znasz.
+43|Masz przez kilka miesięcy pracować nad jednym ważnym problemem.|Możliwość wejścia bardzo głęboko jest dla mnie atrakcyjna.|Potrzebuję w tym czasie również innych tematów.
+44|Masz osiągnąć konkretny cel.|Sam wybierasz sposób działania.|Korzystasz ze sprawdzonego procesu.
+45|Masz dwa tygodnie na ważny rezultat.|Wolę poświęcić więcej czasu na jakość końcowego rozwiązania.|Wolę szybko przechodzić przez kolejne etapy i reagować na to, co pojawia się po drodze.
+46|Dostajesz produkt, który działa dobrze.|Szukam możliwości rozwinięcia go w nowym kierunku.|Szukam sposobów na jeszcze lepsze dopracowanie obecnego rozwiązania.
+47|Masz wpływ na projekt, ale wiąże się to z częstymi uzgodnieniami.|Możliwość wpływania na kierunek jest tego warta.|Wolę mieć mniej wpływu, ale większą niezależność w swoim obszarze.`;
+const Q = RAW_Q.split("\n").filter(Boolean).map(x=>{const p=x.split("|");return [p[1],p[2],p[3]];});
+const M = {1:['depth','exploration',1,-1],2:['decisiveness','depth',1,-1],3:['analytical','decisiveness',1,-1],4:['depth','variety',1,-1],5:['depth',null,1,0],6:['decisiveness','depth',1,-1],7:['decisiveness','depth',1,-1],8:['depth','analytical',1,-1],9:['autonomy','structure',1,-1],10:['autonomy','stability',1,-1],11:['influence','autonomy',1,-1],12:['structure','autonomy',-1,1],13:['exploration','stability',1,-1],14:['stability','exploration',1,-1],15:['depth','tempo',1,-1],16:['result','tempo',1,-1],17:['exploration','variety',1,-1],18:['exploration','structure',1,-1],19:['exploration','stability',1,-1],20:['autonomy','structure',1,-1],21:['result','stability',1,-1],22:['tempo','result',-1,1],23:['autonomy','relationality',-1,1],24:['exploration','stability',1,-1],25:['stability','autonomy',-1,1],26:['variety','tempo',1,-1],27:['depth','variety',1,-1],28:['stability','variety',1,-1],29:['exploration','result',1,-1],30:['result','stability',1,-1],31:['influence','autonomy',1,-1],32:['relationality','tempo',1,-1],33:['autonomy','result',1,-1],34:['influence','relationality',1,-1],35:['autonomy','structure',1,-1],36:['relationality','autonomy',-1,1],37:['relationality','tempo',1,-1],38:['influence','autonomy',1,-1],39:['depth','tempo',1,-1],40:['autonomy','stability',1,-1],41:['result',null,1,0],42:['exploration','stability',1,-1],43:['depth','variety',1,-1],44:['autonomy','structure',1,-1],45:['tempo','result',-1,1],46:['exploration','depth',1,-1],47:['influence','autonomy',1,-1]};
+const DIMS = ["depth","analytical","decisiveness","autonomy","structure","tempo","exploration","result","stability","variety","influence","relationality"];
+const L = {
+ depth:"Głębia", analytical:"Analityczność", decisiveness:"Decyzyjność", autonomy:"Autonomia",
+ structure:"Struktura", tempo:"Tempo", exploration:"Eksploracja", result:"Wynik",
+ stability:"Stabilność", variety:"Różnorodność", influence:"Wpływ", relationality:"Relacyjność"
+};
+const DESC = {
+ depth:"potrzeba zrozumienia problemu, produktu lub mechanizmu",
+ analytical:"porównywanie informacji, zależności i konsekwencji",
+ decisiveness:"gotowość do decyzji mimo niepełnych informacji",
+ autonomy:"potrzeba wyboru własnego sposobu działania",
+ structure:"potrzeba uporządkowanych zasad i jasnych ram",
+ tempo:"preferowane tempo działania i zamykania tematów",
+ exploration:"gotowość do testowania nowych rozwiązań",
+ result:"znaczenie konkretnego, widocznego efektu",
+ stability:"potrzeba przewidywalności i ciągłości",
+ variety:"potrzeba zmienności tematów i zadań",
+ influence:"potrzeba wpływania na kierunek decyzji i wyniku",
+ relationality:"znaczenie kontaktu z ludźmi jako naturalnej części pracy"
+};
+let A=Array(Q.length).fill(null), idx=0, sanity=null;
 
-function start(){
- answers=new Array(questions.length).fill(null); idx=0; renderQ();
+function start(){document.getElementById("start").classList.add("hidden");document.getElementById("test").classList.remove("hidden");render();}
+function sig(v){return v==="AD"?1:v==="AR"?.5:v==="BR"?-.5:-1;}
+function render(){
+ document.getElementById("counter").textContent=`PYTANIE ${idx+1} Z ${Q.length}`;
+ document.getElementById("bar").style.width=(idx/Q.length*100)+"%";
+ document.getElementById("q").textContent=Q[idx][0];
+ const box=document.getElementById("answers");box.innerHTML="";
+ [["AD","A zdecydowanie","A jest wyraźnie bliższa"],["AR","A raczej","A jest trochę bliższa"],["BR","B raczej","B jest trochę bliższa"],["BD","B zdecydowanie","B jest wyraźnie bliższa"]].forEach(x=>{
+  const b=document.createElement("button");b.className="answer";
+  b.innerHTML=`<b>${x[1]}</b><span class="muted">${x[2]}</span>`;
+  b.onclick=()=>pick(x[0]);box.appendChild(b);
+ });
 }
-function renderIntro(){
- app.innerHTML=`<div class="top"><span>JOB DNA</span><span>V2</span></div>
- <div class="card start">
- <p style="text-transform:uppercase;letter-spacing:.12em;font-size:13px;font-weight:700;color:#777">Neutralny test profilu pracy</p>
- <h1>Nie zgaduj, jaka praca do Ciebie pasuje.</h1>
- <p>Ten test nie pyta Cię wprost o zawód, branżę ani stanowisko. Zamiast tego sprawdza wzorce Twoich naturalnych wyborów w różnych sytuacjach.</p>
- <p><b>40 pytań · około 10 minut</b></p>
- <button class="primary" onclick="start()">Zaczynamy</button>
- <div class="small">Wynik pojawi się dopiero po zakończeniu. Nie będziemy podpowiadać Ci, co mierzy dane pytanie.</div>
- </div>`;
+function pick(v){A[idx]=v;if(idx<Q.length-1){idx++;render();}else{document.getElementById("test").classList.add("hidden");showSanity();}}
+function back(){if(idx>0){idx--;render();}}
+function showSanity(){
+ const box=document.getElementById("sanityChoices");box.innerHTML="";
+ [["A","Trudny problem + czas na zrozumienie + samodzielne rozwiązanie."],
+ ["B","Konkretny cel + swoboda + odpowiedzialność za rezultat."],
+ ["C","Produkt lub rynek z potencjałem + budowanie jego pozycji."],
+ ["D","Istniejący proces + stabilne środowisko + konsekwentny rozwój."]].forEach(x=>{
+  const b=document.createElement("button");b.textContent=x[1];b.onclick=()=>{sanity=x[0];document.getElementById("sanity").classList.add("hidden");report();};box.appendChild(b);
+ });
+ document.getElementById("sanity").classList.remove("hidden");
 }
-function renderQ(){
- const q=questions[idx], pct=Math.round(((idx)/questions.length)*100);
- const selected=answers[idx];
- app.innerHTML=`<div class="top"><span>JOB DNA</span><span>${idx+1} / ${questions.length}</span></div>
- <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
- <div class="card">
- <h2>${q.q}</h2>
- <div>${q.options.map((o,i)=>`<button class="option ${selected===i?'selected':''}" onclick="choose(${i})">${o}</button>`).join('')}</div>
- <div class="nav">
- <button class="back" onclick="back()" ${idx===0?'disabled':''}>Wstecz</button>
- <button class="next" onclick="next()">${idx===questions.length-1?'Zobacz wynik':'Dalej'}</button>
- </div>
- </div>`;
+function calc(){
+ const sum=Object.fromEntries(DIMS.map(d=>[d,0])), wt=Object.fromEntries(DIMS.map(d=>[d,0])), obs=Object.fromEntries(DIMS.map(d=>[d,[]]));
+ for(let i=0;i<A.length;i++){
+   const m=M[i+1]; if(!m||A[i]==null)continue; const v=sig(A[i]);
+   if(m[0]){sum[m[0]]+=v*Number(m[2])*1;wt[m[0]]+=1;obs[m[0]].push(v*Number(m[2]));}
+   if(m[1]){sum[m[1]]+=v*Number(m[3])*.5;wt[m[1]]+=.5;obs[m[1]].push(v*Number(m[3]));}
+ }
+ const score={},conf={};
+ DIMS.forEach(d=>{
+   score[d]=wt[d]?Math.round((sum[d]/wt[d]+1)*50):50;
+   const o=obs[d], mean=o.reduce((a,b)=>a+b,0)/(o.length||1), variance=o.reduce((a,b)=>a+(b-mean)**2,0)/(o.length||1);
+   const consistency=Math.max(0,1-Math.sqrt(variance));
+   conf[d]=Math.round(Math.min(1,o.length/7)*55+consistency*45);
+ });
+ return {score,conf};
 }
-function choose(i){answers[idx]=i; renderQ();}
-function back(){if(idx>0){idx--;renderQ()}}
-function next(){
- if(answers[idx]===null){alert('Wybierz jedną odpowiedź.');return;}
- if(idx<questions.length-1){idx++;renderQ();} else renderResult();
-}
-function renderResult(){
- const scores=new Array(dims.length).fill(0);
- answers.forEach((a,i)=>{if(a!==null)scores[questions[i].weights[a]]++;});
- const max=Math.max(...scores), min=Math.min(...scores);
- const ranked=scores.map((s,i)=>({i,s})).sort((a,b)=>b.s-a.s);
- const top=ranked.slice(0,3), low=ranked.slice(-2).reverse();
- let title;
- const names=top.map(x=>dims[x.i][0]);
- if(top[0].s-top[2].s<=1) title="Wszechstronny profil";
- else if(names.includes("Autonomia") && names.includes("Różnorodność")) title="Niezależny odkrywca";
- else if(names.includes("Stabilność") && names.includes("Struktura")) title="Architekt stabilności";
- else if(names.includes("Relacje") && names.includes("Rezultat")) title="Mobilizator";
- else if(names.includes("Analityka") && names.includes("Kreatywność")) title="Twórczy analityk";
- else title="Profil wielotorowy";
 
- const topTags=top.map(x=>`<span class="tag">${dims[x.i][0]}</span>`).join('');
- const bars=ranked.map(x=>`<div class="dim"><div class="dimline"><span>${dims[x.i][0]}</span><span>${Math.round(x.s/questions.length*100*4)}%</span></div><div class="track"><div class="fill" style="width:${Math.round(x.s/max*100)}%"></div></div></div>`).join('');
- const environments = [];
- if(scores[0]>=scores[1]) environments.push("miejsce, w którym masz realny wpływ na sposób działania");
- if(scores[1]>=scores[0]) environments.push("środowisko z czytelnymi zasadami i przewidywalnością");
- if(scores[2]>=scores[3]) environments.push("praca, w której nie wszystko wygląda tak samo");
- if(scores[3]>=scores[2]) environments.push("praca oparta na współpracy i wymianie z ludźmi");
- if(scores[4]>=scores[5]) environments.push("problemy wymagające zrozumienia i myślenia");
- if(scores[5]>=scores[4]) environments.push("cele, przy których można zobaczyć konkretny efekt");
+const RULES=[
+ {test:s=>s.depth>=68&&s.autonomy>=64&&s.result>=62,name:"ARCHITEKT ROZWIĄZAŃ",sub:["Głębia","Autonomia","Wynik"],desc:"Najpierw chcesz zrozumieć problem. Gdy widzisz sens rozwiązania, najlepiej działasz wtedy, gdy możesz sam zdecydować, jak je przeprowadzić i odpowiadasz za konkretny efekt."},
+ {test:s=>s.exploration>=68&&s.influence>=62&&s.result>=62,name:"INICJATOR RYNKU",sub:["Eksploracja","Wpływ","Wynik"],desc:"Naturalnie szukasz możliwości, uruchamiasz nowe kierunki i chcesz przekładać je na konkretny rezultat."},
+ {test:s=>s.depth>=68&&s.analytical>=66&&s.variety<=48,name:"PROJEKTANT ZŁOŻONOŚCI",sub:["Głębia","Analityczność","Skupienie"],desc:"Dobrze funkcjonujesz wtedy, gdy możesz wejść w trudny temat, rozłożyć go na zależności i dojść do rozwiązania bez ciągłego przeskakiwania."},
+ {test:s=>s.tempo>=68&&s.result>=68&&s.decisiveness>=64,name:"OPERATOR REZULTATU",sub:["Tempo","Wynik","Decyzyjność"],desc:"Najlepiej działasz tam, gdzie trzeba podejmować decyzje, zamykać etapy i dowozić wynik bez nadmiernego przeciągania."},
+ {test:s=>s.relationality>=68&&s.influence>=62,name:"PARTNER KIERUNKU",sub:["Relacyjność","Wpływ"],desc:"Kontakt z ludźmi jest dla Ciebie naturalnym narzędziem budowania wpływu, porozumienia i rezultatu."},
+ {test:s=>s.exploration>=70&&s.variety>=68&&s.stability<=48,name:"POSZUKIWACZ MOŻLIWOŚCI",sub:["Eksploracja","Różnorodność","Elastyczność"],desc:"Potrzebujesz nowych tematów i możliwości do sprawdzania. Zbyt przewidywalne środowisko może ograniczać Twoje zaangażowanie."},
+ {test:s=>s.stability>=70&&s.structure>=66,name:"PROJEKTANT SYSTEMU",sub:["Stabilność","Struktura"],desc:"Najlepiej działasz tam, gdzie zasady są jasne, środowisko przewidywalne, a wartością jest konsekwentne rozwijanie sposobu działania."},
+ {test:s=>s.autonomy>=68&&s.stability>=66,name:"SAMODZIELNOŚĆ W RAMACH",sub:["Autonomia","Stabilność"],desc:"Nie potrzebujesz chaosu ani ciągłej zmiany. Potrzebujesz stabilnego środowiska, w którym masz swobodę decydowania, jak osiągnąć cel."},
+ {test:s=>s.influence>=68&&s.autonomy>=68&&s.relationality<52,name:"ARCHITEKT KIERUNKU",sub:["Wpływ","Autonomia"],desc:"Chcesz mieć realny wpływ na kierunek, ale niekoniecznie potrzebujesz dużej liczby uzgodnień. Odpowiedzialność dobrze działa u Ciebie razem ze sprawczością."}
+];
 
- app.innerHTML=`<div class="top"><span>JOB DNA</span><span>40 / 40</span></div>
- <div class="progress"><div class="bar" style="width:100%"></div></div>
- <div class="result">
- <p style="text-transform:uppercase;letter-spacing:.12em;font-size:13px;font-weight:700;color:#777">Twój wynik</p>
- <h1>${title}</h1>
- <p>To nie jest etykieta osobowości. To mapa preferencji wynikająca z powtarzających się wyborów.</p>
- <div class="card">
- <h2 style="font-size:25px">Najmocniejsze sygnały</h2>${topTags}
- <p>Najsilniej zaznaczają się trzy obszary. Ich połączenie jest ważniejsze niż pojedynczy wynik.</p>
- </div>
- <div class="card" style="margin-top:16px"><h2 style="font-size:25px">Twój profil</h2>${bars}</div>
- <div class="card" style="margin-top:16px"><h2 style="font-size:25px">Środowisko do sprawdzenia</h2>
- <ul class="list">${environments.slice(0,4).map(x=>`<li>${x}</li>`).join('')}</ul></div>
- <div class="card" style="margin-top:16px"><h2 style="font-size:25px">Co może Cię męczyć</h2>
- <ul class="list">${low.map(x=>`<li>Długotrwała przewaga obszaru „${dims[x.i][0]}” może być mniej naturalna dla Twojego profilu.</li>`).join('')}</ul></div>
- <div class="note"><b>Ważne.</b><br>To jest wersja eksperymentalna. Nie używaj jej jeszcze do decyzji rekrutacyjnych. Najpierw porównamy wyniki z poprzednią wersją i poprawimy konstrukcję testu.</div>
- <button class="primary" onclick="start()">Zrób test ponownie</button>
- </div>`;
+function profile(score){
+ const hit=RULES.find(r=>r.test(score)); if(hit)return hit;
+ const top=[...DIMS].sort((a,b)=>score[b]-score[a]).slice(0,3);
+ const first={depth:"ARCHITEKT",analytical:"PROJEKTANT",decisiveness:"INICJATOR",autonomy:"KREATOR",structure:"PROJEKTANT",tempo:"OPERATOR",exploration:"POSZUKIWACZ",result:"KREATOR",stability:"PROJEKTANT",variety:"ŁĄCZNIK",influence:"ARCHITEKT",relationality:"PARTNER"}[top[0]];
+ const second={depth:"ROZWIĄZAŃ",analytical:"ZŁOŻONOŚCI",decisiveness:"DECYZJI",autonomy:"SPRAWCZOŚCI",structure:"SYSTEMU",tempo:"REZULTATU",exploration:"MOŻLIWOŚCI",result:"WYNIKU",stability:"RAM",variety:"PERSPEKTYW",influence:"KIERUNKU",relationality:"WSPÓŁPRACY"}[top[1]];
+ return {name:first+" "+second,sub:top.map(x=>L[x]),desc:`Twój profil nie układa się w jeden sztywny typ. Najsilniej łączą się u Ciebie: ${top.map(x=>L[x]).join(", ")}. To ich połączenie, a nie pojedynczy wynik, opisuje sposób działania.`};
 }
-renderIntro();
+function band(v){return v>=75?"bardzo wysoka":v>=65?"wysoka":v<=25?"bardzo niska":v<=35?"niska":"umiarkowana";}
+function action(s){
+ const p=[];if(s.depth>=65)p.push("najpierw chcesz zrozumieć problem");if(s.autonomy>=65)p.push("potem potrzebujesz swobody w sposobie działania");if(s.result>=65)p.push("a efekt powinien być konkretny");if(s.tempo>=65)p.push("lubisz sprawnie zamykać etapy");if(s.tempo<=35)p.push("nie potrzebujesz ciągłego pośpiechu");if(s.variety>=65)p.push("energia rośnie przy nowych tematach");if(s.variety<=35)p.push("łatwiej Ci się skupić przy mniejszej liczbie równoległych tematów");return p.length?p.join(". ")+".":"Nie ma jeszcze jednego dominującego wzorca działania.";}
+function costs(s){
+ const c=[];if(s.tempo<=35)c.push("ciągłe gaszenie pożarów");if(s.tempo>=65)c.push("przeciągające się decyzje");if(s.autonomy>=65)c.push("mikrozarządzanie");if(s.relationality<=35)c.push("praca oparta niemal wyłącznie na spotkaniach");if(s.relationality>=65)c.push("długotrwała praca bez kontaktu z ludźmi");if(s.stability>=70)c.push("duża nieprzewidywalność");return c.length?c.join(", "):"brak jednego wyraźnego kosztu w tym wyniku.";}
+function roles(s){
+ const r=[];
+ if(s.depth>=62&&s.autonomy>=58&&s.result>=58)r.push(["Ekspertyza techniczna / Product / Solutions","WYSOKIE","łączy głębokie rozumienie produktu z samodzielnością i odpowiedzialnością za efekt"]);
+ if(s.exploration>=62&&s.influence>=55&&s.result>=58)r.push(["Business Development / rozwój rynku","WYSOKIE","łączy odkrywanie możliwości, wpływ i rezultat"]);
+ if(s.relationality>=62&&s.influence>=55)r.push(["Sprzedaż konsultacyjna / KAM / partnerstwo","WYSOKIE","kontakt z ludźmi może być naturalnym narzędziem budowania wpływu i wyniku"]);
+ if(s.tempo>=62&&s.result>=62&&s.decisiveness>=58)r.push(["Realizacja / operacyjne dowożenie","WYSOKIE","sprzyja szybkim decyzjom i zamykaniu rezultatów"]);
+ if(s.structure>=65&&s.stability>=65)r.push(["Proces / jakość / systemy","WYSOKIE","jasne ramy i przewidywalność mogą być dobrym środowiskiem konsekwentnego działania"]);
+ if(!r.length)r.push(["Role hybrydowe / specjalistyczne","DO SPRAWDZENIA","profil nie wskazuje jeszcze jednej dominującej rodziny ról"]);
+ return r.slice(0,5);
+}
+function report(){
+ const {score,conf}=calc(), p=profile(score);
+ const sorted=[...DIMS].sort((a,b)=>score[b]-score[a]), core=sorted.filter(d=>conf[d]>=48).slice(0,4);
+ let h=`<div class="card hero"><div class="kicker">TWOJE JOB DNA</div><div class="profile">${p.name}</div><p>${p.sub.join(" · ")}</p><div class="callout"><b>${p.desc}</b></div><p class="small muted">Wynik opisuje konfigurację odpowiedzi w tym teście. Nie jest stałą etykietą człowieka ani diagnozą.</p></div>`;
+ h+=`<div class="card"><h2>Twój rdzeń</h2><div class="grid">`;
+ core.forEach(d=>h+=`<div class="score"><div class="top"><span>${L[d]}</span><span>${score[d]}</span></div><div class="bar"><i style="width:${score[d]}%"></i></div><div class="small muted">${DESC[d]} · pewność ${conf[d]}%</div></div>`);
+ h+=`</div></div>`;
+ h+=`<div class="card"><h2>Jak działasz</h2><p>${action(score)}</p><p><b>Potencjalny koszt:</b> ${costs(score)}</p></div>`;
+ h+=`<div class="card"><h2>Mapa JOB DNA</h2><div class="grid">`;
+ DIMS.forEach(d=>h+=`<div class="score"><div class="top"><span>${L[d]}</span><span>${score[d]}</span></div><div class="bar"><i style="width:${score[d]}%"></i></div><div class="small muted">${band(score[d])} · pewność ${conf[d]}%</div></div>`);
+ h+=`</div></div>`;
+ h+=`<div class="card"><h2>Kierunki zawodowe</h2><p class="muted">To kierunki do sprawdzenia, nie nakaz wyboru zawodu.</p>`;
+ roles(score).forEach(r=>h+=`<div class="role"><b>${r[0]}</b> <span class="badge">${r[1]}</span><p>${r[2]}.</p></div>`);
+ h+=`</div><div class="card"><h2>Jeszcze jedna rzecz</h2><p>Sanity check: <b>${sanity}</b>. W kolejnych wersjach porównamy go automatycznie z konfiguracją profilu i wykorzystamy do oceny spójności.</p><button onclick="location.reload()">Uruchom test ponownie</button></div>`;
+ document.getElementById("report").innerHTML=h;document.getElementById("report").classList.remove("hidden");window.scrollTo(0,0);
+}
 </script>
 </body>
 </html>
