@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>JOB DNA — wersja testowa</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f5f2;color:#171717;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:760px;margin:auto;padding:18px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:8px 2px 22px;font-weight:800;letter-spacing:.32em;font-size:14px}
+.card{background:#fff;border:1px solid #ddd;border-radius:30px;padding:28px 26px 24px;box-shadow:0 2px 10px #00000008}
+.kicker{font-size:13px;letter-spacing:.16em;color:#777;font-weight:800;text-transform:uppercase}
+h1{font-size:36px;line-height:1.08;margin:18px 0 18px}
+h2{font-size:25px;line-height:1.18;margin:18px 0}
+p{font-size:18px;line-height:1.55;color:#555}
+.note{background:#efefec;border-radius:22px;padding:18px 20px;margin:22px 0;color:#555}
+button{font:inherit}
+.primary{width:100%;border:0;border-radius:18px;background:#171717;color:white;padding:18px;font-weight:750;font-size:18px;cursor:pointer}
+.progress{height:7px;background:#e5e5e2;border-radius:99px;overflow:hidden;margin:20px 0 28px}
+.bar{height:100%;background:#171717;width:0}
+.qnum{font-size:14px;color:#777;margin-bottom:22px}
+.question{font-size:25px;line-height:1.3;font-weight:700;margin-bottom:24px}
+.option{width:100%;text-align:left;background:white;border:2px solid #ddd;border-radius:20px;padding:20px 18px;margin:10px 0;font-size:18px;line-height:1.45;cursor:pointer}
+.option:hover{border-color:#999}
+.option.selected{border-color:#171717;background:#f1f1ee}
+.nav{display:flex;gap:12px;margin-top:18px}
+.nav button{flex:1;border:0;border-radius:18px;padding:17px;font-weight:700;font-size:17px}
+.back{background:#e7e7e4;color:#222}
+.next{background:#171717;color:#fff}
+.next:disabled{opacity:.35;cursor:not-allowed}
+.result h1{margin-bottom:8px}
+.result .lead{font-size:20px;color:#333}
+.metric{margin:22px 0}
+.metrichead{display:flex;justify-content:space-between;font-weight:750;font-size:17px}
+.track{height:10px;background:#e3e3e0;border-radius:99px;overflow:hidden;margin-top:8px}
+.fill{height:100%;background:#171717}
+ul{padding-left:22px}
+li{font-size:18px;line-height:1.55;margin:8px 0;color:#444}
+.small{font-size:14px;color:#777}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span>JOB DNA</span><span>TEST</span></div>
+
+  <section id="intro" class="card">
+    <div class="kicker">wersja testowa</div>
+    <h1>Co naprawdę jest Ci po drodze?</h1>
+    <p>Pomyśl o tym, co zwykle robisz naprawdę — nie o tym, co brzmi rozsądnie albo dobrze wygląda.</p>
+    <p>W każdym pytaniu wybierz <b>jedną</b> z dwóch sytuacji. Nie ma dobrych ani złych odpowiedzi.</p>
+    <div class="note"><b>Ważne:</b> nie próbuj zgadywać, co test chce sprawdzić. Jeśli obie odpowiedzi pasują, wybierz tę, która jest choć trochę bliższa Tobie.</div>
+    <p class="small">36 krótkich sytuacji · około 7–10 minut</p>
+    <button class="primary" onclick="start()">Zaczynam</button>
+  </section>
+
+  <section id="test" class="card hide">
+    <div class="qnum" id="qnum"></div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="question" id="question"></div>
+    <div id="options"></div>
+    <div class="nav">
+      <button class="back" onclick="prev()">Wstecz</button>
+      <button class="next" id="next" onclick="next()" disabled>Dalej</button>
+    </div>
+  </section>
+
+  <section id="result" class="card result hide"></section>
+</div>
+
+<script>
+const questions = [
+["Szef mówi: „Zrób z tym coś, masz wolną rękę”. Nie podaje szczegółów. Co robisz częściej?",
+ "Dopytuję, czego dokładnie oczekuje, zanim ruszę.",
+ "Zaczynam działać i po drodze sam ustalam, jak to najlepiej zrobić.", "structure","autonomy"],
+["Masz zadanie, które znasz bardzo dobrze. Możesz zrobić je po staremu albo spróbować innego sposobu.",
+ "Wybieram sprawdzony sposób, jeśli obecny działa.",
+ "Próbuję innego sposobu, jeśli widzę szansę, że będzie lepiej.", "stability","experiment"],
+["Dostajesz kilka godzin na coś ważnego.",
+ "Wolę wiedzieć wcześniej, co dokładnie ma być gotowe na koniec.",
+ "Wolę mieć swobodę i sam zdecydować, co jest najważniejsze.", "structure","autonomy"],
+["Pracujesz nad czymś przez kilka tygodni i długo nie widać efektu.",
+ "Nie przeszkadza mi to, jeśli wiem, że praca prowadzi do celu.",
+ "Zaczynam tracić energię i szukam czegoś, gdzie efekt będzie szybciej widoczny.", "depth","tempo"],
+["W ciągu jednego dnia pojawiają się trzy różne sprawy.",
+ "Lubię, kiedy dzień jest różnorodny i mogę przeskakiwać między tematami.",
+ "Wolę skończyć jeden temat, zanim zabiorę się za następny.", "variety","depth"],
+["Ktoś proponuje Ci rozwiązanie, którego wcześniej nie używałeś.",
+ "Najpierw chcę zrozumieć, jak to działa i czy ma sens.",
+ "Jeśli wygląda obiecująco, wolę szybko spróbować w praktyce.", "depth","experiment"],
+["Masz ważną decyzję do podjęcia.",
+ "Najpierw zbieram informacje i porównuję możliwości.",
+ "Jeśli kierunek wydaje mi się sensowny, podejmuję decyzję i działam.", "depth","tempo"],
+["Dostajesz zadanie od osoby, która mówi tylko: „Potrzebuję tego na piątek”.",
+ "Pytam o szczegóły, żeby dobrze ustawić pracę.",
+ "Sam ustalam szczegóły i wracam dopiero, gdy potrzebuję czegoś naprawdę ważnego.", "structure","autonomy"],
+["W pracy możesz pracować sam albo z kilkoma osobami.",
+ "Częściej wybieram pracę samodzielną.",
+ "Częściej wybieram pracę z ludźmi.", "autonomy","people"],
+["Masz możliwość nauczenia się nowej rzeczy, ale nie wiesz jeszcze, do czego Ci się przyda.",
+ "Chętnie sprawdzę coś nowego z samej ciekawości.",
+ "Wolę uczyć się rzeczy, które mają dla mnie konkretny cel.", "experiment","result"],
+["Klient lub współpracownik nie zgadza się z Twoim pomysłem.",
+ "Najpierw próbuję zrozumieć, co jest dla niego ważne.",
+ "Przedstawiam swoje argumenty i próbuję przekonać go do rozwiązania.", "people","result"],
+["Masz wpływ na sposób wykonania zadania, ale nikt nie będzie Cię pilnował.",
+ "To mnie mobilizuje — sam organizuję sobie pracę.",
+ "Wolę mieć ustalony sposób działania i jasne punkty kontrolne.", "autonomy","structure"],
+["Dostajesz propozycję pracy. Wynagrodzenie jest atrakcyjne, ale zakres obowiązków jest jeszcze niejasny.",
+ "To mnie nie odstrasza, jeśli widzę ciekawą możliwość.",
+ "Wolę wiedzieć dokładnie, za co będę odpowiadać, zanim się zdecyduję.", "experiment","stability"],
+["W firmie zmienia się sposób pracy.",
+ "Jeśli zmiana ma sens, szybko się przestawiam.",
+ "Potrzebuję najpierw zobaczyć, co konkretnie się zmieni i jak to wpłynie na moją pracę.", "tempo","stability"],
+["Masz do wyboru zadanie łatwe i znane albo trudniejsze, ale nowe.",
+ "Biorę trudniejsze, jeśli może mnie czegoś nauczyć.",
+ "Biorę znane, jeśli dzięki temu mogę zrobić je naprawdę dobrze.", "experiment","depth"],
+["Kiedy kończysz ważne zadanie, co daje Ci większą satysfakcję?",
+ "To, że efekt jest konkretny i można go zobaczyć lub zmierzyć.",
+ "To, że wiem, że zrobiłem coś naprawdę porządnie.", "result","depth"],
+["W grupie nikt nie podejmuje decyzji.",
+ "Zabieram głos i próbuję popchnąć sprawę do przodu.",
+ "Czekam, aż ustalimy wspólne stanowisko.", "result","people"],
+["Masz dużo rzeczy do zrobienia, ale terminy są dość odległe.",
+ "Sam ustalam kolejność i tempo.",
+ "Wolę mieć wcześniej ustalony plan, żeby wiedzieć, co po kolei robić.", "autonomy","structure"],
+["Ktoś prosi Cię o pomoc w sprawie, którą dobrze znasz.",
+ "Lubię wytłumaczyć i pomóc tej osobie dojść do rozwiązania.",
+ "Wolę zrobić swoją część i wrócić do własnych zadań.", "people","autonomy"],
+["Przez kilka dni robisz praktycznie to samo.",
+ "Jeśli zadanie jest sensowne, nie przeszkadza mi powtarzalność.",
+ "Szybko zaczynam potrzebować odmiany.", "stability","variety"],
+["Masz pomysł na ulepszenie czegoś, co działa, ale nikt Cię o to nie prosił.",
+ "Jeśli widzę realną korzyść, zgłaszam pomysł i próbuję go wdrożyć.",
+ "Jeśli wszystko działa, nie mam potrzeby tego ruszać bez wyraźnego powodu.", "experiment","stability"],
+["Pracujesz z osobą, która ma zupełnie inne zdanie niż Ty.",
+ "Ciekawi mnie, skąd patrzy na sprawę inaczej.",
+ "Wolę szybko ustalić, które rozwiązanie jest lepsze i iść dalej.", "people","result"],
+["Dostajesz temat, którego wcześniej nie robiłeś.",
+ "Najpierw szukam informacji i próbuję zrozumieć temat.",
+ "Najpierw robię pierwszą próbę, żeby zobaczyć, z czym mam do czynienia.", "depth","experiment"],
+["Masz bardzo napięty dzień.",
+ "Skupiam się na najważniejszym i działam szybko.",
+ "Wolę zwolnić na chwilę i ustawić kolejność, żeby nie robić chaosu.", "tempo","structure"],
+["Wiesz, że Twoja praca będzie oceniona dopiero za kilka miesięcy.",
+ "Nie przeszkadza mi to — ważne, że wiem, co robię.",
+ "Wolałbym częściej widzieć efekty po drodze.", "depth","tempo"],
+["Możesz zostać specjalistą w jednej konkretnej dziedzinie albo zajmować się kilkoma różnymi tematami.",
+ "Bardziej pociąga mnie poznanie jednej rzeczy naprawdę głęboko.",
+ "Bardziej pociąga mnie łączenie kilku różnych tematów.", "depth","variety"],
+["W pracy pojawia się problem, którego nikt wcześniej nie przewidział.",
+ "Najpierw ustalam, co dokładnie się stało i jakie mamy ograniczenia.",
+ "Od razu szukam kilku możliwych sposobów wyjścia z sytuacji.", "structure","experiment"],
+["Ktoś daje Ci bardzo konkretną instrukcję, jak coś zrobić.",
+ "Cenię to, bo wiem wtedy dokładnie, czego się trzymać.",
+ "Wolę znać cel i samemu zdecydować, jak do niego dojść.", "stability","autonomy"],
+["Masz możliwość wynegocjowania lepszego wyniku, ale wymaga to kilku rozmów.",
+ "Chętnie podejmuję rozmowy, jeśli mogą realnie coś zmienić.",
+ "Wolę poświęcić ten czas na wykonanie konkretnej pracy.", "result","depth"],
+["Wchodzisz do nowej firmy. Pierwsze tygodnie są pełne nowych ludzi, tematów i informacji.",
+ "Taka ilość nowych rzeczy raczej mnie pobudza.",
+ "Wolę spokojnie poznać środowisko, zanim zacznę działać na pełnych obrotach.", "variety","stability"],
+["Masz do wyboru pracę, w której wynik zależy głównie od Ciebie, albo taką, w której wynik zależy od całego zespołu.",
+ "Wolę sytuację, w której mój wynik zależy przede wszystkim ode mnie.",
+ "Nie przeszkadza mi zależność od innych, jeśli dobrze się ze sobą dogadujemy.", "autonomy","people"],
+["Kiedy coś nie działa, co robisz najczęściej?",
+ "Rozbieram problem na części i próbuję znaleźć przyczynę.",
+ "Próbuję kilku rozwiązań i sprawdzam, które zadziała.", "depth","experiment"],
+["Dostajesz możliwość wyboru między spokojną pracą a pracą bardziej dynamiczną, ale mniej przewidywalną.",
+ "Wybieram spokojniejszą, jeśli warunki są dobre.",
+ "Wybieram dynamiczną, jeśli dzięki temu nie będę się nudzić.", "stability","variety"],
+["Kiedy ktoś ocenia Twoją pracę, bardziej interesuje Cię:",
+ "Czy efekt faktycznie przyniósł to, co miał przynieść.",
+ "Co można jeszcze poprawić w sposobie wykonania.", "result","depth"],
+["Masz tydzień bez pilnych zadań.",
+ "Sam znajduję rzeczy, które można poprawić albo zrobić inaczej.",
+ "Cieszę się, że mogę spokojnie zrobić to, co normalnie odkładam.", "experiment","stability"],
+["Ważny projekt wymaga współpracy kilku osób.",
+ "Najbardziej interesuje mnie, żeby każdy wiedział, co ma zrobić i żeby projekt ruszył.",
+ "Najbardziej interesuje mnie, żeby ludzie dobrze się dogadali i chcieli ze sobą współpracować.", "structure","people"]
+];
+
+let idx=0, answers=[];
+const labels={result:"Wynik",autonomy:"Samodzielność",stability:"Stabilność",structure:"Porządek",tempo:"Tempo",depth:"Głębia",people:"Ludzie",experiment:"Eksperymentowanie",variety:"Różnorodność"};
+
+function start(){document.getElementById("intro").classList.add("hide");document.getElementById("test").classList.remove("hide");render();}
+function render(){
+ const q=questions[idx]; document.getElementById("qnum").textContent=`PYTANIE ${idx+1} Z ${questions.length}`;
+ document.getElementById("bar").style.width=((idx)/questions.length*100)+"%";
+ document.getElementById("question").textContent=q[0];
+ const box=document.getElementById("options"); box.innerHTML="";
+ [q[1],q[2]].forEach((txt,i)=>{const b=document.createElement("button");b.className="option"+(answers[idx]===i?" selected":"");b.textContent=txt;b.onclick=()=>{answers[idx]=i;render();};box.appendChild(b);});
+ document.getElementById("next").disabled=answers[idx]===undefined;
+ document.getElementById("next").textContent=idx===questions.length-1?"Zobacz wynik":"Dalej";
+}
+function prev(){if(idx>0){idx--;render();}}
+function next(){if(answers[idx]===undefined)return;if(idx<questions.length-1){idx++;render();}else showResult();}
+function showResult(){
+ const scores={}; Object.keys(labels).forEach(k=>scores[k]=0);
+ questions.forEach((q,i)=>{const key=answers[i]===0?q[3]:q[4];scores[key]++;});
+ // Each dimension appears 8 times exactly in the item construction.
+ const pct={}; Object.keys(scores).forEach(k=>pct[k]=Math.round(scores[k]/8*100));
+ let ordered=Object.keys(pct).sort((a,b)=>pct[b]-pct[a]);
+ const top=ordered.slice(0,3);
+ const profile = profileText(top);
+ let metrics=ordered.map(k=>`<div class="metric"><div class="metrichead"><span>${labels[k]}</span><span>${pct[k]}%</span></div><div class="track"><div class="fill" style="width:${pct[k]}%"></div></div></div>`).join("");
+ document.getElementById("test").classList.add("hide");
+ const r=document.getElementById("result");r.classList.remove("hide");
+ r.innerHTML=`<div class="kicker">Twój wynik</div><h1>${profile.title}</h1><p class="lead">${profile.lead}</p><h2>Jak wyszło</h2>${metrics}<hr style="border:0;border-top:1px solid #ddd;margin:30px 0"><h2>Co warto sprawdzić</h2><ul>${profile.checks.map(x=>`<li>${x}</li>`).join("")}</ul><div class="note"><b>To nie diagnoza.</b> Ten test jest prototypem. Wynik pokazuje wzorzec odpowiedzi w tym zestawie sytuacji, a nie „jaki jesteś na zawsze”.</div><button class="primary" onclick="location.reload()">Zrób test ponownie</button>`;
+}
+function profileText(top){
+ const s=top.join(",");
+ if(s.includes("autonomy")&&s.includes("variety")) return {title:"Samodzielny odkrywca",lead:"Najlepiej możesz działać wtedy, gdy masz wpływ na sposób pracy i nie jesteś zamknięty w jednym schemacie.",checks:["Co się dzieje, gdy masz dużo swobody, ale mało jasnych zasad.","Czy różnorodność nadal Ci służy, gdy trzeba jednocześnie pilnować szczegółów.","Jak reagujesz na sytuacje, w których decyzje mają długie konsekwencje."]};
+ if(s.includes("stability")&&s.includes("structure")) return {title:"Spokojny organizator",lead:"Wyraźne zasady i przewidywalne warunki mogą pomagać Ci wykorzystać energię na samą pracę, zamiast na ciągłe ustalanie, co właściwie robić.",checks:["Jak reagujesz, gdy zasady nagle się zmieniają.","Czy uporządkowane środowisko daje Ci więcej skuteczności czy po prostu komfort.","Jak długo możesz pracować nad jednym tematem bez potrzeby zmiany."]};
+ if(s.includes("people")&&s.includes("result")) return {title:"Napędzający innych",lead:"Wynik może być dla Ciebie szczególnie ciekawy wtedy, gdy można go osiągnąć przez rozmowę, wpływ i współpracę z ludźmi.",checks:["Czy łatwo Ci wejść w trudną rozmowę, gdy stawką jest konkretny efekt.","Czy bardziej męczą Cię ludzie czy brak wpływu na decyzje.","Jak reagujesz, gdy dobra współpraca nie daje szybkiego wyniku."]};
+ if(s.includes("depth")&&s.includes("stability")) return {title:"Dociekliwy specjalista",lead:"Możesz dobrze działać tam, gdzie jest czas na zrozumienie tematu i zrobienie czegoś porządnie, bez ciągłego przeskakiwania.",checks:["Czy potrzebujesz dużo czasu na wejście w nowy temat.","Co robisz, gdy ktoś oczekuje szybkiej odpowiedzi bez pełnych danych.","Czy powtarzalność pomaga Ci się skupić, czy po czasie zaczyna męczyć."]};
+ if(s.includes("experiment")&&s.includes("tempo")) return {title:"Praktyczny inicjator",lead:"Możesz mieć naturalną skłonność do szybkiego sprawdzania pomysłów zamiast długo rozważać wszystkie możliwości.",checks:["Czy szybkie działanie nadal działa Ci dobrze przy dużym ryzyku błędu.","Czy potrafisz zatrzymać się, gdy temat wymaga dokładniejszego poznania.","Jak reagujesz, gdy pomysł trzeba długo dopracowywać przed wdrożeniem."]};
+ return {title:"Profil mieszany",lead:"Wynik nie wskazuje jednego dominującego sposobu działania. To może oznaczać elastyczność albo zależność od konkretnego środowiska.",checks:["W jakich sytuacjach zmienia się Twój sposób działania.","Które warunki pracy dają Ci energię, a które ją odbierają.","Czy Twoje wybory są podobne w pracy i poza pracą."]};
+}
+</script>
+</body>
+</html>
