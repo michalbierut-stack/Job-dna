@@ -103,7 +103,19 @@ const RAW_Q = `1|Dostajesz nowy produkt i możesz poświęcić godzinę na przyg
 47|Na koniec tygodnia patrzysz na to, jak pracowałeś.|Najbardziej naturalne jest dla mnie łączenie kontaktu z ludźmi z samodzielnym działaniem.|Wolę mieć możliwość samodzielnego wyboru sposobu pracy, nawet jeśli oznacza to mniej kontaktu.
 48|Otrzymujesz ważny cel, ale sposób jego realizacji zależy od Ciebie.|Najbardziej naturalne jest dla mnie uzgodnić kierunek z ludźmi i działać we współpracy.|Najbardziej naturalne jest dla mnie samodzielnie wybrać sposób działania i wziąć za niego odpowiedzialność.`;
 const Q = RAW_Q.split("\n").filter(Boolean).map(x=>{const p=x.split("|");return [p[1],p[2],p[3]];});
-const M = {1:['depth','analytical',1,-1],2:['depth','decisiveness',1,-1],3:['depth','autonomy',1,-1],4:['depth','structure',1,-1],5:['analytical','decisiveness',1,-1],6:['analytical','autonomy',1,-1],7:['analytical','structure',1,-1],8:['analytical','tempo',1,-1],9:['decisiveness','autonomy',1,-1],10:['decisiveness','structure',1,-1],11:['decisiveness','tempo',1,-1],12:['decisiveness','exploration',1,-1],13:['autonomy','structure',1,-1],14:['autonomy','tempo',1,-1],15:['autonomy','exploration',1,-1],16:['autonomy','result',1,-1],17:['structure','tempo',1,-1],18:['structure','exploration',1,-1],19:['structure','result',1,-1],20:['structure','stability',1,-1],21:['tempo','exploration',1,-1],22:['tempo','result',1,-1],23:['tempo','stability',1,-1],24:['tempo','variety',1,-1],25:['exploration','result',1,-1],26:['exploration','stability',1,-1],27:['exploration','variety',1,-1],28:['exploration','influence',1,-1],29:['result','stability',1,-1],30:['result','variety',1,-1],31:['result','influence',1,-1],32:['result','relationality',1,-1],33:['stability','variety',1,-1],34:['stability','influence',1,-1],35:['stability','relationality',1,-1],36:['stability','depth',1,-1],37:['variety','influence',1,-1],38:['variety','relationality',1,-1],39:['variety','depth',1,-1],40:['variety','analytical',1,-1],41:['influence','relationality',1,-1],42:['influence','depth',1,-1],43:['influence','analytical',1,-1],44:['influence','decisiveness',1,-1],45:['relationality','depth',1,-1],46:['relationality','analytical',1,-1],47:['relationality','decisiveness',1,-1],48:['relationality','autonomy',1,-1]};
+const M = {
+1:['depth','analytical',1,-1],2:['depth','decisiveness',1,-1],3:['autonomy','depth',1,-1],4:['depth','structure',1,-1],
+5:['analytical','decisiveness',1,-1],6:['autonomy','analytical',1,-1],7:['analytical','structure',1,-1],8:['analytical','tempo',1,-1],
+9:['decisiveness','autonomy',1,-1],10:['decisiveness','structure',1,-1],11:['decisiveness','stability',1,-1],12:['decisiveness','autonomy',1,-1],
+13:['autonomy','structure',1,-1],14:['autonomy','tempo',1,-1],15:['autonomy','exploration',1,-1],16:['autonomy','result',1,-1],
+17:['autonomy','tempo',1,-1],18:['autonomy','exploration',1,-1],19:['autonomy','tempo',1,-1],20:['autonomy','result',1,-1],
+21:['autonomy','result',1,-1],22:['tempo','result',1,-1],23:['stability','variety',1,-1],24:['variety','tempo',1,-1],
+25:['exploration','result',1,-1],26:['exploration','stability',1,-1],27:['exploration','variety',1,-1],28:['exploration','result',1,-1],
+29:['stability','variety',1,-1],30:['result','variety',1,-1],31:['influence','result',1,-1],32:['relationality','result',1,-1],
+33:['stability','variety',1,-1],34:['stability','influence',1,-1],35:['stability','relationality',1,-1],36:['stability','depth',1,-1],
+37:['variety','influence',1,-1],38:['variety','depth',1,-1],39:['variety','depth',1,-1],40:['influence','relationality',1,-1],
+41:['influence','depth',1,-1],42:['influence','analytical',1,-1],43:['influence','decisiveness',1,-1],44:['relationality','depth',1,-1],
+45:['relationality','analytical',1,-1],46:['relationality','decisiveness',1,-1],47:['relationality','autonomy',1,-1],48:['relationality','autonomy',1,-1]};
 const DIMS = ["depth","analytical","decisiveness","autonomy","structure","tempo","exploration","result","stability","variety","influence","relationality"];
 const L = {
  depth:"Głębia", analytical:"Analityczność", decisiveness:"Decyzyjność", autonomy:"Autonomia",
@@ -161,7 +173,10 @@ function calc(){
    score[d]=wt[d]?Math.round((sum[d]/wt[d]+1)*50):50;
    const o=obs[d], mean=o.reduce((a,b)=>a+b,0)/(o.length||1), variance=o.reduce((a,b)=>a+(b-mean)**2,0)/(o.length||1);
    const consistency=Math.max(0,1-Math.sqrt(variance));
-   conf[d]=Math.round(Math.min(1,o.length/7)*55+consistency*45);
+   // Confidence reflects both consistency and the number of independent observations.
+   // It must not become artificially high just because a small set is internally consistent.
+   const coverage=Math.min(1,o.length/8);
+   conf[d]=Math.round(coverage*70+consistency*30);
  });
  return {score,conf};
 }
@@ -186,6 +201,7 @@ function profile(score){
 }
 function band(v){return v>=75?"bardzo wysoka":v>=65?"wysoka":v<=25?"bardzo niska":v<=35?"niska":"umiarkowana";}
 function status(v){return v>=65?"wyraźnie po tej stronie":v<=35?"wyraźnie po przeciwnej stronie":"bez wyraźnej przewagi";}
+function confidenceLabel(c){return c>=80?"wysoka":c>=60?"umiarkowana":c>=40?"ograniczona":"niska";}
 function action(s){
  const parts=[];
  if(s.result>=65&&s.relationality>=62)parts.push("kontakt z ludźmi ma największą wartość wtedy, gdy prowadzi do konkretnego rezultatu");
