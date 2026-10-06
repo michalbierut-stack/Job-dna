@@ -22,6 +22,20 @@ h1{font-size:45px;line-height:1.01;letter-spacing:-2px;margin:10px 0 16px}h2{fon
 
 .section-note{font-size:14px;color:var(--muted);line-height:1.5;margin:-3px 0 16px}.npcs{display:grid;gap:10px}.npc{border-radius:18px;padding:16px;background:#f7f6f3}.npc b{display:block;font-size:14px;margin-bottom:5px}.npc p{margin:0;color:#5f5c57;font-size:14px;line-height:1.5}.confidence-help{margin-top:14px;padding:13px 15px;border-radius:15px;background:#faf9f7;border:1px solid var(--line);font-size:12px;line-height:1.5;color:var(--muted)}.fit-explain{margin:12px 0 16px;padding:14px 16px;border-radius:16px;background:#faf9f7;border:1px solid var(--line);font-size:13px;line-height:1.5;color:#5f5c57}.fit-explain b{color:#171717}.role-row .fit-note{font-size:12px}
 </style>
+
+<style>
+.jobx{background:linear-gradient(180deg,#fff 0%,#f7f5ff 100%)}
+.jobx textarea{width:100%;min-height:190px;resize:vertical;border:1px solid var(--line);border-radius:18px;padding:16px;font:inherit;font-size:15px;line-height:1.5;background:#fff;color:var(--text);outline:none}
+.jobx textarea:focus{border-color:#aaa;box-shadow:0 0 0 3px rgba(108,99,255,.08)}
+.jobx-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}
+.jobx-result{margin-top:18px}
+.jobx-score{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:15px 0;border-bottom:1px solid var(--line)}
+.jobx-score:last-child{border-bottom:0}.jobx-score b{font-size:17px}.jobx-score small{display:block;color:var(--muted);margin-top:4px;line-height:1.35}
+.jobx-fit{font-size:30px;font-weight:900;letter-spacing:-1px}.jobx-good{color:#4f46c9}.jobx-warn{color:#8a6a00}.jobx-low{color:#777}
+.jobx-flags{display:grid;gap:9px;margin-top:14px}.jobx-flag{padding:13px 15px;border-radius:15px;background:#f7f6f3;font-size:14px;line-height:1.45}.jobx-flag b{display:block;margin-bottom:3px}
+.jobx-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.jobx-chip{padding:7px 10px;border-radius:999px;background:#f1efff;color:#554bd2;font-size:11px;font-weight:800}
+@media(max-width:650px){.jobx-score{align-items:flex-start}.jobx-fit{font-size:26px}}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -317,6 +331,54 @@ function actionPlan(s,rr){
  if(s.decisiveness<45) filters.push("sprawdzaj, ile decyzji trzeba podejmować samodzielnie i przy jakim poziomie niepewności");
  return {top,filters:filters.slice(0,5)};
 }
+
+const JOB_SIGNALS={
+ depth:{pos:["produkt","technicz","rozwiązani","specyfik","wiedza produkt","doradzt","ekspert","szkoleni"],neg:["prosta sprzedaż","szybka sprzedaż"]},
+ analytical:{pos:["analiz","dane","raport","excel","wskaźnik","kpi","forecast","prognoz","research","analiza rynku"],neg:["bez raportów"]},
+ decisiveness:{pos:["decyzj","odpowiedzialność za","samodzieln","negocjac","priorytet","zarządzanie"],neg:["akceptacja przełożonego","zgoda przełożonego"]},
+ autonomy:{pos:["samodzieln","autonom","własna inicjatywa","odpowiedzialność za rynek","budowanie rynku","własny obszar"],neg:["ścisły nadzór","według instrukcji","mikrozarządz"]},
+ structure:{pos:["procedur","proces","standard","system","organizac","planowanie","harmonogram","wdrożeni"],neg:["chaos"]},
+ tempo:{pos:["dynamiczn","szybkie tempo","szybko","terminy","target","sprzedaż miesięcz","deadline"],neg:["spokojne tempo"]},
+ exploration:{pos:["nowy rynek","rozwój rynku","nowe rozwiązani","innowac","testowani","eksperyment","wdrażani nowych","poszukiwanie możliwości"],neg:["powtarzaln","stały proces"]},
+ result:{pos:["wynik","sprzedaż","target","cel sprzedaż","rezultat","realizacj planu","odpowiedzialność za wynik","marż"],neg:["bez targetów"]},
+ stability:{pos:["stabiln","stałe zatrudnienie","ugruntowan","przewidywaln","długoterminow","bezpieczeństwo"],neg:["start-up","niepewność","zmienność"]},
+ variety:{pos:["różnorodn","wiele projektów","różne klient","różne produkty","multizadani","szeroki zakres","różne rynki"],neg:["powtarzaln","jednorodn"]},
+ influence:{pos:["wpływ na","kształtowanie","strategi","decyzje","rozwój oferty","negocjac","partner","rekomendac","specyfikac"],neg:["wykonawcz","zgodnie z decyzją"]},
+ relationality:{pos:["klient","partner","architekt","dystrybutor","zespół","relacje","spotkania","negocjac","prezentac","kontakt z ludźmi"],neg:["praca samodzielna bez kontaktu"]}
+};
+function norm(t){return t.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'');}
+function jobSignals(text){
+ const t=norm(text); const raw={};
+ DIMS.forEach(d=>{let score=0,hits=[];(JOB_SIGNALS[d]?.pos||[]).forEach(k=>{if(t.includes(norm(k))){score++;hits.push(k)}});(JOB_SIGNALS[d]?.neg||[]).forEach(k=>{if(t.includes(norm(k))){score--;hits.push('− '+k)}});raw[d]=Math.max(-1,Math.min(1,score/3));});
+ // Neutral dimensions should not be treated as 0=low; they are simply unknown.
+ const target={};DIMS.forEach(d=>target[d]=raw[d]>0?50+raw[d]*45:raw[d]<0?50+raw[d]*35:50);return {target,raw};
+}
+function jobFit(user,job){
+ let sum=0,w=0;DIMS.forEach(d=>{const evidence=Math.abs(job.raw[d]);if(evidence>.01){const weight=.55+evidence;sum+=(100-Math.abs(user[d]-job.target[d]))*weight;w+=weight;}});
+ return w?Math.round(sum/w):50;
+}
+function analyzeJob(){
+ const el=document.getElementById('jobxText'), out=document.getElementById('jobxResult');if(!el||!out)return;const text=el.value.trim();if(text.length<80){out.innerHTML='<div class="jobx-flag"><b>Potrzebuję trochę więcej treści.</b> Wklej przynajmniej fragment zawierający obowiązki, wymagania i sposób pracy.</div>';return;}
+ const {score}=calc(), job=jobSignals(text), fit=jobFit(score,job);
+ const known=DIMS.map(d=>({d,e:Math.abs(job.raw[d]),diff:Math.abs(score[d]-job.target[d])})).filter(x=>x.e>.01).sort((a,b)=>b.e-a.e);
+ const strongest=known.slice(0,4);const matches=strongest.filter(x=>x.diff<=18).slice(0,3);const tensions=strongest.filter(x=>x.diff>30).slice(0,3);
+ let label=fit>=75?'WYSOKIE DOPASOWANIE':fit>=60?'WARTE SPRAWDZENIA':fit>=45?'MIESZANE DOPASOWANIE':'NISKIE DOPASOWANIE';let cls=fit>=75?'jobx-good':fit>=60?'jobx-warn':'jobx-low';
+ let h='<div class="jobx-score"><div><b>'+label+'</b><small>heurystyczne dopasowanie sposobu działania do treści ogłoszenia</small></div><div class="jobx-fit '+cls+'">'+fit+'/100</div></div>';
+ if(strongest.length){h+='<div class="jobx-chips">'+strongest.map(x=>'<span class="jobx-chip">'+L[x.d]+'</span>').join('')+'</div>';}
+ h+='<div class="jobx-flags">';
+ if(matches.length)h+='<div class="jobx-flag"><b>Co może działać</b>'+matches.map(x=>'• '+L[x.d]+': profil i ogłoszenie są po podobnej stronie.').join('<br>')+'</div>';
+ if(tensions.length)h+='<div class="jobx-flag"><b>Co koniecznie sprawdzić</b>'+tensions.map(x=>'• '+L[x.d]+': ogłoszenie sugeruje inny sposób pracy niż Twój profil.').join('<br>')+'</div>';
+ if(!matches.length&&!tensions.length)h+='<div class="jobx-flag"><b>Za mało sygnałów</b> Ogłoszenie nie zawiera wystarczająco jednoznacznych informacji o sposobie pracy. Nie traktuj wyniku jako negatywnego.</div>';
+ h+='<div class="jobx-flag"><b>Najważniejsze pytanie na rozmowie</b> „Jak dużo samodzielnie decyduje osoba na tym stanowisku i na co realnie ma wpływ?”</div>';
+ h+='</div><div class="confidence-help"><b>Ważne:</b> analiza działa tylko na tekście, który wkleisz. Nie zna firmy, przełożonego ani rzeczywistej kultury pracy. Przed decyzją porównaj wynik z pełnym ogłoszeniem i rozmową rekrutacyjną.</div>';
+ out.innerHTML=h;out.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function loadJobExample(){document.getElementById('jobxText').value=`Business Development Manager — Polska\
+\
+Odpowiedzialność za rozwój rynku i budowanie sieci partnerów. Poszukiwanie nowych możliwości biznesowych, prowadzenie negocjacji z dystrybutorami i architektami, przygotowywanie rekomendacji produktowych oraz rozwijanie nowych kanałów sprzedaży. Samodzielne planowanie działań na powierzonym rynku i odpowiedzialność za realizację celów sprzedażowych. Współpraca z zespołem marketingu i produktu.\
+\
+Oczekujemy doświadczenia w sprzedaży B2B, znajomości branży budowlanej, umiejętności prowadzenia prezentacji i negocjacji oraz samodzielności.`;document.getElementById('jobxText').focus();}
+
 function report(){
  const {score,conf}=calc(), p=profile(score), con=connections(score), rr=roles(score);
  const sorted=[...DIMS].sort((a,b)=>score[b]-score[a]), core=sorted.slice(0,4);
@@ -335,6 +397,7 @@ function report(){
  h+=`<div class="card"><h2>Kierunki zawodowe</h2><p class="muted">To nie są rekomendacje zawodów „na zawsze”. To rodziny ról, w których Twoja konfiguracja może mieć dobre zastosowanie.</p><div class="fit-explain"><b>Jak czytać dopasowanie?</b><br>To heurystyczne dopasowanie <b>sposobu działania</b> do typowego kontekstu danej rodziny ról. Nie ocenia Twoich kwalifikacji, doświadczenia ani szans w konkretnej rekrutacji. Wysoki wynik mówi: „warto sprawdzić”, a nie: „ta praca na pewno jest dla Ciebie”.</div>`;
  const roleIcons=["↗","◉","✦","⌁","▦"]; rr.forEach((r,i)=>{const level=r.fit>=68?"WYSOKIE":r.fit>=55?"DO SPRAWDZENIA":"WARUNKOWE"; const d=roleDetails(r.name,score); h+=`<div class="role-row ${r.fit<55?'low':r.fit<68?'conditional':''}"><div class="role-media">${roleIcons[i%roleIcons.length]}</div><div class="role-main"><h3>${r.name}</h3><div class="role-meta"><span class="badge">${level}</span><span class="fit-note">heurystyczne dopasowanie ${r.fit}/100</span></div><p>${r.why}.</p><details><summary>Sprawdź tę rolę</summary><div class="role-detail"><div><b>Dlaczego może działać</b><p>${d.why}</p></div><div><b>Szukaj w ogłoszeniu</b><ul>${d.look.map(x=>`<li>${x}</li>`).join("")}</ul></div><div><b>Uważaj na</b><ul>${d.avoid.map(x=>`<li>${x}</li>`).join("")}</ul></div></div></details></div><div class="arrow">›</div></div>`});
  h+=`</div>`;
+ h+=`<div class="card jobx" id="jobx"><div class="kicker">JOB DNA × JOB</div><h2>Sprawdź konkretną ofertę pracy</h2><p class="lead">Wklej treść ogłoszenia, a JOB DNA porówna <b>Twój sposób działania</b> z tym, czego wymaga opisana rola.</p><div class="audit-note"><b>To jeszcze nie jest analiza AI ani ocena kwalifikacji.</b><br>System rozpoznaje sygnały z treści ogłoszenia i porównuje je z Twoim profilem. Wynik jest heurystyką: ma pomóc zdecydować, czy warto wejść w ofertę głębiej.</div><textarea id="jobxText" placeholder="Wklej tutaj całe ogłoszenie — najlepiej z zakresem obowiązków, wymaganiami i informacją o środowisku pracy..."></textarea><div class="jobx-actions"><button onclick="analyzeJob()">Sprawdź dopasowanie →</button><button class="secondary" onclick="loadJobExample()">Pokaż przykład</button></div><div id="jobxResult" class="jobx-result"></div></div>`;
  h+=`<div class="card action-card"><div class="kicker">NASTĘPNY KROK</div><h2>Nie szukaj „idealnego zawodu”. Szukaj właściwego kontekstu.</h2><p class="lead">Na podstawie Twojego profilu najsensowniej zacząć od: <b>${plan.top.join(", ")}</b>.</p><div class="plan-list">${plan.filters.map((x,i)=>`<div class="plan-row"><span>${i+1}</span><p>${x}.</p></div>`).join("")}</div><div class="insight"><b>JOB DNA ma pomagać podejmować decyzje.</b><p>Przy każdej ofercie zadaj sobie pytanie: <b>czy ta praca pozwoli mi wykorzystywać mój sposób działania, czy tylko wykorzysta moje umiejętności?</b></p></div></div>`;
  h+=`<div class="card"><h2>Na co zwrócić uwagę przy wyborze pracy?</h2><p>Nie patrz tylko na nazwę stanowiska. Przy ofertach sprawdzaj przede wszystkim <b>zakres wpływu, poziom samodzielności, sposób rozliczania wyniku, ilość ciągłego gaszenia pożarów oraz to, czy kontakt z ludźmi prowadzi do realnego efektu.</b></p><button onclick="location.reload()">Zrób test ponownie</button></div>`;
  document.getElementById("report").innerHTML=h;document.getElementById("report").classList.remove("hidden");window.scrollTo(0,0);
