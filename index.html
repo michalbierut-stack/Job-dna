@@ -11,7 +11,7 @@
 h1{font-size:42px;line-height:1.03;letter-spacing:-1.5px;margin:8px 0 12px} h2{font-size:25px;margin:0 0 12px}
 .muted{color:var(--muted)} .kicker{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#777}
 .progress{height:7px;background:#e9e9e6;border-radius:9px;overflow:hidden;margin:14px 0 22px} .progress i{display:block;height:100%;background:#171717;width:0}
-.q{font-size:22px;font-weight:750;line-height:1.28;margin:16px 0} .answers{display:grid;gap:10px}
+.q{font-size:22px;font-weight:750;line-height:1.28;margin:16px 0} .choices{display:grid;gap:10px;margin:14px 0 18px}.choice{border:1px solid var(--line);border-radius:16px;padding:15px 16px;background:#fafaf8}.choice b{display:block;font-size:13px;letter-spacing:.08em;margin-bottom:6px}.choice span{font-size:16px;line-height:1.35}.answers{display:grid;gap:10px}
 .answer{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;cursor:pointer;font-size:15px}
 .answer:hover{border-color:#999} .answer b{display:block;margin-bottom:4px}
 button{border:0;border-radius:14px;padding:13px 18px;background:#171717;color:#fff;font-weight:750;cursor:pointer}
@@ -38,7 +38,7 @@ button{border:0;border-radius:14px;padding:13px 18px;background:#171717;color:#f
 
 <section id="test" class="card hidden">
 <div class="kicker" id="counter"></div><div class="progress"><i id="bar"></i></div>
-<div class="q" id="q"></div><div class="answers" id="answers"></div>
+<div class="q" id="q"></div><div class="choices" id="choices"></div><div class="answers" id="answers"></div>
 <div class="actions"><button class="secondary" onclick="back()">Wstecz</button><span></span></div>
 </section>
 
@@ -130,6 +130,8 @@ function render(){
  document.getElementById("counter").textContent=`PYTANIE ${idx+1} Z ${Q.length}`;
  document.getElementById("bar").style.width=(idx/Q.length*100)+"%";
  document.getElementById("q").textContent=Q[idx][0];
+ const choices=document.getElementById("choices");
+ choices.innerHTML=`<div class="choice"><b>A</b><span>${Q[idx][1]}</span></div><div class="choice"><b>B</b><span>${Q[idx][2]}</span></div>`;
  const box=document.getElementById("answers");box.innerHTML="";
  [["AD","A zdecydowanie","A jest wyraźnie bliższa"],["AR","A raczej","A jest trochę bliższa"],["BR","B raczej","B jest trochę bliższa"],["BD","B zdecydowanie","B jest wyraźnie bliższa"]].forEach(x=>{
   const b=document.createElement("button");b.className="answer";
@@ -219,4 +221,3 @@ function report(){
 </script>
 </body>
 </html>
-    <!-- deploy refresh -->
