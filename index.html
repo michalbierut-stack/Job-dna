@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>JOB DNA 1.7</title>
+<title>JOB DNA 1.3</title>
 <style>
 :root{--bg:#f3f2ef;--card:#fff;--text:#171717;--muted:#73716d;--line:#e5e2dc;--soft:#f5f3ef;--accent:#6c63ff;--accent-soft:#efedff}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#eeece7 0%,#f7f6f3 55%,#efede9 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -71,10 +71,50 @@ body{background:#efede8;font-family:Inter,system-ui,-apple-system,BlinkMacSystem
 #sanity{padding:24px 22px}.sanity button{border-radius:16px;padding:15px;font-size:14px}
 @media(min-width:651px){.wrap{max-width:390px}}
 </style>
+
+<style>
+/* === FINAL SIMULATION MATCH OVERRIDES v1.8 === */
+#report{padding:0}
+#report>.card{margin:8px 0 14px}
+#report>.hero{padding:24px 22px 18px}
+#report .profile{font-size:34px;line-height:1.03;letter-spacing:-1.7px}
+#report .profile-sub{font-size:18px;line-height:1.25;margin:10px 0 18px}
+#report .callout{font-size:17px;line-height:1.42;margin:16px 0;border-left-width:4px}
+#report .hero .lead{font-size:16px;line-height:1.48;color:#575550}
+#report .result-image{height:250px;border-radius:20px;margin-top:20px;background:linear-gradient(180deg,#d6dde0 0%,#c7d0d1 38%,#a8aaa4 39%,#70736d 100%)}
+#report .result-caption{left:20px;bottom:18px;font-size:24px;line-height:1.08;max-width:86%}
+#report .hero>.small{font-size:12px;text-align:center;margin:12px 0 0}
+#report h2{font-size:28px;line-height:1.05;letter-spacing:-1.2px}
+#report>.card>p.muted{font-size:16px;line-height:1.45}
+#report .grid{display:block}
+#report .score{border:0;border-bottom:1px solid #e8e5df;border-radius:0;padding:15px 0 14px}
+#report .score:last-child{border-bottom:0}
+#report .score .top{font-size:16px}
+#report .score .bar{height:6px;margin-top:8px}
+#report .score .small{font-size:12px;line-height:1.35;margin-top:5px}
+#report .insight{border-radius:18px;padding:16px;margin-top:14px;background:#efedff}
+#report .insight b{font-size:16px}
+#report .insight p{font-size:14px;line-height:1.45;margin-bottom:0}
+#report .role-row{grid-template-columns:58px 1fr 16px;gap:12px;align-items:center;border:1px solid #e5e2dc;border-radius:17px;padding:9px;margin:9px 0;box-shadow:0 2px 9px rgba(25,25,25,.025)}
+#report .role-media{width:58px;height:58px;border-radius:14px;background:linear-gradient(145deg,#e9e5df,#c1bbb1);font-size:24px}
+#report .role-row h3{font-size:14px;line-height:1.15;margin:0 0 5px}
+#report .role-row p{font-size:11px;line-height:1.3;margin-top:5px}
+#report .badge{font-size:9px;letter-spacing:.06em;padding:5px 8px}
+#report .arrow{font-size:22px}
+#report .card:last-child p{font-size:15px;line-height:1.45}
+@media(max-width:650px){#report .profile{font-size:34px}#report .result-image{height:250px}}
+</style>
+
+<style>
+#report .role-row:nth-of-type(1) .role-media{background:linear-gradient(135deg,#c8d4d8 0%,#8d9da0 45%,#485355 46%,#a9b2b0 100%)}
+#report .role-row:nth-of-type(2) .role-media{background:linear-gradient(135deg,#d8bfa8,#8b786c 48%,#d6d0c9 49%,#71655d)}
+#report .role-row:nth-of-type(3) .role-media{background:linear-gradient(135deg,#ece6d6,#d1b46e 46%,#81725e 47%,#dcd8ce)}
+#report .role-row:nth-of-type(4) .role-media{background:linear-gradient(135deg,#c6c2bc,#96918a 45%,#5e5b58 46%,#b4afa7)}
+</style>
 </head>
 <body>
 <div class="wrap">
-<div class="topbar"><div class="brand">JOB DNA · 1.6</div><div class="menu">☰</div></div>
+<div class="topbar"><div class="brand">JOB DNA · 1.3</div><div class="menu">☰</div></div>
 <section id="start" class="card hero">
 <div class="kicker">Twoje predyspozycje · realne możliwości</div>
 <h1>Odkryj swój naturalny sposób działania w pracy.</h1>
