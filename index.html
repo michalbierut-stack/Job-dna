@@ -1,408 +1,747 @@
 <!doctype html>
 <html lang="pl">
-<head>
+<head><meta name="job-dna-release" content="Candidate V1 Final">
+<meta name="description" content="JOB DNA — profesjonalny profil zawodowego sposobu działania.">
+
+<script>
+/* JOB DNA V2.6 — canonical state layer */
+window.JOB_DNA_STATE_VERSION = "2.6";
+window.JOB_DNA_STATE = window.JOB_DNA_STATE || {
+  version: "2.6",
+  profile: null,
+  offer: { text: "" },
+  cv: { text: "" },
+  applicationMap: null,
+  report: null
+};
+
+window.JOB_DNA_STATE.save = function () {
+  try {
+    localStorage.setItem("JOB_DNA_STATE_V2_6", JSON.stringify({
+      version: this.version,
+      profile: this.profile,
+      offer: this.offer,
+      cv: this.cv,
+      applicationMap: this.applicationMap,
+      report: this.report
+    }));
+  } catch(e) {}
+};
+
+window.JOB_DNA_STATE.load = function () {
+  try {
+    const raw = localStorage.getItem("JOB_DNA_STATE_V2_6");
+    if (!raw) return this;
+    const parsed = JSON.parse(raw);
+    Object.assign(this, parsed);
+  } catch(e) {}
+  return this;
+};
+
+window.JOB_DNA_STATE.syncProfile = function(profile) {
+  if (!profile || !profile.scores) return;
+  this.profile = {
+    ...profile,
+    stateVersion: this.version,
+    updatedAt: new Date().toISOString()
+  };
+  window.jobDnaProfile = this.profile;
+  window.JOB_DNA_PROFILE = this.profile;
+  this.save();
+};
+
+window.JOB_DNA_STATE.syncOffer = function(text) {
+  this.offer.text = text || "";
+  this.save();
+};
+
+window.JOB_DNA_STATE.syncCV = function(text) {
+  this.cv.text = text || "";
+  this.save();
+};
+
+window.JOB_DNA_STATE.load();
+</script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>JOB DNA 2.3 · Product Build</title>
+<title>JOB DNA — Candidate V1.6</title>
 <style>
-:root{--bg:#f3f2ef;--card:#fff;--text:#171717;--muted:#73716d;--line:#e5e2dc;--soft:#f5f3ef;--accent:#6c63ff;--accent-soft:#efedff}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#eeece7 0%,#f7f6f3 55%,#efede9 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-.wrap{max-width:820px;margin:auto;padding:0 14px 60px}.topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 4px 8px;font-weight:800}.brand{font-size:14px;letter-spacing:.08em}.menu{width:38px;height:38px;border:1px solid var(--line);border-radius:12px;background:#fff;display:grid;place-items:center;font-size:18px}
-.card{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:26px;padding:26px;margin:14px 0;box-shadow:0 8px 30px rgba(25,25,25,.035)}
-h1{font-size:45px;line-height:1.01;letter-spacing:-2px;margin:10px 0 16px}h2{font-size:28px;letter-spacing:-.8px;margin:0 0 12px}.lead{font-size:19px;line-height:1.48}.muted{color:var(--muted)}.kicker{font-size:11px;font-weight:850;letter-spacing:.16em;text-transform:uppercase;color:#77736d}
-.hero{padding:28px 26px 22px;overflow:hidden;position:relative}.hero:after{content:"";display:block;height:150px;margin:26px -26px -22px;background:radial-gradient(circle at 70% 20%,rgba(108,99,255,.18),transparent 28%),linear-gradient(145deg,#eeeae3,#d9d4cc)}
-.hero-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:22px}.meta{background:#f5f3ef;border-radius:16px;padding:13px}.meta b{display:block;font-size:17px}.meta span{font-size:12px;color:var(--muted);line-height:1.3}.cta{display:flex;gap:10px;align-items:center;margin-top:20px}button{border:0;border-radius:15px;padding:14px 20px;background:#171717;color:#fff;font-weight:800;cursor:pointer;font-size:15px}.secondary{background:#eceae6;color:#171717}.small{font-size:13px;line-height:1.4}
-.intro-list{display:grid;gap:12px;margin:20px 0}.intro-row{display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:start}.num{width:38px;height:38px;border-radius:50%;background:#efede9;display:grid;place-items:center;font-weight:850}.intro-row b{display:block;margin:2px 0 4px}.intro-row span{font-size:14px;color:var(--muted);line-height:1.4}.audience{background:#f5f3ef;border-radius:18px;padding:16px;margin-top:18px}.audience ul{margin:8px 0 0;padding-left:18px;color:var(--muted);line-height:1.55}
-.test-head{display:flex;justify-content:space-between;align-items:center}.progress{height:6px;background:#e9e7e3;border-radius:9px;overflow:hidden;margin:12px 0 26px}.progress i{display:block;height:100%;background:#171717;width:0;transition:width .2s}.q{font-size:27px;font-weight:820;line-height:1.16;margin:18px 0 20px;letter-spacing:-.8px}.choice{border:1px solid #e3e0da;border-radius:20px;padding:18px 19px;background:#fff;margin:10px 0;box-shadow:0 3px 14px rgba(25,25,25,.025)}.choice b{display:flex;align-items:center;justify-content:center;width:27px;height:27px;border-radius:50%;background:#f0efec;font-size:12px;letter-spacing:0;margin-bottom:10px}.choice span{display:block;font-size:17px;line-height:1.42}.answer-title{margin:24px 2px 10px;display:flex;flex-direction:column;gap:3px}.answer-title span{font-size:15px;font-weight:850}.answer-title small{font-size:12px;color:var(--muted)}.answers{display:grid;gap:8px;margin-top:10px}.answer{width:100%;min-height:54px;text-align:left;background:#fff;color:#171717;border:1px solid #dfdcd6;border-radius:17px;padding:9px 14px;cursor:pointer;font-size:14px;display:grid;grid-template-columns:34px 1fr;gap:11px;align-items:center;transition:.15s;box-shadow:0 2px 8px rgba(25,25,25,.018)}.answer:hover,.answer:active{border-color:#aaa;transform:translateY(-1px)}.answer-mark{width:32px;height:32px;border-radius:50%;background:#f0efec;display:grid;place-items:center;font-size:12px;font-weight:900}.answer-copy{display:flex;flex-direction:column;gap:2px}.answer-copy strong{font-size:14px;line-height:1.2}.answer-copy span{color:var(--muted);font-size:11px;line-height:1.2}.test-note{font-size:12px;color:var(--muted);line-height:1.45;margin-top:14px}.actions{display:flex;justify-content:space-between;margin-top:18px}.back-disabled{opacity:.45;pointer-events:none}
-.step-dots{display:flex;gap:6px;margin:8px 0 22px}.step-dots i{height:5px;flex:1;background:#e8e6e2;border-radius:8px}.step-dots i.on{background:#171717}.test-note{font-size:12px;color:var(--muted);margin-top:14px}.scenario-label{display:inline-flex;align-items:center;padding:7px 10px;border-radius:999px;background:#f1efff;color:#554bd2;font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.result-image{height:230px;border-radius:22px;margin-top:22px;overflow:hidden;position:relative;background:linear-gradient(180deg,#b8c6ce 0%,#dfe4df 42%,#a9aaa3 43%,#666b66 100%)}.result-image:before{content:"";position:absolute;inset:0;background:linear-gradient(145deg,transparent 45%,rgba(255,255,255,.55) 45.5%,transparent 58%),linear-gradient(25deg,transparent 46%,rgba(40,45,45,.35) 46.5%,transparent 63%);opacity:.9}.result-image:after{content:"";position:absolute;left:15%;bottom:-18px;width:150px;height:150px;border-radius:50%;background:rgba(35,40,40,.35);box-shadow:85px 22px 0 -12px rgba(35,40,40,.28)}.result-caption{position:absolute;left:20px;bottom:18px;z-index:2;color:#fff;font-size:23px;font-weight:900;line-height:1.05;max-width:80%;text-shadow:0 2px 12px rgba(0,0,0,.35)}.role-media{width:54px;height:54px;border-radius:15px;background:linear-gradient(145deg,#e9e5df,#bdb7ae);display:grid;place-items:center;font-size:24px}.role-row{display:grid;grid-template-columns:54px 1fr 18px;gap:12px;align-items:center;border:1px solid var(--line);border-radius:18px;padding:10px;margin:9px 0}.role-row h3{font-size:15px;line-height:1.15;margin:0 0 5px}.role-row p{margin:0;color:var(--muted);font-size:12px;line-height:1.3}.arrow{font-size:22px;color:#999}.hidden{display:none!important}.profile{font-size:44px;font-weight:900;line-height:1.02;letter-spacing:-1.8px;margin-top:8px}.profile-sub{font-size:18px;margin:10px 0 18px}.callout{border-left:4px solid #171717;padding-left:15px;margin:16px 0;font-size:18px;line-height:1.4}.result-visual{border-radius:22px;margin-top:22px;min-height:220px;padding:22px;display:flex;align-items:end;background:linear-gradient(150deg,#ece8e1,#bcb6ad 70%,#817b74);color:#fff;position:relative;overflow:hidden}.result-visual:after{content:"";position:absolute;width:230px;height:230px;border-radius:50%;right:-70px;top:-80px;background:rgba(255,255,255,.16)}.quote{font-size:24px;font-weight:850;max-width:480px;position:relative;z-index:1;letter-spacing:-.5px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.score{border:1px solid var(--line);border-radius:17px;padding:14px}.top{display:flex;justify-content:space-between;font-weight:800}.bar{height:6px;background:#eceae6;border-radius:8px;margin-top:9px;overflow:hidden}.bar i{display:block;height:100%;background:#171717}.badge{display:inline-block;border:1px solid #d8d3ff;background:#f1efff;color:#554bd2;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;margin:3px}.role{border:1px solid var(--line);border-radius:18px;padding:15px;margin:9px 0;display:grid;grid-template-columns:1fr auto;gap:4px 10px}.role p{grid-column:1/-1;margin:4px 0 0;color:var(--muted);font-size:14px;line-height:1.4}.insight{background:var(--accent-soft);border-radius:18px;padding:16px;margin-top:14px}.sanity{display:grid;gap:10px}.sanity button{background:#fff;color:#171717;border:1px solid var(--line);text-align:left}.footer-note{font-size:12px;color:var(--muted);text-align:center;padding:14px}
-.connection-grid{display:grid;gap:10px}.connection{border:1px solid var(--line);border-radius:18px;padding:16px;background:#fff}.connection h3{font-size:16px;margin:0 0 6px}.connection p{margin:0;color:var(--muted);font-size:14px;line-height:1.45}.connection .tags{margin-bottom:7px}.fit-note{font-size:12px;color:var(--muted);line-height:1.4;margin-top:6px}.role-row{grid-template-columns:54px 1fr 18px}.role-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.low{border-color:#dedbd5;background:#faf9f7}.conditional{border-color:#d9d5c9}.audit-note{background:#f5f3ef;border-radius:18px;padding:15px;font-size:13px;line-height:1.5;color:#5f5c57}.score-status{font-size:11px;color:var(--muted);margin-top:5px}.
-@media(max-width:650px){h1{font-size:37px}.profile{font-size:36px}.q{font-size:22px}.grid{grid-template-columns:1fr}.hero-meta{grid-template-columns:1fr 1fr}.hero-meta .meta:last-child{grid-column:1/-1}.card{border-radius:23px;padding:22px}.lead{font-size:18px}}
+:root{--ink:#151515;--paper:#f4f0e8;--white:#fbfaf7;--gold:#b4955b;--muted:#77736b;--line:#d9d1c3}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,Arial,sans-serif}
+.wrap{max-width:1100px;margin:auto;padding:32px 24px 70px}.brand{font-size:15px;letter-spacing:.22em;font-weight:800}
+.kicker{color:var(--gold);font-size:12px;letter-spacing:.18em;font-weight:800;text-transform:uppercase}
+h1{font-size:clamp(40px,7vw,78px);line-height:.94;margin:22px 0 18px;letter-spacing:-.05em}
+h2{font-size:34px;letter-spacing:-.03em;margin:8px 0 12px}p{line-height:1.65;color:#555}
+.hero{min-height:72vh;display:flex;align-items:center}.hero-inner{max-width:800px}
+button{border:0;background:var(--ink);color:white;padding:15px 22px;border-radius:2px;font-weight:800;cursor:pointer}
+button.alt{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.progress{height:4px;background:#ddd5c7;margin:18px 0 42px}.bar{height:100%;background:var(--gold);width:0}
+.card{background:var(--white);border:1px solid var(--line);padding:34px;box-shadow:0 18px 60px rgba(0,0,0,.04)}
+.option{display:block;width:100%;text-align:left;background:var(--white);color:var(--ink);border:1px solid var(--line);margin:12px 0;padding:19px;border-radius:3px}
+.option:hover,.option.selected{border-color:var(--gold);box-shadow:0 0 0 2px rgba(180,149,91,.12)}
+.option strong{display:block;margin-bottom:6px}.option small{color:var(--muted)}
+.hidden{display:none}.top{display:flex;justify-content:space-between;gap:20px;align-items:center}.mono{font-family:ui-monospace,SFMono-Regular,monospace}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:28px 0}.dim{background:var(--white);border:1px solid var(--line);padding:22px}.axis{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);gap:12px}.track{height:7px;background:#ded7cb;margin:14px 0;position:relative}.dot{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:var(--ink);transform:translate(-50%,-50%)}.label{font-weight:800}.section{margin-top:55px}.pill{display:inline-block;padding:7px 10px;border:1px solid var(--line);margin:4px;font-size:12px}.callout{border-left:4px solid var(--gold);padding:8px 0 8px 18px;margin:18px 0}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.card{padding:24px}.hero{min-height:80vh}}
 
-.role-main{flex:1;min-width:0}.role-detail{margin-top:14px;padding:16px;border-radius:16px;background:#f7f6f3;color:#5f5c57;font-size:14px;line-height:1.5}.role-detail>div{margin-top:12px}.role-detail>div:first-child{margin-top:0}.role-detail b{color:#171717}.role-detail ul{margin:7px 0 0 18px;padding:0}.role-detail li{margin:5px 0}.role-row details summary{cursor:pointer;color:#5147d8;font-weight:700;margin-top:10px;list-style:none}.role-row details summary::-webkit-details-marker{display:none}.role-row details summary:after{content:'  +';font-size:16px}.role-row details[open] summary:after{content:'  −'}.action-card{background:linear-gradient(180deg,#fff 0%,#f7f5ff 100%)}.plan-list{display:flex;flex-direction:column;gap:10px;margin:20px 0}.plan-row{display:flex;gap:12px;align-items:flex-start}.plan-row>span{width:28px;height:28px;border-radius:50%;background:#171717;color:#fff;display:grid;place-items:center;font-weight:700;flex:none}.plan-row p{margin:2px 0 0}.role-row .fit-note{font-size:12px}
+textarea{width:100%;min-height:180px;padding:18px;border:1px solid var(--line);background:var(--white);font:inherit;line-height:1.5;margin:14px 0 12px}.muted{display:block;color:var(--muted);margin-top:8px}.role{background:var(--white);border:1px solid var(--line);padding:22px;margin:12px 0}.status{font-size:11px;font-weight:800;letter-spacing:.08em}.green{color:#355d3a}.yellow{color:#8b6d21}.orange{color:#a45d30}.rolebar{height:6px;background:#e5ded2;margin:14px 0}.rolebar i{display:block;height:100%;background:var(--gold)}@media print{body{background:white}.wrap{max-width:none;padding:15mm}.hero,button,textarea{display:none!important}.hidden{display:none!important}.section{break-inside:avoid}.card,.dim,.role{box-shadow:none}.grid{grid-template-columns:1fr 1fr}}
+.variantBox{margin-top:10px;padding:10px 12px;border-left:2px solid #b9954a;background:#faf8f3}.variantBox div{margin-top:5px}</style>
 
-.section-note{font-size:14px;color:var(--muted);line-height:1.5;margin:-3px 0 16px}.npcs{display:grid;gap:10px}.npc{border-radius:18px;padding:16px;background:#f7f6f3}.npc b{display:block;font-size:14px;margin-bottom:5px}.npc p{margin:0;color:#5f5c57;font-size:14px;line-height:1.5}.confidence-help{margin-top:14px;padding:13px 15px;border-radius:15px;background:#faf9f7;border:1px solid var(--line);font-size:12px;line-height:1.5;color:var(--muted)}.fit-explain{margin:12px 0 16px;padding:14px 16px;border-radius:16px;background:#faf9f7;border:1px solid var(--line);font-size:13px;line-height:1.5;color:#5f5c57}.fit-explain b{color:#171717}.role-row .fit-note{font-size:12px}
+<style id="job-dna-v23-print">
+@media print {
+  #job-dna-v23-status { display:none !important; }
+  .no-print, button[onclick*="alert"] { display:none !important; }
+  body { background:#fff !important; }
+}
 </style>
-
-<style>
-.jobx{background:linear-gradient(180deg,#fff 0%,#f7f5ff 100%)}
-.jobx textarea{width:100%;min-height:190px;resize:vertical;border:1px solid var(--line);border-radius:18px;padding:16px;font:inherit;font-size:15px;line-height:1.5;background:#fff;color:var(--text);outline:none}
-.jobx textarea:focus{border-color:#aaa;box-shadow:0 0 0 3px rgba(108,99,255,.08)}
-.jobx-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}
-.jobx-result{margin-top:18px}
-.jobx-score{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:15px 0;border-bottom:1px solid var(--line)}
-.jobx-score:last-child{border-bottom:0}.jobx-score b{font-size:17px}.jobx-score small{display:block;color:var(--muted);margin-top:4px;line-height:1.35}
-.jobx-fit{font-size:30px;font-weight:900;letter-spacing:-1px}.jobx-good{color:#4f46c9}.jobx-warn{color:#8a6a00}.jobx-low{color:#777}
-.jobx-flags{display:grid;gap:9px;margin-top:14px}.jobx-flag{padding:13px 15px;border-radius:15px;background:#f7f6f3;font-size:14px;line-height:1.45}.jobx-flag b{display:block;margin-bottom:3px}
-.jobx-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.jobx-chip{padding:7px 10px;border-radius:999px;background:#f1efff;color:#554bd2;font-size:11px;font-weight:800}
-@media(max-width:650px){.jobx-score{align-items:flex-start}.jobx-fit{font-size:26px}}
+<style>@media print{#jd-v25-actions,#job-dna-v23-status{display:none!important}}</style><style id="job-dna-v26-polish">
+:root{--ink:#141414;--paper:#f2eee6;--white:#fcfbf8;--gold:#b49458;--muted:#6f6a62;--line:#d8d0c1;--soft:#ebe5d9}
+body{background:radial-gradient(circle at 85% 0%,rgba(180,148,88,.10),transparent 28%),var(--paper)}
+.wrap{max-width:1180px;padding:28px 24px 90px}.brand{font-size:14px}.hero{min-height:78vh}.hero-inner{max-width:860px}.hero h1{font-weight:800}.hero h1 em{font-style:normal;color:#555}
+button{transition:transform .15s ease,box-shadow .15s ease,background .15s ease}button:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(0,0,0,.12)}
+.card,.dim,.role{border-radius:14px}.dim{transition:transform .15s ease,border-color .15s ease}.dim:hover,.role:hover{border-color:var(--gold);transform:translateY(-1px)}
+.section{margin-top:72px}.kicker{font-size:11px}.pill{border-radius:999px;background:#f7f3eb}.callout{background:rgba(255,255,255,.55);padding:14px 18px;border-radius:0 10px 10px 0}
+#job-dna-offer-engine{box-shadow:0 24px 70px rgba(0,0,0,.16)}
+#job-dna-offer-engine textarea{background:#181818;color:#fff;border-color:#444;border-radius:10px}
+#job-dna-offer-engine button{background:#fff;color:#111;border-radius:999px}
+.jd-report-print{border-radius:0!important;max-width:900px!important}
+#jd-v25-actions{position:sticky;bottom:14px;z-index:5;padding:10px;border-radius:999px;background:rgba(252,251,248,.92);box-shadow:0 10px 35px rgba(0,0,0,.14);backdrop-filter:blur(10px)}
+@media(max-width:700px){.wrap{padding:20px 16px 70px}.section{margin-top:54px}.hero{min-height:76vh}#jd-v25-actions{border-radius:18px}}
+@media print{#jd-v25-actions,#job-dna-offer-engine,button,textarea{display:none!important}.section{break-inside:avoid}.dim,.role{break-inside:avoid}}
+</style>
+<style id="jobdna-final-ui">
+:root{
+ --jd-ink:#151515;--jd-muted:#6d685f;--jd-paper:#f5f2ec;--jd-card:#fffdf9;
+ --jd-line:#ddd6ca;--jd-gold:#a48750;--jd-gold-soft:#e9dfcf;--jd-dark:#171717;
+ --jd-radius:20px;--jd-shadow:0 14px 45px rgba(20,18,15,.055)
+}
+html{scroll-behavior:smooth}
+body{background:var(--jd-paper)!important;color:var(--jd-ink)!important}
+body:before{content:"";display:block;height:4px;background:var(--jd-gold);position:fixed;top:0;left:0;right:0;z-index:9999}
+button,.btn,.action{border-radius:12px!important;transition:transform .16s ease,box-shadow .16s ease,background .16s ease!important}
+button:hover,.btn:hover,.action:hover{transform:translateY(-1px);box-shadow:0 7px 20px rgba(20,18,15,.10)}
+input,textarea,select{border-radius:12px!important;border-color:var(--jd-line)!important;background:#fffdfa!important}
+.card,.panel,.section,.result-card,.question-card{border-radius:var(--jd-radius)!important;border-color:var(--jd-line)!important;box-shadow:var(--jd-shadow)!important}
+h1,h2,h3,.title,.section-title{letter-spacing:-.025em}
+.progress,.progress-bar,.meter{border-radius:99px!important}
+.progress-bar,.meter-fill{background:var(--jd-gold)!important}
+.badge,.pill,.tag{border-radius:99px!important}
+#jd-final-shell{max-width:1120px;margin:0 auto;padding:18px 22px 0}
+#jd-final-brand{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:14px 0 18px;border-bottom:1px solid var(--jd-line)}
+#jd-final-brand .mark{font:800 11px/1 Inter,Arial,sans-serif;letter-spacing:.20em;color:var(--jd-gold)}
+#jd-final-brand .sub{font-size:11px;color:var(--jd-muted);letter-spacing:.08em;text-transform:uppercase}
+#jd-final-hero{padding:42px 0 28px;max-width:850px}
+#jd-final-hero .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--jd-gold);font-weight:800}
+#jd-final-hero h1{font:700 clamp(38px,6vw,68px)/.98 Georgia,serif;margin:10px 0 16px;color:var(--jd-ink)}
+#jd-final-hero p{font-size:18px;line-height:1.6;color:var(--jd-muted);max-width:760px}
+#jd-final-hero .meta{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}
+#jd-final-hero .meta span{font-size:12px;border:1px solid var(--jd-line);background:var(--jd-card);padding:7px 11px;border-radius:999px}
+.jd-final-note{border-left:3px solid var(--jd-gold);padding:12px 16px;background:#faf7f0;color:#4f4a43;border-radius:0 12px 12px 0}
+.jd-final-footer{margin-top:45px;padding:22px 0;border-top:1px solid var(--jd-line);font-size:11px;color:var(--jd-muted)}
+@media(max-width:720px){
+ #jd-final-shell{padding:10px 15px 0}
+ #jd-final-brand .sub{display:none}
+ #jd-final-hero{padding:30px 0 18px}
+ #jd-final-hero p{font-size:16px}
+}
+@media print{
+ body{background:#fff!important}
+ #jd-final-brand{border-bottom:1px solid #ccc}
+ #jd-final-hero{padding:18px 0}
+ button,.btn,.action,.debug,.dev-only,[data-debug]{display:none!important}
+ .card,.panel,.section,.result-card,.question-card{box-shadow:none!important}
+}
 </style>
 </head>
 <body>
+<div id="jd-final-shell" aria-label="JOB DNA">
+  <div id="jd-final-brand">
+    <div class="mark">JOB DNA</div>
+    <div class="sub">Career Diagnostic · Candidate</div>
+  </div>
+  <div id="jd-final-hero">
+    <div class="eyebrow">YOUR PROFESSIONAL DNA</div>
+    <h1>Jak naturalnie funkcjonujesz w pracy?</h1>
+    <p>48 pytań. 12 wymiarów. Jeden spójny obraz Twojego sposobu działania — bez wciskania Cię w jeden zawód.</p>
+    <div class="meta">
+      <span>12 wymiarów</span><span>48 pytań</span><span>bez sztucznej punktacji</span>
+    </div>
+  </div>
+</div>
+
 <div class="wrap">
-<div class="topbar"><div class="brand">JOB DNA · 2.3</div><div class="menu">☰</div></div>
-<section id="start" class="card hero">
-<div class="kicker">Twoje predyspozycje · realne możliwości</div>
-<h1>Odkryj swój naturalny sposób działania w pracy.</h1>
-<p class="lead">JOB DNA pomaga zobaczyć <b>Twój naturalny sposób działania w pracy</b> — co Cię napędza, jak podejmujesz decyzje i w jakim środowisku możesz działać najlepiej.</p><p class="small muted">To nie test „dobrego pracownika”. Nie szukamy właściwych odpowiedzi. Szukamy wzorca, który najbardziej przypomina Ciebie.</p>
-<div class="hero-meta"><div class="meta"><b>48 pytań</b><span>z życia zawodowego</span></div><div class="meta"><b>ok. 10 min</b><span>szczerych odpowiedzi</span></div><div class="meta"><b>indywidualny raport</b><span>profil + kierunki zawodowe</span></div></div>
-<div class="cta"><button onclick="showIntro()">Rozpocznij test →</button></div>
-<p class="small muted">Twoje odpowiedzi są poufne. To narzędzie rozwojowe, nie diagnoza psychologiczna ani zwalidowany test psychometryczny.</p>
+<header class="top"><div class="brand">JOB DNA</div><div class="kicker">Candidate V1.6</div></header>
+
+<section id="intro" class="hero"><div class="hero-inner">
+<div class="kicker">YOUR PROFESSIONAL DNA</div>
+<h1>Know how you work.<br><em>Choose where you belong.</em></h1>
+<p>48 sytuacji. 12 wymiarów. Profil Twojego naturalnego sposobu funkcjonowania w pracy — bez wciskania Cię w gotowy zawód. Następnie możesz przejść od DNA do środowiska, kierunków ról, oferty i dowodów w CV.</p>
+<button onclick="start()">Rozpocznij test</button>
+</div></section>
+
+<section id="test" class="hidden">
+<div class="top"><div><div class="kicker" id="dim"></div><div class="mono" id="qcounter"></div></div><div><button class="alt" id="backBtn" onclick="backQuestion()" style="display:none">← Wstecz</button> <button class="alt" onclick="restart()">Restart</button></div></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="card"><h2 id="question"></h2><div id="options"></div></div>
 </section>
 
-<section id="intro" class="card hidden">
-<div class="kicker">KROK 1 Z 3</div><h2>Jak to działa?</h2>
-<p class="lead">Odpowiesz na 48 krótkich sytuacji z życia zawodowego. Nie sprawdzamy wiedzy ani „idealnej” osobowości.</p>
-<div class="intro-list">
-<div class="intro-row"><div class="num">1</div><div><b>Wybierz bliższą reakcję</b><span>Nawet jeśli żadna odpowiedź nie pasuje idealnie — liczy się ta, którą wybrałbyś częściej.</span></div></div>
-<div class="intro-row"><div class="num">2</div><div><b>Nie ma dobrych ani złych odpowiedzi</b><span>Największą wartość daje szczerość, nie próba pokazania się z najlepszej strony.</span></div></div>
-<div class="intro-row"><div class="num">3</div><div><b>Na końcu zobaczysz swój profil</b><span>Co Cię napędza, w jakim środowisku działasz najlepiej, co może Cię męczyć i jakie kierunki warto sprawdzić.</span></div></div>
+<section id="result" class="hidden">
+<div class="kicker">YOUR PROFESSIONAL DNA</div><h1 id="resultTitle">Twój profil</h1>
+<p id="summary"></p>
+<div class="section"><div class="kicker">12 DIMENSIONS</div><div class="grid" id="dims"></div></div>
+<div class="section"><div class="kicker">CORE</div><h2>Co najbardziej organizuje Twój sposób działania</h2><div class="grid" id="core"></div></div>
+<div class="section"><div class="kicker">COUNTERBALANCES</div><h2>Naturalne napięcia w Twoim profilu</h2><div class="grid" id="counter"></div></div>
+<div class="section"><div class="kicker">WORK ENVIRONMENT</div><h2>Warunki, w których możesz funkcjonować najlepiej</h2><div class="card"><div id="env"></div></div></div>
+<div class="section"><div class="kicker">CAREER DIRECTIONS</div><h2>Kierunki i rodziny ról</h2><p>To nawigacja po typach pracy wynikających z konfiguracji DNA — nie lista „idealnych zawodów”.</p><div id="roles"></div></div>
+<div class="section"><div class="kicker">OFFER ANALYSIS</div><h2>JOB DNA × konkretna oferta</h2><p>Wklej ofertę. System oddzieli sygnały DNA od informacji, których oferta nie podaje.</p><textarea id="offerText" placeholder="Wklej tutaj pełną treść oferty pracy..."></textarea><button onclick="runOfferAnalysis()">Przeanalizuj ofertę</button><div class="grid" id="offerOut"></div></div>
+<div class="section"><div class="kicker">CV EVIDENCE</div><h2>Oferta × CV</h2><p>Wklej CV, aby sprawdzić, czy oferta ma bezpośrednie dowody w Twoim doświadczeniu.</p><textarea id="cvText" placeholder="Wklej tutaj CV..."></textarea><button onclick="runCVAnalysis()">Sprawdź dowody</button><div class="card" id="cvOut"></div></div>
+<div class="section"><div class="callout"><b>JAKOŚĆ WYNIKU:</b> system sprawdza wewnętrznie spójność odpowiedzi i siłę sygnału. Te wskaźniki techniczne nie są przedstawiane jako „wynik osobowości”.</div></div>
+<div class="section"><div class="callout"><b>NIE WIEMY</b> jest pełnoprawnym wynikiem. Jeśli oferta nie podaje np. tempa, autonomii albo modelu pracy, JOB DNA nie zgaduje.</div><button onclick="printReport()">Drukuj / zapisz raport jako PDF</button></div>
+</section>
 </div>
-<div class="audience"><b>Dla kogo?</b><ul><li>dla osób rozważających zmianę pracy lub kierunku,</li><li>dla tych, którzy chcą lepiej wykorzystać swoje mocne strony,</li><li>dla osób, które czują, że mogą działać lepiej — tylko nie wiedzą jeszcze gdzie.</li></ul></div>
-<div class="cta"><button onclick="start()">Przejdź do pytań →</button><button class="secondary" onclick="backToStart()">Wstecz</button></div>
+<script>
+const DATA={"dimensions":[["Głębia","szeroki kontekst","wnikliwe zagłębianie się"],["Analityczność","intuicja i całościowy ogląd","analiza danych i szczegółów"],["Decyzyjność","ostrożność / konsultowanie","samodzielne podejmowanie decyzji"],["Autonomia","potrzeba kierunku i wsparcia","swoboda sposobu działania"],["Struktura","elastyczność","jasne ramy i zasady"],["Tempo","spokojne tempo","dynamiczne tempo"],["Eksploracja","sprawdzone rozwiązania","odkrywanie nowych możliwości"],["Wynik","proces i jakość wykonania","widoczny rezultat"],["Stabilność","zmienność i nieprzewidywalność","przewidywalność i stabilność"],["Różnorodność","powtarzalność i specjalizacja","różnorodność tematów i zadań"],["Wpływ","ograniczony wpływ na decyzje","realny wpływ na kierunek i decyzje"],["Relacyjność","niska intensywność kontaktu","częsty kontakt i współpraca"]],"questions":[{"d":"Głębia","p":"Dostajesz temat, który można rozwiązać szybko albo dokładniej. Co jest Ci bliższe?","a":"szeroki kontekst","b":"wnikliwe zagłębianie się","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":1},{"d":"Głębia","p":"Gdy poznajesz nowe zadanie, co naturalniej robisz najpierw?","a":"wnikliwe zagłębianie się","b":"szeroki kontekst","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":2},{"d":"Głębia","p":"Podczas pracy zauważasz interesujący szczegół, który nie jest konieczny do wykonania zadania.","a":"szeroki kontekst","b":"wnikliwe zagłębianie się","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":3},{"d":"Głębia","p":"Nowy problem okazuje się bardziej złożony, niż początkowo wyglądał.","a":"wnikliwe zagłębianie się","b":"szeroki kontekst","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":4},{"d":"Analityczność","p":"Masz wybrać rozwiązanie, ale część informacji jest niepełna.","a":"intuicja i całościowy ogląd","b":"analiza danych i szczegółów","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":5},{"d":"Analityczność","p":"Dwie opcje wyglądają podobnie.","a":"analiza danych i szczegółów","b":"intuicja i całościowy ogląd","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":6},{"d":"Analityczność","p":"Ktoś przedstawia Ci rozwiązanie, które „wydaje się dobre”.","a":"intuicja i całościowy ogląd","b":"analiza danych i szczegółów","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":7},{"d":"Analityczność","p":"Po spotkaniu masz dwie możliwe interpretacje sytuacji.","a":"analiza danych i szczegółów","b":"intuicja i całościowy ogląd","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":8},{"d":"Decyzyjność","p":"Pojawia się decyzja, za którą formalnie odpowiadasz Ty.","a":"ostrożność / konsultowanie","b":"samodzielne podejmowanie decyzji","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":9},{"d":"Decyzyjność","p":"Ważna decyzja musi zapaść jeszcze dziś.","a":"samodzielne podejmowanie decyzji","b":"ostrożność / konsultowanie","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":10},{"d":"Decyzyjność","p":"Masz podjąć decyzję, ale możesz jeszcze albo zebrać dodatkowe informacje, albo rozstrzygnąć na podstawie tego, co już wiesz.","a":"ostrożność / konsultowanie","b":"samodzielne podejmowanie decyzji","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":11},{"d":"Decyzyjność","p":"W projekcie pojawia się problem, którego wcześniej nie przewidziano.","a":"samodzielne podejmowanie decyzji","b":"ostrożność / konsultowanie","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":12},{"d":"Autonomia","p":"Dostajesz cel, ale sposób wykonania pozostawiono Tobie.","a":"potrzeba kierunku i wsparcia","b":"swoboda sposobu działania","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":13},{"d":"Autonomia","p":"W nowym zadaniu cel jest jasny, ale nikt nie określa, jak masz je wykonać.","a":"swoboda sposobu działania","b":"potrzeba kierunku i wsparcia","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":14},{"d":"Autonomia","p":"Przełożony mówi: „Masz cel, zorganizuj to po swojemu”.","a":"potrzeba kierunku i wsparcia","b":"swoboda sposobu działania","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":15},{"d":"Autonomia","p":"Wiesz, co ma być osiągnięte, ale nie wiesz jeszcze, jak do tego dojść.","a":"swoboda sposobu działania","b":"potrzeba kierunku i wsparcia","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":16},{"d":"Struktura","p":"W projekcie sposób działania nie jest z góry ustalony.","a":"elastyczność","b":"jasne ramy i zasady","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":17},{"d":"Struktura","p":"Masz wykonać zadanie według jasnej procedury albo samodzielnie ustalić sposób jego realizacji.","a":"jasne ramy i zasady","b":"elastyczność","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":18},{"d":"Struktura","p":"Proces działa, ale nie ma jednej obowiązującej procedury.","a":"elastyczność","b":"jasne ramy i zasady","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":19},{"d":"Struktura","p":"Zmienia się sposób realizacji zadania w połowie projektu.","a":"jasne ramy i zasady","b":"elastyczność","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":20},{"d":"Tempo","p":"W pracy pojawia się kilka pilnych tematów jednocześnie.","a":"spokojne tempo","b":"dynamiczne tempo","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":21},{"d":"Tempo","p":"Masz dzień z dużą liczbą krótkich decyzji i zmian.","a":"dynamiczne tempo","b":"spokojne tempo","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":22},{"d":"Tempo","p":"Termin zostaje nagle skrócony.","a":"spokojne tempo","b":"dynamiczne tempo","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":23},{"d":"Tempo","p":"Masz do wykonania serię zadań. Wolisz pracować w równym rytmie czy w krótkich okresach bardzo intensywnej pracy?","a":"spokojne tempo","b":"dynamiczne tempo","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":24},{"d":"Eksploracja","p":"Masz rozwiązać problem, dla którego istnieje sprawdzona metoda.","a":"sprawdzone rozwiązania","b":"odkrywanie nowych możliwości","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":25},{"d":"Eksploracja","p":"Pojawia się możliwość wejścia w zupełnie nowy obszar.","a":"odkrywanie nowych możliwości","b":"sprawdzone rozwiązania","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":26},{"d":"Eksploracja","p":"Nowe narzędzie może usprawnić pracę, ale nie wiadomo jeszcze, czy zadziała.","a":"sprawdzone rozwiązania","b":"odkrywanie nowych możliwości","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":27},{"d":"Eksploracja","p":"Projekt wymaga znalezienia rozwiązania, którego wcześniej nie stosowano.","a":"odkrywanie nowych możliwości","b":"sprawdzone rozwiązania","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":28},{"d":"Wynik","p":"Masz ograniczony czas. Wolisz dopracować sposób wykonania zadania czy skoncentrować się przede wszystkim na tym, jaki efekt ma zostać osiągnięty?","a":"proces i jakość wykonania","b":"widoczny rezultat","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":29},{"d":"Wynik","p":"Masz ograniczony czas i musisz wybrać, na czym się skupić.","a":"widoczny rezultat","b":"proces i jakość wykonania","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":30},{"d":"Wynik","p":"Ktoś pyta: „Co konkretnie z tego projektu wynikło?”","a":"proces i jakość wykonania","b":"widoczny rezultat","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":31},{"d":"Wynik","p":"Efekt jest dobry, ale droga do niego była dość chaotyczna.","a":"widoczny rezultat","b":"proces i jakość wykonania","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":32},{"d":"Stabilność","p":"Możesz wybrać między pracą ze stałym zakresem a pracą, w której zakres często się zmienia.","a":"zmienność i nieprzewidywalność","b":"przewidywalność i stabilność","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":33},{"d":"Stabilność","p":"Firma zmienia priorytety kilka razy w miesiącu.","a":"przewidywalność i stabilność","b":"zmienność i nieprzewidywalność","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":34},{"d":"Stabilność","p":"Nie wiadomo dokładnie, jak będzie wyglądał kolejny kwartał.","a":"zmienność i nieprzewidywalność","b":"przewidywalność i stabilność","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":35},{"d":"Stabilność","p":"Możesz pracować w obszarze z jasno określonym zakresem albo w obszarze, którego zakres często się zmienia.","a":"przewidywalność i stabilność","b":"zmienność i nieprzewidywalność","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":36},{"d":"Różnorodność","p":"Przez większość tygodnia możesz zajmować się jednym obszarem albo kilkoma różnymi tematami.","a":"powtarzalność i specjalizacja","b":"różnorodność tematów i zadań","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":37},{"d":"Różnorodność","p":"Kończysz jeden projekt i możesz wybrać kolejny podobny albo zupełnie inny.","a":"różnorodność tematów i zadań","b":"powtarzalność i specjalizacja","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":38},{"d":"Różnorodność","p":"Masz serię podobnych zadań przez kilka tygodni.","a":"powtarzalność i specjalizacja","b":"różnorodność tematów i zadań","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":39},{"d":"Różnorodność","p":"W ciągu dnia możesz przełączać się między kilkoma typami zadań.","a":"różnorodność tematów i zadań","b":"powtarzalność i specjalizacja","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":40},{"d":"Wpływ","p":"Możesz wykonywać zadania według ustalonego kierunku albo współdecydować o tym, jaki kierunek zostanie obrany.","a":"ograniczony wpływ na decyzje","b":"realny wpływ na kierunek i decyzje","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":41},{"d":"Wpływ","p":"Widzisz sposób na poprawę ważnego procesu, ale nie odpowiadasz za jego kształt.","a":"realny wpływ na kierunek i decyzje","b":"ograniczony wpływ na decyzje","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":42},{"d":"Wpływ","p":"Projekt odnosi sukces, ale Twój udział w decyzjach był niewielki.","a":"ograniczony wpływ na decyzje","b":"realny wpływ na kierunek i decyzje","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":43},{"d":"Wpływ","p":"Dostajesz odpowiedzialność za obszar i możesz współdecydować o kierunku jego rozwoju.","a":"ograniczony wpływ na decyzje","b":"realny wpływ na kierunek i decyzje","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":44},{"d":"Relacyjność","p":"Praca może wymagać albo dłuższych okresów samodzielnego działania, albo częstych rozmów i uzgodnień.","a":"niska intensywność kontaktu","b":"częsty kontakt i współpraca","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":45},{"d":"Relacyjność","p":"Rozpoczynasz projekt z zespołem. Wolisz mieć dużo bezpośrednich uzgodnień czy dłuższe okresy samodzielnej pracy?","a":"częsty kontakt i współpraca","b":"niska intensywność kontaktu","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":46},{"d":"Relacyjność","p":"Większość dnia możesz spędzić albo przy własnych zadaniach, albo na spotkaniach.","a":"niska intensywność kontaktu","b":"częsty kontakt i współpraca","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":47},{"d":"Relacyjność","p":"Pojawia się problem wymagający uzgodnienia kilku osób.","a":"częsty kontakt i współpraca","b":"niska intensywność kontaktu","a_text":"Bliżej pierwszego wariantu","b_text":"Bliżej drugiego wariantu","n":48}]};
+
+const ROLE_LIBRARY=[
+ {family:'Ekspert / specjalista',roles:['Specjalista techniczny','Product Specialist','Technical Advisor'],tags:{Głębia:.85,Analityczność:.65,Decyzyjność:.35,Autonomia:.55,Struktura:.25,Tempo:-.25,Eksploracja:.25,Wynik:.35,Stabilność:.45,Różnorodność:.25,Wpływ:.25,Relacyjność:.15},variants:[['Product Specialist',{Głębia:.8,Autonomia:.6,Relacyjność:.2,Wynik:.4}],['Independent Expert',{Głębia:.95,Autonomia:.9,Struktura:-.2,Tempo:-.2}]]},
+ {family:'Analityka / research',roles:['Analityk biznesowy','Analityk procesów','Research Specialist'],tags:{Głębia:.8,Analityczność:.9,Decyzyjność:.3,Autonomia:.5,Struktura:.4,Tempo:-.35,Eksploracja:.45,Wynik:.2,Stabilność:.35,Różnorodność:.15,Wpływ:.2,Relacyjność:-.15},variants:[['Deep Research',{Głębia:.95,Analityczność:.95,Tempo:-.5,Relacyjność:-.4}],['Business Analytics',{Analityczność:.85,Wynik:.45,Relacyjność:.2,Różnorodność:.4}]]},
+ {family:'Project / program',roles:['Project Manager','Project Specialist','Program Coordinator'],tags:{Głębia:.4,Analityczność:.4,Decyzyjność:.65,Autonomia:.6,Struktura:.3,Tempo:.35,Eksploracja:.3,Wynik:.7,Stabilność:0,Różnorodność:.7,Wpływ:.6,Relacyjność:.6},variants:[['Structured Project',{Struktura:.75,Stabilność:.5,Tempo:.2}],['Transformational Project',{Eksploracja:.75,Autonomia:.75,Wpływ:.75,Różnorodność:.8}]]},
+ {family:'Sprzedaż techniczna / B2B',roles:['Technical Sales','Specification Sales','Doradca techniczno-handlowy'],tags:{Głębia:.4,Analityczność:.35,Decyzyjność:.55,Autonomia:.75,Struktura:-.1,Tempo:.35,Eksploracja:.5,Wynik:.8,Stabilność:0,Różnorodność:.65,Wpływ:.7,Relacyjność:.8},variants:[['Technical B2B',{Głębia:.6,Relacyjność:.75,Wynik:.75,Tempo:.25}],['Specification / Architects',{Głębia:.65,Tempo:-.1,Relacyjność:.65,Wpływ:.8}],['Transactional / High-volume',{Głębia:.1,Tempo:.85,Wynik:.9,Relacyjność:.65}]]},
+ {family:'Business Development / KAM',roles:['Business Development Manager','Key Account Manager','Market Development Manager'],tags:{Głębia:.35,Analityczność:.45,Decyzyjność:.75,Autonomia:.85,Struktura:-.15,Tempo:.4,Eksploracja:.85,Wynik:.75,Stabilność:-.1,Różnorodność:.8,Wpływ:.9,Relacyjność:.75},variants:[['Strategic KAM',{Stabilność:.35,Relacyjność:.85,Tempo:.2,Wpływ:.8}],['New Market / BD',{Eksploracja:.95,Autonomia:.9,Stabilność:-.6}],['Channel / Partner Sales',{Relacyjność:.85,Wpływ:.8,Różnorodność:.65}]]},
+ {family:'Operacje / procesy',roles:['Operations Specialist','Process Manager','Operations Manager'],tags:{Głębia:.2,Analityczność:.6,Decyzyjność:.5,Autonomia:.35,Struktura:.85,Tempo:.15,Eksploracja:-.25,Wynik:.65,Stabilność:.8,Różnorodność:-.2,Wpływ:.35,Relacyjność:.25},variants:[['Process Excellence',{Analityczność:.75,Struktura:.9,Eksploracja:.15}],['High-volume Operations',{Tempo:.8,Struktura:.9,Różnorodność:-.5}]]},
+ {family:'Strategia / zarządzanie',roles:['Strategy Manager','Business Manager','Commercial Manager'],tags:{Głębia:.5,Analityczność:.8,Decyzyjność:.85,Autonomia:.75,Struktura:.25,Tempo:.25,Eksploracja:.65,Wynik:.7,Stabilność:.1,Różnorodność:.6,Wpływ:.9,Relacyjność:.45},variants:[['Strategic Planning',{Analityczność:.9,Tempo:-.1,Głębia:.7}],['Commercial Leadership',{Wynik:.85,Wpływ:.9,Relacyjność:.65,Tempo:.4}]]},
+ {family:'Kreatywne / koncept',roles:['Concept Specialist','Creative Strategist','Innovation Specialist'],tags:{Głębia:.45,Analityczność:.2,Decyzyjność:.3,Autonomia:.85,Struktura:-.55,Tempo:.1,Eksploracja:.9,Wynik:.35,Stabilność:-.35,Różnorodność:.9,Wpływ:.5,Relacyjność:.2},variants:[['Concept / Innovation',{Eksploracja:.95,Różnorodność:.9,Autonomia:.9}],['Creative Strategy',{Wpływ:.6,Analityczność:.35,Relacyjność:.4}]]},
+ {family:'Relacyjne / partnerskie',roles:['Partner Manager','Customer Success','Account Specialist'],tags:{Głębia:.2,Analityczność:.2,Decyzyjność:.35,Autonomia:.4,Struktura:.15,Tempo:.25,Eksploracja:.2,Wynik:.5,Stabilność:.3,Różnorodność:.6,Wpływ:.5,Relacyjność:.95},variants:[['Long-term Partnership',{Stabilność:.65,Tempo:.1,Relacyjność:.95}],['Customer Success',{Wynik:.55,Relacyjność:.9,Różnorodność:.55}]]},
+ {family:'Leadership / people',roles:['Team Leader','Sales Manager','Department Manager'],tags:{Głębia:.3,Analityczność:.45,Decyzyjność:.85,Autonomia:.7,Struktura:.35,Tempo:.35,Eksploracja:.35,Wynik:.75,Stabilność:.2,Różnorodność:.65,Wpływ:.9,Relacyjność:.85},variants:[['People Leadership',{Relacyjność:.95,Wpływ:.9,Decyzyjność:.85}],['Performance Leadership',{Wynik:.9,Tempo:.55,Struktura:.55}]]},
+ {family:'Research / innovation',roles:['Innovation Specialist','R&D Coordinator','Product Researcher'],tags:{Głębia:.85,Analityczność:.8,Decyzyjność:.35,Autonomia:.7,Struktura:.0,Tempo:-.2,Eksploracja:.9,Wynik:.35,Stabilność:.0,Różnorodność:.55,Wpływ:.4,Relacyjność:.15},variants:[['Deep Research',{Głębia:.95,Tempo:-.45,Analityczność:.95}],['Applied Innovation',{Eksploracja:.9,Wynik:.55,Relacyjność:.35}]]},
+ {family:'Przedsiębiorczość / własny biznes',roles:['Founder','Independent Consultant','Business Owner'],tags:{Głębia:.35,Analityczność:.4,Decyzyjność:.95,Autonomia:.98,Struktura:-.6,Tempo:.5,Eksploracja:.95,Wynik:.85,Stabilność:-.8,Różnorodność:.95,Wpływ:.9,Relacyjność:.5},variants:[['Solo / Specialist Business',{Autonomia:.98,Głębia:.65,Tempo:.1}],['Growth Business',{Wynik:.95,Tempo:.75,Eksploracja:.95,Stabilność:-.85}]]}
+];
+const TENSIONS=[
+ ['Autonomia','Struktura','Niezależność w ramach','Możesz dobrze działać samodzielnie, ale niekoniecznie w chaosie.'],
+ ['Stabilność','Eksploracja','Stabilna baza + nowość','Nowe rozwiązania mogą Cię pociągać, jeśli nie wymagają permanentnej niepewności.'],
+ ['Głębia','Różnorodność','Szeroka specjalizacja','Możesz potrzebować różnorodnych tematów, ale z przestrzenią na wejście w nie głębiej.'],
+ ['Relacyjność','Wpływ','Wpływ przez współpracę','Kontakt z ludźmi może być ważny bez potrzeby dominowania decyzji.'],
+ ['Wynik','Tempo','Spokojna skuteczność','Możesz być mocno nastawiony na rezultat bez potrzeby ciągłego działania w pośpiechu.']
+];
+const KEYWORDS={
+ Autonomia:['samodziel','autonom','niezależ','organizujesz','odpowiadasz za'],Struktura:['procedur','standard','proces','zasad','raport','zgodnie z'],Tempo:['dynamic','szyb','presj','piln','deadline','tempo'],Stabilność:['stabil','długotermin','stał','przewidyw','ustalonym zakre'],Różnorodność:['różnorod','wiele temat','wielozadani','różne projekty'],Eksploracja:['nowy rynek','rozwój','innow','nowych rozwiąza','eksplor','business development'],Wynik:['cel','wynik','target','sprzedaż','rezultat','KPI','realizacja'],Wpływ:['decyzj','strateg','kierunek','wpływ','odpowiedzialność'],Relacyjność:['klient','partner','zespół','spotkania','negocjac','współprac'],Głębia:['specjalist','ekspert','technicz','analiz','szczegół'],Analityczność:['dane','analiz','raport','liczb','research'],Decyzyjność:['decyzj','odpowiedzialność','zarządz','lead','kierownik']
+};
+let i=0,answers={},profile=null;
+function start(){i=0;answers={};document.getElementById('intro').classList.add('hidden');document.getElementById('test').classList.remove('hidden');render()}
+function restart(){location.reload()}
+function render(){
+ const q=DATA.questions[i]; document.getElementById('dim').textContent=q.d; document.getElementById('qcounter').textContent=`${i+1} / ${DATA.questions.length}`; document.getElementById('question').textContent=q.p; document.getElementById('bar').style.width=(((i)/DATA.questions.length)*100)+'%'; document.getElementById('backBtn').style.display=i?'inline-block':'none';
+ const box=document.getElementById('options');box.innerHTML='';
+ [[-1,'Zdecydowanie A','To zdecydowanie bliższe pierwszemu wariantowi'],[-.5,'Raczej A','To raczej bliższe pierwszemu wariantowi'],[.5,'Raczej B','To raczej bliższe drugiemu wariantowi'],[1,'Zdecydowanie B','To zdecydowanie bliższe drugiemu wariantowi']].forEach(([v,label,sub])=>{const b=document.createElement('button');b.className='option';b.innerHTML=`<strong>${label}</strong><small>${sub}</small>`;if(answers[q.n]===v)b.classList.add('selected');b.onclick=()=>answer(v,b);box.appendChild(b)});
+}
+function answer(v,btn){const q=DATA.questions[i];document.querySelectorAll('.option').forEach(x=>x.disabled=true);btn.classList.add('selected');answers[q.n]=v;setTimeout(()=>{if(i<DATA.questions.length-1){i++;render()}else finish()},120)}
+function backQuestion(){if(i>0){i--;render()}}
+function calc(){
+ const scores={}, confidence={}, stability={}, signalStrength={};
+ DATA.dimensions.forEach(d=>{
+   const qs=DATA.questions.filter(q=>q.d===d[0]);
+   const vals=qs.map(q=>{const v=answers[q.n]??0; return q.a===d[2]?v:-v});
+   const mean=vals.reduce((a,b)=>a+b,0)/vals.length;
+   const absMean=vals.reduce((a,b)=>a+Math.abs(b),0)/vals.length;
+   const variance=vals.reduce((a,b)=>a+Math.pow(b-mean,2),0)/vals.length;
+   const consistency=absMean?Math.max(0,1-Math.sqrt(variance)/1.05):0;
+   const direction=Math.min(1,Math.abs(mean));
+   const strength=Math.min(1,.55*direction+.45*absMean);
+   scores[d[0]]=Math.max(-1,Math.min(1,mean));
+   stability[d[0]]=Math.max(0,Math.min(1,consistency));
+   signalStrength[d[0]]=strength;
+   const c=.55*consistency+.45*absMean;
+   confidence[d[0]]=c>=.72?'wysoka':c>=.48?'umiarkowana':'niska';
+ });
+ return {scores,confidence,stability,signalStrength};
+}
+function neighborSensitivity(dimName){
+ const qs=DATA.questions.filter(q=>q.d===dimName); const d=DATA.dimensions.find(x=>x[0]===dimName); const base=profile.scores[dimName]; let maxShift=0;
+ qs.forEach(q=>{const old=answers[q.n]??0; [-1,-.5,.5,1].forEach(v=>{if(v===old)return; const signed=q.a===d[2]?v:-v; const oldSigned=q.a===d[2]?old:-old; const other=qs.filter(x=>x.n!==q.n).map(x=>{const av=answers[x.n]??0;return x.a===d[2]?av:-av}); const m=(other.reduce((a,b)=>a+b,0)+signed)/qs.length; maxShift=Math.max(maxShift,Math.abs(m-base));});});
+ return maxShift;
+}
+function renderQuality(){
+ const rows=DATA.dimensions.map(d=>{const n=neighborSensitivity(d[0]), c=profile.confidence[d[0]], st=profile.stability[d[0]], s=profile.scores[d[0]]; const sens=n<=.20?'niska':n<=.35?'umiarkowana':'wysoka'; return `<div class="dim"><div class="top"><b>${d[0]}</b><span class="mono">${c}</span></div><p>Spójność odpowiedzi: <strong>${Math.round(st*100)}%</strong> · Siła sygnału: <strong>${Math.round(profile.signalStrength[d[0]]*100)}%</strong></p><small class="muted">Wrażliwość na zmianę jednej odpowiedzi: ${sens}. Największa możliwa zmiana tego wymiaru w tym teście: ${n.toFixed(2)}.</small></div>`}).join(''); document.getElementById('quality').innerHTML=rows;
+}
+
+function level(s){const a=Math.abs(s);return a>=.62?'wyraźna':a>=.32?'umiarkowana':'neutralna'}
+function side(d,s){return s>=0?d[2]:d[1]}
+function label(s){if(s>.62)return 'wyraźnie bliżej prawej strony';if(s>.18)return 'umiarkowanie bliżej prawej strony';if(s<-.62)return 'wyraźnie bliżej lewej strony';if(s<-.18)return 'umiarkowanie bliżej lewej strony';return 'blisko środka'}
+function finish(){profile=calc();document.getElementById('test').classList.add('hidden');document.getElementById('result').classList.remove('hidden');renderResult();if(window.JOB_DNA_STATE&&window.JOB_DNA_STATE.syncProfile){window.JOB_DNA_STATE.syncProfile({scores:{...profile.scores},confidence:{...profile.confidence},stability:{...profile.stability},signalStrength:{...profile.signalStrength}});}else{window.jobDnaProfile={scores:{...profile.scores},confidence:{...profile.confidence},stability:{...profile.stability},signalStrength:{...profile.signalStrength}};window.JOB_DNA_PROFILE=window.jobDnaProfile;}window.scrollTo(0,0)}
+function renderResult(){
+ const {scores,confidence,stability:consistency}=profile; document.getElementById('summary').textContent='Profil opisuje naturalne preferencje dotyczące sposobu funkcjonowania w pracy. Nie jest diagnozą osobowości, nie przewiduje sukcesu i nie mówi, jaki zawód masz wykonywać.';
+ renderQuality(); document.getElementById('dims').innerHTML=DATA.dimensions.map(d=>{const s=scores[d[0]],pct=Math.round((s+1)*50);return `<div class="dim"><div class="top"><span class="label">${d[0]}</span><span class="mono">${confidence[d[0]]} pewność</span></div><div class="axis"><span>${d[1]}</span><span>${d[2]}</span></div><div class="track"><div class="dot" style="left:${pct}%"></div></div><div><b>${label(s)}</b> · ${side(d,s)}</div><small class="muted">Stabilność sygnału: ${consistency[d[0]]>=.72?'wysoka':consistency[d[0]]>=.48?'umiarkowana':'niska'}</small></div>`}).join('');
+ const sorted=DATA.dimensions.map(d=>{const n=d[0],s=scores[n],conf=confidence[n],st=profile.stability[n]||0; const weight=conf==='wysoka'?1:conf==='umiarkowana'?.8:.55; return [n,s,conf,Math.abs(s)*weight*(.65+.35*st)]}).sort((a,b)=>b[3]-a[3]); const core=sorted.filter(x=>Math.abs(x[1])>=.58 && x[3]>=.48).slice(0,3);
+ document.getElementById('core').innerHTML=core.length?core.map(([n,s,c])=>`<div class="dim"><b>${n}</b><p>${side(DATA.dimensions.find(d=>d[0]===n),s)} — ${level(s)} sygnał.</p><small class="muted">Pewność: ${c}. Core nie oznacza „najlepszej cechy” — oznacza silnie zaznaczony element konfiguracji.</small></div>`).join(''):'<div class="dim"><b>Brak silnego Core</b><p>Profil jest względnie zbalansowany. To wynik, nie błąd.</p></div>';
+ document.getElementById('counter').innerHTML=TENSIONS.map(([a,b,t,desc])=>{const sa=scores[a],sb=scores[b];const active=(sa>.45&&sb>.45)||(sa<-.45&&sb<-.45);return `<div class="dim"><b>${t}</b><p>${active?desc:'Ta przeciwwaga nie jest silnie zaznaczona w tym profilu.'}</p><small>${a}: ${label(sa)} · ${b}: ${label(sb)}</small></div>`}).join('');
+ renderEnv(); renderRoles();
+}
+function requireProfile(){
+ const p=window.JOB_DNA_STATE?.profile||window.jobDnaProfile||window.JOB_DNA_PROFILE||null;
+ return p&&p.scores?p:null;
+}
+function runOfferAnalysis(){
+ const p=requireProfile();
+ if(!p){document.getElementById('offerOut').innerHTML='<div class="callout"><b>NAJPIERW UKOŃCZ TEST.</b> Analiza oferty wymaga rzeczywistego profilu 12D.</div>';return;}
+ const text=document.getElementById('offerText').value||'';
+ window.JOB_DNA_STATE?.syncOffer?.(text);
+ const r=window.JOB_DNA_OFFER_ENGINE?.render(text,p.scores);
+ if(!r){document.getElementById('offerOut').innerHTML='<p>Nie udało się uruchomić analizy.</p>';return;}
+ const chips=(arr)=>arr.length?arr.map(x=>`<span class="pill">${esc(x)}</span>`).join(''):'<span class="pill">brak</span>';
+ document.getElementById('offerOut').innerHTML=`<div class="card" style="grid-column:1/-1"><h3>${esc(r.verdict)}</h3><p><b>Wspierane:</b></p><div>${chips(r.strengths)}</div><p><b>Potencjalny koszt:</b></p><div>${chips(r.costs)}</div><p><b>NIE WIEMY:</b></p><div>${chips(r.unknowns)}</div><p><b>Pytania do rekrutera:</b></p><ol>${(r.questions||[]).map(x=>`<li>${esc(x)}</li>`).join('')||'<li>Brak pytań krytycznych na tym etapie.</li>'}</ol></div>`;
+}
+function runCVAnalysis(){
+ const p=requireProfile();
+ if(!p){document.getElementById('cvOut').innerHTML='<div class="callout"><b>NAJPIERW UKOŃCZ TEST.</b> Analiza CV wymaga rzeczywistego profilu 12D.</div>';return;}
+ const offer=document.getElementById('offerText').value||'', cv=document.getElementById('cvText').value||'';
+ window.JOB_DNA_STATE?.syncOffer?.(offer); window.JOB_DNA_STATE?.syncCV?.(cv);
+ if(!cv.trim()){document.getElementById('cvOut').innerHTML='<p>Wklej CV. System nie dopisuje żadnych niepotwierdzonych kompetencji.</p>';return;}
+ const terms=[...new Set((offer.match(/[a-ząćęłńóśźż0-9-]{5,}/gi)||[]))].filter(t=>!['który','której','praca','firma','osoba','będzie','oraz','przez','także','jako','jest','tego','jego','naszym'].includes(t.toLowerCase())).slice(0,100);
+ const cl=cv.toLowerCase(); const hits=terms.filter(t=>cl.includes(t.toLowerCase())).slice(0,25);
+ document.getElementById('cvOut').innerHTML=`<p><b>Bezpośrednie sygnały tekstowe:</b> ${hits.length?hits.map(esc).join(', '):'brak jednoznacznych powtórzeń'}</p><p><b>Interpretacja:</b> samo powtórzenie słowa nie jest jeszcze dowodem kompetencji, a brak słowa nie oznacza jej braku.</p><p><b>Status:</b> ten etap wskazuje obszary do ręcznej weryfikacji; nie fabrykuje dowodów.</p>`;
+}
+function renderEnv(){const s=profile.scores; const must=[],prefer=[],cost=[]; const push=(arr,x)=>arr.push(`<span class="pill">${x}</span>`); if(s.Autonomia>.55)push(must,'swoboda sposobu działania'); if(s.Struktura>.55)push(must,'jasne ramy'); if(s.Tempo<-.55)push(cost,'ciągła presja czasu'); if(s.Tempo>.55)push(prefer,'dynamiczne tempo'); if(s.Stabilność>.55)push(must,'przewidywalność'); if(s.Eksploracja>.55)push(prefer,'nowe możliwości'); if(s.Różnorodność>.55)push(prefer,'różnorodne tematy'); if(s.Wpływ>.55)push(must,'realny wpływ'); if(s.Relacyjność>.55)push(prefer,'częsta współpraca'); if(s.Relacyjność<-.55)push(must,'czas na samodzielną pracę'); if(s.Wynik>.55)push(prefer,'jasny rezultat'); if(s.Głębia>.55)push(prefer,'przestrzeń na specjalizację'); document.getElementById('env').innerHTML=`<h3>MUST</h3><div>${must.join('')||'<span class="pill">brak bardzo silnych wymagań</span>'}</div><h3>PREFER</h3><div>${prefer.join('')||'<span class="pill">brak bardzo silnych preferencji</span>'}</div><h3>COST</h3><div>${cost.join('')||'<span class="pill">brak wyraźnych kosztów</span>'}</div>`}
+function roleFit(role){
+ let total=0,n=0;
+ for(const [d,target] of Object.entries(role.tags)) if(profile.scores[d]!==undefined){
+   const dist=Math.abs(profile.scores[d]-target)/2;
+   total += Math.max(0,1-dist); n++;
+ }
+ return n?total/n:0;
+}
+function roleVerdict(f){return f>=.70?['NATURALNY KIERUNEK','green']:f>=.53?['MOŻLIWY KIERUNEK','yellow']:['WARUNKOWY','orange']}
+function variantFit(v){let total=0,n=0;for(const [d,t] of Object.entries(v[1])){if(profile.scores[d]!==undefined){total+=Math.max(0,1-Math.abs(profile.scores[d]-t)/2);n++;}}return n?total/n:0}
+function renderRoles(){
+ const ranked=ROLE_LIBRARY.map(r=>({...r,fit:roleFit(r)})).sort((a,b)=>b.fit-a.fit).slice(0,6);
+ document.getElementById('roles').innerHTML=ranked.map(r=>{const [v,c]=roleVerdict(r.fit);const vars=(r.variants||[]).map(x=>({...x,fit:variantFit(x)})).sort((a,b)=>b.fit-a.fit).slice(0,2);return `<div class="role"><div class="top"><b>${r.family}</b><span class="status ${c}">${v}</span></div><div class="muted">${r.roles.join(' · ')}</div><div class="variantBox"><small><b>Najbardziej naturalny wariant środowiskowy:</b></small>${vars.map(x=>`<div><b>${x[0]}</b> — ${x.fit>=.72?'NATURALNY':x.fit>=.55?'MOŻLIWY':'WARUNKOWY'}</div>`).join('')}</div><small>Dopasowanie jest opisowe i wynika z konfiguracji DNA. Nie jest procentem szans na sukces.</small></div>`}).join('')+`<div class="callout"><b>WAŻNE:</b> rodzina roli nie jest rekomendacją jednego zawodu. Wariant środowiskowy pokazuje, <b>w jakiej wersji danej pracy</b> konfiguracja DNA może być najbardziej naturalna.</div>`;
+};
+function signalFor(text,d){const s=OFFER_SIGNALS[d]||{pos:[],neg:[]};const pos=s.pos.filter(k=>text.includes(k)).length,neg=s.neg.filter(k=>text.includes(k)).length;return {pos,neg,total:pos+neg}}
+function analyzeOffer(){const text=document.getElementById('offerText').value.toLowerCase();if(!text.trim()){document.getElementById('offerOut').innerHTML='<p>Wklej treść oferty. Brak informacji pozostaje <b>NIE WIEMY</b>.</p>';return} const out=[]; for(const d of DATA.dimensions){const g=signalFor(text,d[0]),s=profile.scores[d[0]];let verdict='NIE WIEMY',detail='Oferta nie daje wystarczającego sygnału dla tego wymiaru.';if(g.total){const offerSide=g.pos>=g.neg?1:-1;const aligned=(s*offerSide)>.18;verdict=aligned?'SYGNAŁ ZGODNY':Math.abs(s)<.18?'WARUNKOWE / BLISKO ŚRODKA':'SYGNAŁ DO SPRAWDZENIA';detail=`Sygnały: ${g.pos?'prawa '+g.pos:''}${g.neg?' lewa '+g.neg:''}`;}out.push(`<div class="dim"><b>${d[0]}</b><p><strong>${verdict}</strong></p><small>${detail}<br>Twoje DNA: ${label(s)}</small></div>`)}document.getElementById('offerOut').innerHTML=out.join('')+`<div class="callout"><b>NIE WIEMY:</b> parser analizuje wyłącznie jawny tekst oferty. Brak wzmianki nie oznacza braku danej cechy pracy.</div>`}
+function analyzeCV(){const offer=document.getElementById('offerText').value.toLowerCase(),cv=document.getElementById('cvText').value.toLowerCase();if(!cv.trim()){document.getElementById('cvOut').innerHTML='<p>Wklej CV. Nie będziemy dopisywać żadnych niepotwierdzonych kompetencji.</p>';return}const terms=[...new Set(offer.match(/[a-ząćęłńóśźż0-9-]{5,}/gi)||[])].filter(t=>!['który','której','praca','firma','osoba','będzie','oraz','przez','także','jako','jest','tego','jego','naszym'].includes(t)).slice(0,100);let hits=terms.filter(t=>cv.includes(t)).slice(0,25);document.getElementById('cvOut').innerHTML=`<p><b>Bezpośrednie powtórzenia słów:</b> ${hits.length?hits.join(', '):'brak jednoznacznych powtórzeń'}</p><p><b>Interpretacja:</b> powtórzenie słowa nie jest jeszcze dowodem kompetencji, a brak powtórzenia nie oznacza jej braku.</p><p><b>Następny krok:</b> w wersji produkcyjnej ten moduł powinien mapować wymagania oferty na konkretne fragmenty CV i oznaczać je jako UDOWODNIONE / CZĘŚCIOWE / BRAK / NIE WIEMY.</p>`}
+function printReport(){window.print()}
+</script>
+
+<section id="job-dna-offer-engine" style="margin-top:48px;padding:32px;border-radius:24px;background:#111;color:#fff;">
+  <h2 style="margin:0 0 8px;">JOB DNA × Konkretna oferta</h2>
+  <p style="opacity:.8;max-width:760px;">
+    Wklej treść ogłoszenia. System rozdzieli sygnały DNA, koszty środowiska i informacje,
+    których w ogłoszeniu po prostu nie ma.
+  </p>
+  <textarea id="job-dna-offer-input" style="width:100%;min-height:220px;margin-top:16px;padding:16px;border-radius:14px;"
+    placeholder="Wklej tutaj pełną treść ogłoszenia..."></textarea>
+  <button id="job-dna-offer-run" style="margin-top:14px;padding:12px 18px;border-radius:12px;border:0;cursor:pointer;">
+    Analizuj ofertę
+  </button>
+  <div id="job-dna-offer-output" style="margin-top:24px;"></div>
 </section>
-
-<section id="test" class="card hidden">
-<div class="kicker" id="counter"></div><div class="step-dots"><i class="on"></i><i></i><i></i></div><div class="test-head"><span class="scenario-label">SYTUACJA ZAWODOWA</span><span class="small muted" id="percent"></span></div><div class="progress"><i id="bar"></i></div>
-<div class="q" id="q"></div><div class="choices" id="choices"></div><div class="answer-title"><span>Która odpowiedź jest Ci bliższa?</span><small>Wybierz również siłę tej preferencji.</small></div><div class="answers" id="answers"></div><div class="test-note">Nie szukaj „lepszej” odpowiedzi. Wybierz tę, która bardziej przypomina Twój naturalny sposób działania.</div>
-<div class="actions"><button class="secondary" id="backBtn" onclick="back()">← Wstecz</button><span></span></div>
-</section>
-
-
-<section id="report" class="hidden"></section>
-</div>
 
 <script>
-const RAW_Q = `1|Dostajesz nowy produkt i możesz poświęcić godzinę na przygotowanie się do pierwszej rozmowy.|Chcę najpierw zrozumieć, jak produkt działa i co naprawdę decyduje o jego wartości.|Wolę najpierw uporządkować dostępne informacje i sprawdzić, jak poszczególne fakty się ze sobą łączą.
-2|Masz rozwiązanie problemu, ale nie masz jeszcze pełnego obrazu sytuacji.|Najpierw chcę zrozumieć, co dokładnie stoi za problemem, zanim wybiorę kierunek.|Jeśli kierunek jest wystarczająco dobry, wolę podjąć decyzję i sprawdzić ją w działaniu.
-3|Otrzymujesz zadanie, w którym kilka dróg może prowadzić do celu.|Najbardziej odpowiada mi możliwość samodzielnego wybrania sposobu dojścia do rozwiązania.|Najpierw chcę dokładnie rozłożyć problem na elementy i zrozumieć zależności.
-4|Nowy temat trafia do Ciebie bez gotowej instrukcji.|Zanim ruszę, chcę mieć własne rozumienie tego, jak działa cały temat.|Dobrze czuję się, gdy mogę oprzeć działanie na jasno określonych zasadach i kolejności.
-5|Musisz wybrać między dwoma sensownymi rozwiązaniami.|Porównuję ich konsekwencje, ryzyka i zależności, zanim wybiorę.|Jeżeli jedno rozwiązanie wydaje się wystarczająco dobre, wolę podjąć decyzję niż dalej odkładać wybór.
-6|Masz samodzielnie zaproponować rozwiązanie dla klienta.|Chcę mieć swobodę wyboru sposobu, w jaki dojdę do rozwiązania.|Najpierw chcę zestawić informacje i sprawdzić, co z czego wynika.
-7|Dostajesz raport zawierający wiele danych.|Najbardziej interesują mnie różnice, zależności i konsekwencje między wariantami.|Łatwiej pracuje mi się wtedy, gdy informacje są przedstawione według jasnego schematu.
-8|Masz krótki czas na przygotowanie rekomendacji.|Najpierw chcę porównać dostępne warianty i ich konsekwencje.|Wolę działać w sposób, który pozwala szybko przejść od informacji do decyzji.
-9|Masz podjąć decyzję w sytuacji, w której nie wszystkie dane są dostępne.|Jestem gotów zdecydować na podstawie tego, co już wiem.|Chcę mieć możliwość samodzielnego wyboru sposobu działania wokół tej decyzji.
-10|W firmie pojawia się nowe zadanie bez jednoznacznie opisanej procedury.|Potrafię wybrać kierunek i podjąć decyzję bez czekania na pełne wytyczne.|Lepiej funkcjonuję, gdy sposób postępowania jest jasno określony.
-11|Masz problem wymagający szybkiej reakcji.|Wolę podjąć decyzję i później ją skorygować, jeśli będzie trzeba.|Wolę działać według ustalonego sposobu, który daje przewidywalny przebieg.
-12|Dostajesz możliwość sprawdzenia nowego rozwiązania.|Jeżeli widzę potencjał, jestem skłonny zdecydować o teście mimo pewnej niepewności.|Najbardziej odpowiada mi możliwość samodzielnego ustalenia, jak taki test przeprowadzić.
-13|Masz osiągnąć cel, ale nikt nie narzuca Ci metody.|Najlepiej działam, gdy sam wybieram drogę do celu.|Najlepiej działam, gdy mam jasno określone ramy i zasady działania.
-14|Ważne zadanie wymaga szybkiego przejścia od planu do wykonania.|Wolę mieć możliwość samodzielnego ustawienia sposobu działania.|Dobrze funkcjonuję, gdy mogę utrzymać sprawne tempo i nie zatrzymywać się na każdym szczególe.
-15|Masz poprawić sposób działania w swoim obszarze.|Chcę sam zdecydować, które rozwiązanie warto wdrożyć.|Chcę mieć możliwość przetestowania kilku nowych podejść i sprawdzenia ich w praktyce.
-16|Odpowiadasz za ważny cel projektu.|Najbardziej motywuje mnie swoboda wyboru drogi do rezultatu.|Najbardziej liczy się dla mnie to, czy końcowy efekt został osiągnięty.
-17|W firmie zmienia się sposób wykonywania zadania.|Chcę mieć możliwość dostosowania nowego sposobu do własnego stylu pracy.|Ważne jest dla mnie, żeby decyzje i działania nie przeciągały się niepotrzebnie.
-18|Masz zaprojektować nowy sposób obsługi klienta.|Chcę móc samodzielnie wybrać rozwiązanie, które najlepiej pasuje do sytuacji.|Ciekawi mnie możliwość przetestowania zupełnie nowego podejścia.
-19|Dostajesz zadanie, w którym procedura jest tylko punktem wyjścia.|Jeśli mam jasny cel, chcę móc dobrać własną metodę.|Wolę pracować w tempie, które pozwala szybko przechodzić od jednego etapu do następnego.
-20|Kończysz ważny projekt i oceniasz jego wartość.|Największą satysfakcję daje mi to, że mogłem samodzielnie zdecydować, jak go poprowadzić.|Najważniejsze jest dla mnie to, że projekt przyniósł konkretny efekt.
-21|Masz kilka tygodni na ważne zadanie.|Wolę ustawić własny sposób pracy i konsekwentnie prowadzić temat.|Lubię, gdy kolejne etapy prowadzą do konkretnego, widocznego rezultatu.
-22|Wybierasz sposób organizacji tygodnia.|Wolę dynamicznie przechodzić przez kolejne tematy i decyzje.|Ważniejsze jest dla mnie, żeby na koniec tygodnia mieć zamknięte konkretne rezultaty.
-23|Masz zdecydować, jak pracować nad długim projektem.|Preferuję rytm, w którym wiem, czego spodziewać się w kolejnych etapach.|Potrzebuję możliwości zmiany tematów i zadań, żeby utrzymać zaangażowanie.
-24|Dostajesz dwa projekty o podobnym znaczeniu.|Wybieram ten, w którym mogę działać w bardziej różnorodnych sytuacjach.|Wybieram ten, w którym można pracować w szybkim rytmie i często domykać kolejne etapy.
-25|Nowy pomysł może znacząco poprawić wynik, ale wymaga sprawdzenia.|Najbardziej interesuje mnie możliwość przetestowania pomysłu i zobaczenia, co zadziała.|Najważniejsze jest dla mnie, czy ostatecznie przyniesie to konkretny rezultat.
-26|Firma rozważa wejście w nowy obszar.|Nie przeszkadza mi niepewność, jeśli mogę sprawdzić nową możliwość.|Czuję się lepiej, gdy wiem, że środowisko i warunki działania są przewidywalne.
-27|Masz rozwijać jeden produkt przez kilka miesięcy.|Chcę w tym czasie sprawdzać nowe rozwiązania i kierunki.|Potrzebuję zmiany tematów i bodźców, żeby utrzymać zainteresowanie.
-28|Masz poprawić produkt, który już działa.|Najbardziej interesuje mnie sprawdzenie nowego kierunku, który może zmienić jego pozycję.|Najbardziej liczy się dla mnie to, czy poprawa przyniesie wymierny efekt.
-29|Dostajesz dwa podobne projekty.|Wybieram ten, którego wynik i warunki są bardziej przewidywalne.|Wybieram ten, w którym będę mieć więcej różnych tematów i sytuacji.
-30|Kończysz projekt i zastanawiasz się, co było dla Ciebie najważniejsze.|Największą wartość ma dla mnie osiągnięty, mierzalny rezultat.|Dużo daje mi też możliwość przejścia później do zupełnie nowych tematów.
-31|Masz możliwość przejąć odpowiedzialność za nowy projekt.|Najbardziej interesuje mnie możliwość wpływania na to, w jakim kierunku pójdzie.|Ważne jest dla mnie, żeby projekt miał jasno określony i mierzalny rezultat.
-32|Projekt wymaga zarówno wyniku, jak i wielu rozmów z interesariuszami.|Kontakt z ludźmi jest dla mnie naturalnym elementem osiągania celu.|Chcę przede wszystkim widzieć, że projekt przynosi konkretny efekt.
-33|Masz zaplanować kolejne miesiące pracy.|Wolę wiedzieć wcześniej, czego się spodziewać i móc spokojnie planować.|Wolę, gdy pojawiają się nowe tematy i sytuacje wymagające zmiany perspektywy.
-34|Masz wybrać między dwoma środowiskami pracy.|Większą wartość ma dla mnie przewidywalność i ciągłość.|Chcę mieć realny wpływ na kierunek, w którym rozwija się praca.
-35|W zespole zmieniają się ludzie i sposób współpracy.|Najbardziej cenię zachowanie przewidywalnych zasad i warunków.|Ważne jest dla mnie, żeby nadal mieć regularny kontakt z ludźmi.
-36|Pracujesz nad problemem, który może wymagać kilku miesięcy.|Dobrze funkcjonuję, gdy wiem, czego spodziewać się w kolejnych etapach.|Chcę móc wejść w temat naprawdę głęboko i dobrze go zrozumieć.
-37|Masz wybrać kierunek rozwoju produktu.|Interesuje mnie możliwość poznawania nowych obszarów i zmieniania kierunku.|Ważne jest dla mnie, żeby mieć realny wpływ na decyzję o kierunku.
-38|Masz możliwość pracy nad jednym tematem albo kilkoma mniejszymi.|Wolę różnorodność tematów i częste zmiany perspektywy.|Chętniej wybieram jeden problem, jeśli pozwala mi go naprawdę zrozumieć.
-39|Dostajesz kilka ofert i musisz wybrać najlepszą.|Lubię mieć kilka różnych możliwości i porównywać je ze sobą.|Wolę dokładnie wejść w jedną złożoną kwestię i ją dobrze poznać.
-40|Masz możliwość wpłynięcia na decyzję ważnego projektu.|Chcę uczestniczyć w tej decyzji i mieć realny wpływ na kierunek.|Kontakt i rozmowa z osobami zaangażowanymi są dla mnie naturalną częścią takiej roli.
-41|Masz pomysł, który może zmienić sposób działania firmy.|Najważniejsze jest dla mnie doprowadzenie do tego, żeby pomysł wpłynął na kierunek decyzji.|Najpierw chcę dobrze zrozumieć problem, który pomysł ma rozwiązać.
-42|Masz wybrać kierunek rozwoju projektu.|Chcę mieć wpływ na to, jaki kierunek zostanie wybrany.|Najpierw chcę porównać informacje, warianty i ich konsekwencje.
-43|Ważna decyzja wymaga zarówno właściciela, jak i osoby wpływającej na kierunek.|Chcę mieć realny wpływ na ostateczny kierunek.|Dobrze czuję się, gdy to ja podejmuję decyzję i biorę za nią odpowiedzialność.
-44|Masz prowadzić trudny temat z kilkoma osobami po swojej stronie.|Naturalnie korzystam z rozmów i współpracy, żeby posuwać temat do przodu.|Wolę mieć możliwość spokojnego wejścia w problem i zrozumienia go przed działaniem.
-45|Dostajesz dane do ważnej decyzji i możesz pracować sam albo konsultować je z innymi.|Rozmowa z ludźmi pomaga mi dojść do rozwiązania.|Wolę sam porównać informacje, zależności i możliwe konsekwencje.
-46|Musisz podjąć trudną decyzję dotyczącą zespołu.|Chcę najpierw omówić sytuację z osobami, których dotyczy.|Jeśli mam wystarczające informacje, wolę sam podjąć decyzję.
-47|Na koniec tygodnia patrzysz na to, jak pracowałeś.|Najbardziej naturalne jest dla mnie łączenie kontaktu z ludźmi z samodzielnym działaniem.|Wolę mieć możliwość samodzielnego wyboru sposobu pracy, nawet jeśli oznacza to mniej kontaktu.
-48|Otrzymujesz ważny cel, ale sposób jego realizacji zależy od Ciebie.|Najbardziej naturalne jest dla mnie uzgodnić kierunek z ludźmi i działać we współpracy.|Najbardziej naturalne jest dla mnie samodzielnie wybrać sposób działania i wziąć za niego odpowiedzialność.`;
-const Q = RAW_Q.split("\n").filter(Boolean).map(x=>{const p=x.split("|");return [p[1],p[2],p[3]];});
-const M = {
-1:['depth','analytical',1,-1],2:['depth','decisiveness',1,-1],3:['autonomy','depth',1,-1],4:['depth','structure',1,-1],
-5:['analytical','decisiveness',1,-1],6:['autonomy','analytical',1,-1],7:['analytical','structure',1,-1],8:['analytical','tempo',1,-1],
-9:['decisiveness','autonomy',1,-1],10:['decisiveness','structure',1,-1],11:['decisiveness','stability',1,-1],12:['decisiveness','autonomy',1,-1],
-13:['autonomy','structure',1,-1],14:['autonomy','tempo',1,-1],15:['autonomy','exploration',1,-1],16:['autonomy','result',1,-1],
-17:['autonomy','tempo',1,-1],18:['autonomy','exploration',1,-1],19:['autonomy','tempo',1,-1],20:['autonomy','result',1,-1],
-21:['autonomy','result',1,-1],22:['tempo','result',1,-1],23:['stability','variety',1,-1],24:['variety','tempo',1,-1],
-25:['exploration','result',1,-1],26:['exploration','stability',1,-1],27:['exploration','variety',1,-1],28:['exploration','result',1,-1],
-29:['stability','variety',1,-1],30:['result','variety',1,-1],31:['influence','result',1,-1],32:['relationality','result',1,-1],
-33:['stability','variety',1,-1],34:['stability','influence',1,-1],35:['stability','relationality',1,-1],36:['stability','depth',1,-1],
-37:['variety','influence',1,-1],38:['variety','depth',1,-1],39:['variety','depth',1,-1],40:['influence','relationality',1,-1],
-41:['influence','depth',1,-1],42:['influence','analytical',1,-1],43:['influence','decisiveness',1,-1],44:['relationality','depth',1,-1],
-45:['relationality','analytical',1,-1],46:['relationality','decisiveness',1,-1],47:['relationality','autonomy',1,-1],48:['relationality','autonomy',1,-1]};
-const DIMS = ["depth","analytical","decisiveness","autonomy","structure","tempo","exploration","result","stability","variety","influence","relationality"];
-const L = {
- depth:"Głębia", analytical:"Analityczność", decisiveness:"Decyzyjność", autonomy:"Autonomia",
- structure:"Struktura", tempo:"Tempo", exploration:"Eksploracja", result:"Wynik",
- stability:"Stabilność", variety:"Różnorodność", influence:"Wpływ", relationality:"Relacyjność"
-};
-const DESC = {
- depth:"potrzeba zrozumienia problemu, produktu lub mechanizmu",
- analytical:"porównywanie informacji, zależności i konsekwencji",
- decisiveness:"gotowość do decyzji mimo niepełnych informacji",
- autonomy:"potrzeba wyboru własnego sposobu działania",
- structure:"potrzeba uporządkowanych zasad i jasnych ram",
- tempo:"preferowane tempo działania i zamykania tematów",
- exploration:"gotowość do testowania nowych rozwiązań",
- result:"znaczenie konkretnego, widocznego efektu",
- stability:"potrzeba przewidywalności i ciągłości",
- variety:"potrzeba zmienności tematów i zadań",
- influence:"potrzeba wpływania na kierunek decyzji i wyniku",
- relationality:"znaczenie kontaktu z ludźmi jako naturalnej części pracy"
-};
-let A=Array(Q.length).fill(null), idx=0, sanity=null;
-
-function showIntro(){document.getElementById("start").classList.add("hidden");document.getElementById("intro").classList.remove("hidden");window.scrollTo(0,0);}
-function backToStart(){document.getElementById("intro").classList.add("hidden");document.getElementById("start").classList.remove("hidden");window.scrollTo(0,0);}
-function start(){document.getElementById("intro").classList.add("hidden");document.getElementById("start").classList.add("hidden");document.getElementById("test").classList.remove("hidden");render();window.scrollTo(0,0);}
-function sig(v){return v==="AD"?1:v==="AR"?.5:v==="BR"?-.5:-1;}
-function render(){
- document.getElementById("counter").textContent=`PYTANIE ${idx+1} Z ${Q.length}`;
- document.getElementById("percent").textContent=Math.round(((idx+1)/Q.length)*100)+"%";
- document.getElementById("bar").style.width=((idx+1)/Q.length*100)+"%";
- document.getElementById("backBtn").classList.toggle("back-disabled",idx===0);
- document.getElementById("q").textContent=Q[idx][0];
- const choices=document.getElementById("choices");
- choices.innerHTML=`<div class="choice"><b>A</b><span>${Q[idx][1]}</span></div><div class="choice"><b>B</b><span>${Q[idx][2]}</span></div>`;
- const box=document.getElementById("answers");box.innerHTML="";
- [["AD","A","Zdecydowanie bliższa"],["AR","A","Trochę bliższa"],["BR","B","Trochę bliższa"],["BD","B","Zdecydowanie bliższa"]].forEach(x=>{
-  const b=document.createElement("button");b.className="answer";
-  const strength = x[0]==="AD" ? "Zdecydowanie bliższa" : x[0]==="AR" ? "Raczej bliższa" : x[0]==="BR" ? "Raczej bliższa" : "Zdecydowanie bliższa";
-  const side = x[1]==="A" ? "A — " : "B — ";
-  b.innerHTML=`<span class="answer-mark">${x[1]}</span><span class="answer-copy"><strong>${side}${strength}</strong><span>${x[2]}</span></span>`;
-  b.onclick=()=>pick(x[0]);box.appendChild(b);
- });
-}
-function pick(v){A[idx]=v;if(idx<Q.length-1){idx++;render();}else{document.getElementById("test").classList.add("hidden");report();}}
-function back(){if(idx>0){idx--;render();}}
-function calc(){
- const sum=Object.fromEntries(DIMS.map(d=>[d,0])), wt=Object.fromEntries(DIMS.map(d=>[d,0])), obs=Object.fromEntries(DIMS.map(d=>[d,[]]));
- for(let i=0;i<A.length;i++){
-   const m=M[i+1]; if(!m||A[i]==null)continue; const v=sig(A[i]);
-   if(m[0]){sum[m[0]]+=v*Number(m[2])*1;wt[m[0]]+=1;obs[m[0]].push(v*Number(m[2]));}
-   if(m[1]){sum[m[1]]+=v*Number(m[3])*.5;wt[m[1]]+=.5;obs[m[1]].push(v*Number(m[3]));}
- }
- const score={},conf={};
- DIMS.forEach(d=>{
-   score[d]=wt[d]?Math.round((sum[d]/wt[d]+1)*50):50;
-   const o=obs[d], mean=o.reduce((a,b)=>a+b,0)/(o.length||1), variance=o.reduce((a,b)=>a+(b-mean)**2,0)/(o.length||1);
-   const consistency=Math.max(0,1-Math.sqrt(variance));
-   // Confidence reflects both consistency and the number of independent observations.
-   // It must not become artificially high just because a small set is internally consistent.
-   const coverage=Math.min(1,o.length/8);
-   conf[d]=Math.round(coverage*70+consistency*30);
- });
- return {score,conf};
-}
-
-const PROFILE_RULES=[
- {test:s=>s.result>=68&&s.relationality>=62&&s.influence>=58&&s.depth>=55,name:"PARTNER KIERUNKU",sub:["Wynik","Relacyjność","Wpływ"],desc:"Chcesz osiągać konkretny efekt poprzez kontakt, uzgodnienie i wpływ na kierunek. Najlepiej działasz wtedy, gdy relacja prowadzi do realnej zmiany, a nie jest tylko obsługą ludzi."},
- {test:s=>s.depth>=66&&s.structure>=60&&s.result>=60,name:"BUDOWNICZY ROZWIĄZANIA",sub:["Głębia","Struktura","Wynik"],desc:"Potrzebujesz dobrze rozumieć temat, uporządkować sposób działania i doprowadzić rozwiązanie do konkretnego efektu."},
- {test:s=>s.exploration>=64&&s.influence>=58&&s.result>=62,name:"INICJATOR RYNKU",sub:["Eksploracja","Wpływ","Wynik"],desc:"Naturalnie szukasz możliwości, uruchamiasz nowe kierunki i chcesz przekładać je na konkretny rezultat."},
- {test:s=>s.depth>=66&&s.analytical>=62&&s.variety<=52,name:"PROJEKTANT ZŁOŻONOŚCI",sub:["Głębia","Analityczność","Skupienie"],desc:"Dobrze funkcjonujesz wtedy, gdy możesz wejść w trudny temat, rozłożyć go na zależności i dojść do rozwiązania bez ciągłego przeskakiwania."},
- {test:s=>s.tempo>=66&&s.result>=68&&s.decisiveness>=62,name:"OPERATOR REZULTATU",sub:["Tempo","Wynik","Decyzyjność"],desc:"Najlepiej działasz tam, gdzie trzeba podejmować decyzje, zamykać etapy i dowozić wynik bez nadmiernego przeciągania."},
- {test:s=>s.exploration>=66&&s.variety>=64&&s.stability<=48,name:"POSZUKIWACZ MOŻLIWOŚCI",sub:["Eksploracja","Różnorodność","Elastyczność"],desc:"Potrzebujesz nowych tematów i możliwości do sprawdzania. Zbyt przewidywalne środowisko może ograniczać Twoje zaangażowanie."},
- {test:s=>s.structure>=68&&s.stability>=62,name:"PROJEKTANT SYSTEMU",sub:["Struktura","Stabilność","Wynik"],desc:"Najlepiej działasz tam, gdzie zasady są jasne, środowisko przewidywalne, a wartością jest konsekwentne rozwijanie sposobu działania."},
- {test:s=>s.autonomy>=66&&s.stability>=62,name:"SAMODZIELNOŚĆ W RAMACH",sub:["Autonomia","Stabilność","Wynik"],desc:"Potrzebujesz stabilnego środowiska, w którym masz swobodę decydowania, jak osiągnąć cel."},
- {test:s=>s.influence>=66&&s.autonomy>=64&&s.relationality<55,name:"ARCHITEKT KIERUNKU",sub:["Wpływ","Autonomia","Decyzyjność"],desc:"Chcesz mieć realny wpływ na kierunek i odpowiedzialność za decyzje, bez konieczności opierania działania głównie na relacjach."}
+/* JOB DNA — Concrete Offer Engine V1 */
+const JOB_DNA_OFFER_DIMENSIONS = [
+  "Głębia","Analityczność","Decyzyjność","Autonomia","Struktura","Tempo",
+  "Eksploracja","Wynik","Stabilność","Różnorodność","Wpływ","Relacyjność"
 ];
-function profile(score){
- const hit=PROFILE_RULES.find(r=>r.test(score));
- if(hit)return hit;
- const top=[...DIMS].sort((a,b)=>score[b]-score[a]).slice(0,3);
- const names={depth:"ARCHITEKT ROZWIĄZAŃ",analytical:"PROJEKTANT ZŁOŻONOŚCI",decisiveness:"INICJATOR DECYZJI",autonomy:"KREATOR SPRAWCZOŚCI",structure:"PROJEKTANT SYSTEMU",tempo:"OPERATOR REZULTATU",exploration:"POSZUKIWACZ MOŻLIWOŚCI",result:"KREATOR WYNIKU",stability:"PROJEKTANT RAM",variety:"ŁĄCZNIK PERSPEKTYW",influence:"ARCHITEKT KIERUNKU",relationality:"PARTNER WSPÓŁPRACY"};
- return {name:names[top[0]],sub:top.map(x=>L[x]),desc:`Nie ma tu jednej sztywnej etykiety. Najsilniejszą część Twojego profilu tworzy połączenie: ${top.map(x=>L[x]).join(" · ")}. Nazwa jest skrótem tej konfiguracji, nie diagnozą.`};
-}
-function band(v){return v>=75?"bardzo wysoka":v>=65?"wysoka":v<=25?"bardzo niska":v<=35?"niska":"umiarkowana";}
-function status(v){return v>=65?"wyraźnie po tej stronie":v<=35?"wyraźnie po przeciwnej stronie":"bez wyraźnej przewagi";}
-function confidenceLabel(c){return c>=80?"wysoka":c>=60?"umiarkowana":c>=40?"ograniczona":"niska";}
-function action(s){
- const parts=[];
- if(s.result>=65&&s.relationality>=62)parts.push("kontakt z ludźmi ma największą wartość wtedy, gdy prowadzi do konkretnego rezultatu");
- else if(s.result>=65)parts.push("sama aktywność nie wystarcza — chcesz widzieć konkretny efekt");
- if(s.depth>=62)parts.push("potrzebujesz wystarczająco dobrze zrozumieć temat, zanim uznasz rozwiązanie za sensowne");
- if(s.structure>=62&&s.autonomy<58)parts.push("lepiej funkcjonujesz w określonych ramach niż w całkowicie nieokreślonym środowisku");
- if(s.influence>=60)parts.push("ważne jest dla Ciebie, żeby Twój głos realnie wpływał na kierunek");
- if(s.tempo<42)parts.push("nie musisz działać w permanentnym pośpiechu, żeby mieć poczucie skuteczności");
- if(!parts.length)parts.push("Twój wynik nie wskazuje jeszcze jednego dominującego sposobu działania");
- return parts.map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(". ")+".";
-}
-function naturalPreferredCost(s){
- const natural=[...DIMS].sort((a,b)=>s[b]-s[a]).slice(0,4);
- const preferred=[];
- if(s.result>=60) preferred.push("praca, w której efekt jest widoczny i można domknąć temat");
- if(s.relationality>=60) preferred.push("kontakt z ludźmi, który służy współpracy, negocjacji lub osiąganiu efektu");
- if(s.influence>=58) preferred.push("realny wpływ na kierunek, decyzje albo wybór rozwiązania");
- if(s.tempo>=58) preferred.push("sprawny rytm pracy bez konieczności działania w permanentnym pośpiechu");
- if(s.depth>=55) preferred.push("wystarczająco dużo czasu na zrozumienie produktu lub problemu przed działaniem");
- if(s.stability<42) preferred.push("środowisko, w którym jest ruch i możliwość zmiany zamiast pełnej przewidywalności");
- if(s.autonomy<42) preferred.push("jasne ramy odpowiedzialności zamiast pełnej konieczności samodzielnego definiowania zasad");
- const costs=[];
- if(s.analytical<=35) costs.push("długie analizy, raportowanie i porównywanie wariantów bez przełożenia na działanie");
- if(s.stability<=35) costs.push("środowisko oparte na przewidywalności, powtarzalności i małej zmianie");
- if(s.autonomy<=35) costs.push("mikrozarządzanie i brak wpływu na sposób realizacji celu");
- if(s.result>=65) costs.push("zadania, w których trudno zobaczyć konkretny efekt lub odpowiedzialność za rezultat");
- if(s.relationality>=65) costs.push("praca niemal bez kontaktu z ludźmi, jeśli nie daje ona innego wyraźnego źródła zaangażowania");
- if(s.tempo>=65) costs.push("ciągłe stanie w miejscu, wielotygodniowe oczekiwanie i brak domykania tematów");
- if(s.depth>=65&&s.analytical<45) costs.push("praca wymagająca jednocześnie bardzo dużej głębi i bardzo intensywnej analizy danych");
- return {natural,preferred:preferred.slice(0,3),costs:costs.slice(0,3)};
-}
-function costs(s){
- const x=naturalPreferredCost(s).costs;
- return x.length?x.join("; "):"wynik nie pokazuje jednego wyraźnego źródła kosztu — warto sprawdzić to na konkretnych ofertach pracy.";
-}
-function connections(s){
- const c=[];
- const add=(title,tags,text,weight,type="synergy")=>c.push({title,tags,text,weight,type});
- if(s.result>=62&&s.relationality>=62)add("Relacja → rezultat","Wynik · Relacyjność","Kontakt z ludźmi może być dla Ciebie narzędziem osiągania efektu, a nie celem samym w sobie.",Math.min(s.result,s.relationality));
- if(s.influence>=58&&s.relationality>=58)add("Wpływ poprzez ludzi","Wpływ · Relacyjność","Najbardziej naturalny wpływ może pojawiać się przez rozmowę, przekonywanie, uzgadnianie i budowanie partnerstwa.",Math.min(s.influence,s.relationality));
- if(s.result>=65&&Math.abs(s.tempo-50)<=15)add("Rezultat ważniejszy niż tempo","Wynik · Tempo","Ważne jest domknięcie i efekt, ale nie wynika z tego potrzeba pracy w permanentnym pośpiechu.",s.result);
- if(s.depth>=55&&s.analytical<=40)add("Głębia bez nadmiaru analizy","Głębia · Analityczność","Chcesz rozumieć produkt lub problem, ale niekoniecznie potrzebujesz bez końca rozbierać go na dane, warianty i zależności.",s.depth+(50-s.analytical));
- if(s.exploration>=52&&s.stability<=45)add("Zmiana bez potrzeby chaosu","Eksploracja · Stabilność","Jesteś otwarty na nowe rozwiązania, ale sama nowość nie musi być wartością — liczy się sens zmiany.",s.exploration+(50-s.stability));
- if(s.influence>=55&&s.result>=65)add("Wpływ ma mieć konsekwencję","Wpływ · Wynik","Samo uczestniczenie w decyzjach może nie wystarczać. Chcesz widzieć, że wpływ przekłada się na realny efekt.",Math.min(s.influence,s.result));
- if(s.autonomy<=45&&s.structure>=50)add("Ramy przed pełną swobodą","Struktura · Autonomia","Jasne zasady mogą dawać Ci punkt oparcia. Pełna dowolność nie jest sama w sobie wartością, jeśli nie wiadomo, w jakich ramach działać.",s.structure+(50-s.autonomy));
- return c.sort((a,b)=>b.weight-a.weight).slice(0,4);
-}
-function roleFit(s, req, avoid){
- let weighted=0,total=0;
- Object.entries(req).forEach(([d,r])=>{const w=r.w||1,target=r.target; weighted+=Math.abs(s[d]-target)*w; total+=50*w;});
- let fit=100-(weighted/total*100);
- Object.entries(avoid||{}).forEach(([d,limit])=>{if(s[d]>limit)fit-=Math.min(12,(s[d]-limit)*0.3);});
- return Math.max(0,Math.min(100,Math.round(fit)));
-}
-function roles(s){
- const defs=[
-  ["Partner / Channel Manager",{relationality:{target:78,w:1},influence:{target:72,w:1},result:{target:72,w:.9},tempo:{target:58,w:.35},structure:{target:58,w:.3}}, {},"rozwój partnerów, negocjacje, wpływ na kierunek i odpowiedzialność za wynik"],
-  ["Specification sales / sprzedaż techniczna",{depth:{target:72,w:1},result:{target:72,w:.9},relationality:{target:68,w:.8},influence:{target:70,w:.8},structure:{target:60,w:.35},analytical:{target:50,w:.25}}, {},"rozumienie produktu, praca z ludźmi i wpływanie na wybór rozwiązania"],
-  ["Business Development / rozwój rynku",{exploration:{target:74,w:1},influence:{target:70,w:1},result:{target:75,w:.9},relationality:{target:62,w:.65},autonomy:{target:62,w:.5}}, {stability:55},"szukanie możliwości, uruchamianie nowych kierunków i odpowiedzialność za rezultat"],
-  ["Product Specialist / Product Manager",{depth:{target:72,w:.9},result:{target:70,w:.8},influence:{target:65,w:.65},structure:{target:64,w:.6},exploration:{target:58,w:.45},relationality:{target:55,w:.35}}, {},"łączenie wiedzy produktowej, decyzji i przekładania potrzeb rynku na rozwiązania"],
-  ["Sprzedaż konsultacyjna / KAM / partnerstwo",{relationality:{target:76,w:1},result:{target:74,w:1},influence:{target:70,w:.9},depth:{target:58,w:.45},tempo:{target:58,w:.3}}, {},"kontakt, wpływ i mierzalny efekt są częścią samej pracy"],
-  ["Koordynacja projektów",{structure:{target:72,w:.9},relationality:{target:65,w:.65},result:{target:68,w:.7},depth:{target:55,w:.3},autonomy:{target:55,w:.25}}, {tempo:40},"pasuje szczególnie wtedy, gdy koordynacja daje realny wpływ, a nie jest wyłącznie gaszeniem problemów"],
-  ["Analityka / praca badawcza",{analytical:{target:78,w:1},depth:{target:75,w:.9},structure:{target:65,w:.6},result:{target:55,w:.3}}, {relationality:65},"wymaga większej potrzeby analizy i pracy na zależnościach niż pokazuje ten profil"]
- ];
- return defs.map(d=>({name:d[0],fit:roleFit(s,d[1],d[2]),why:d[3]})).sort((a,b)=>b.fit-a.fit).slice(0,5);
-}
-function roleDetails(name,s){
- const common={
-  "Specification sales / sprzedaż techniczna":{
-   why:"Łączy zrozumienie produktu, kontakt z ludźmi i realny wpływ na wybór rozwiązania.",
-   look:["praca z architektami, projektantami lub wykonawcami","sprzedaż oparta na wartości produktu, nie tylko cenie","wpływ na specyfikację i wybór rozwiązania"],
-   avoid:["czysta sprzedaż transakcyjna","duża presja aktywności przy małym wpływie na decyzję","produkt, którego nie da się sensownie poznać"]},
-  "Product Specialist / Product Manager":{
-   why:"Daje możliwość wejścia w produkt, rozumienia rynku i przekładania wiedzy na decyzje oraz kierunek rozwoju.",
-   look:["odpowiedzialność za produkt lub kategorię","kontakt z rynkiem i sprzedażą","realny wpływ na rozwój oferty"],
-   avoid:["rola ograniczona do administracji produktem","brak wpływu na decyzje","praca oparta głównie na raportowaniu"]},
-  "Partner / Channel Manager":{
-   why:"Wykorzystuje relacyjność jako narzędzie wpływu: rozwój partnerów, negocjacje i wspólne budowanie wyniku.",
-   look:["rozwój dystrybutorów i partnerów","samodzielność w budowaniu rynku","odpowiedzialność za wynik kanału"],
-   avoid:["opieka nad partnerami bez możliwości zmiany czegokolwiek","ciągłe gaszenie problemów operacyjnych","KPI oparte wyłącznie na liczbie kontaktów"]},
-  "Business Development / rozwój rynku":{
-   why:"Pozwala szukać możliwości, uruchamiać nowe kierunki i sprawdzać, co ma potencjał rynkowy.",
-   look:["otwieranie nowych rynków lub kanałów","swoboda testowania kierunków","jasna odpowiedzialność za efekt"],
-   avoid:["stanowisko nazwane BD, ale będące zwykłą sprzedażą","brak wpływu na ofertę i kierunek","ciągła presja bez możliwości budowania rynku"]},
-  "Sprzedaż konsultacyjna / KAM / partnerstwo":{
-   why:"Najmocniej działa tam, gdzie kontakt z ludźmi prowadzi do decyzji, rozwiązania i mierzalnego efektu.",
-   look:["długofalowe relacje biznesowe","sprzedaż doradcza","wpływ na rozwiązanie i warunki współpracy"],
-   avoid:["cold calling jako główny model pracy","sprzedaż wyłącznie cenowa","opieka nad klientem bez wpływu na biznes"]},
-  "Koordynacja projektów":{
-   why:"Może pasować tylko wtedy, gdy koordynacja daje wpływ i sprawczość, a nie sprowadza się do ciągłego gaszenia pożarów.",
-   look:["jasny zakres decyzyjności","wpływ na rozwiązanie i harmonogram","odpowiedzialność za efekt, nie tylko pilnowanie innych"],
-   avoid:["ciągłe rozwiązywanie cudzych problemów","brak wpływu przy pełnej odpowiedzialności","praca oparta na permanentnej presji"]},
-  "Analityka / praca badawcza":{
-   why:"Może wykorzystać głębię, ale obecny profil nie pokazuje wystarczająco silnej potrzeby intensywnej analizy jako głównego trybu pracy.",
-   look:["analiza prowadząca do decyzji","kontakt z praktycznym zastosowaniem wyniku","możliwość łączenia wiedzy z działaniem"],
-   avoid:["praca wyłącznie na danych","długie analizy bez wpływu na decyzje","izolacja od praktycznego zastosowania"]}
- };
- const d=common[name]||{why:"Ta rodzina ról może być dobrym miejscem do sprawdzenia konfiguracji JOB DNA.",look:["realny wpływ","jasna odpowiedzialność za efekt","przestrzeń na wykorzystanie mocnych stron"],avoid:["rola sprzeczna z najmocniejszymi sygnałami profilu"]};
- return d;
-}
-function actionPlan(s,rr){
- const top=rr.slice(0,3).map(r=>r.name);
- const filters=[];
- if(s.influence>=60) filters.push("szukaj odpowiedzialności za decyzję lub kierunek, nie tylko wykonania");
- if(s.depth>=60) filters.push("sprawdzaj, czy produkt/problem można naprawdę poznać, a nie tylko szybko sprzedać");
- if(s.relationality>=60) filters.push("preferuj kontakt, który prowadzi do decyzji, negocjacji lub wyniku");
- if(s.exploration>=60) filters.push("szukaj przestrzeni na rozwój rynku, produktu lub nowych rozwiązań");
- if(s.analytical<45) filters.push("uważaj na role, w których główną pracą jest ciągła analiza danych i raportowanie");
- if(s.decisiveness<45) filters.push("sprawdzaj, ile decyzji trzeba podejmować samodzielnie i przy jakim poziomie niepewności");
- return {top,filters:filters.slice(0,5)};
-}
 
-const JOB_SIGNALS={
- depth:{pos:["produkt","technicz","rozwiązani","specyfik","wiedza produkt","doradzt","ekspert","szkoleni"],neg:["prosta sprzedaż","szybka sprzedaż"]},
- analytical:{pos:["analiz","dane","raport","excel","wskaźnik","kpi","forecast","prognoz","research","analiza rynku"],neg:["bez raportów"]},
- decisiveness:{pos:["decyzj","odpowiedzialność za","samodzieln","negocjac","priorytet","zarządzanie"],neg:["akceptacja przełożonego","zgoda przełożonego"]},
- autonomy:{pos:["samodzieln","autonom","własna inicjatywa","odpowiedzialność za rynek","budowanie rynku","własny obszar"],neg:["ścisły nadzór","według instrukcji","mikrozarządz"]},
- structure:{pos:["procedur","proces","standard","system","organizac","planowanie","harmonogram","wdrożeni"],neg:["chaos"]},
- tempo:{pos:["dynamiczn","szybkie tempo","szybko","terminy","target","sprzedaż miesięcz","deadline"],neg:["spokojne tempo"]},
- exploration:{pos:["nowy rynek","rozwój rynku","nowe rozwiązani","innowac","testowani","eksperyment","wdrażani nowych","poszukiwanie możliwości"],neg:["powtarzaln","stały proces"]},
- result:{pos:["wynik","sprzedaż","target","cel sprzedaż","rezultat","realizacj planu","odpowiedzialność za wynik","marż"],neg:["bez targetów"]},
- stability:{pos:["stabiln","stałe zatrudnienie","ugruntowan","przewidywaln","długoterminow","bezpieczeństwo"],neg:["start-up","niepewność","zmienność"]},
- variety:{pos:["różnorodn","wiele projektów","różne klient","różne produkty","multizadani","szeroki zakres","różne rynki"],neg:["powtarzaln","jednorodn"]},
- influence:{pos:["wpływ na","kształtowanie","strategi","decyzje","rozwój oferty","negocjac","partner","rekomendac","specyfikac"],neg:["wykonawcz","zgodnie z decyzją"]},
- relationality:{pos:["klient","partner","architekt","dystrybutor","zespół","relacje","spotkania","negocjac","prezentac","kontakt z ludźmi"],neg:["praca samodzielna bez kontaktu"]}
+const JOB_DNA_OFFER_RULES = {
+  "Autonomia": [/samodzieln/i,/independent/i,/autonom/i,/własną odpowiedzialność/i,/samodzielne decyzj/i],
+  "Struktura": [/procedur/i,/standard/i,/proces/i,/zgodnie z wytycznymi/i,/compliance/i],
+  "Tempo": [/dynamicz/i,/szybkim temp/i,/presj.*czasu/i,/deadline/i,/fast-paced/i],
+  "Stabilność": [/stabiln/i,/długoterminow/i,/stał.*współprac/i,/ustabilizowan/i],
+  "Różnorodność": [/różnorodn/i,/wiele projekt/i,/różne zadani/i,/multitask/i],
+  "Eksploracja": [/nowy rynek/i,/rozwój rynku/i,/innowac/i,/nowe rozwiązani/i,/business development/i,/new market/i],
+  "Wynik": [/cele sprzedaż/i,/target/i,/wynik/i,/rezultat/i,/KPI/i,/revenue/i],
+  "Wpływ": [/negocjac/i,/wpływ/i,/strateg/i,/kształtowan/i,/rozwój biznesu/i,/decision/i],
+  "Relacyjność": [/klient/i,/partner/i,/relacj/i,/współprac/i,/stakeholder/i,/customer/i],
+  "Głębia": [/ekspert/i,/specjalist/i,/technicz/i,/analiz/i,/kompleksow/i],
+  "Analityczność": [/analiz/i,/dane/i,/raport/i,/forecast/i,/research/i,/data/i],
+  "Decyzyjność": [/decyzj/i,/odpowiedzialność za/i,/zarządz/i,/negocjac/i,/decision/i]
 };
-function norm(t){return t.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'');}
-function jobSignals(text){
- const t=norm(text); const raw={};
- DIMS.forEach(d=>{let score=0,hits=[];(JOB_SIGNALS[d]?.pos||[]).forEach(k=>{if(t.includes(norm(k))){score++;hits.push(k)}});(JOB_SIGNALS[d]?.neg||[]).forEach(k=>{if(t.includes(norm(k))){score--;hits.push('− '+k)}});raw[d]=Math.max(-1,Math.min(1,score/3));});
- // Neutral dimensions should not be treated as 0=low; they are simply unknown.
- const target={};DIMS.forEach(d=>target[d]=raw[d]>0?50+raw[d]*45:raw[d]<0?50+raw[d]*35:50);return {target,raw};
-}
-function jobFit(user,job){
- let sum=0,w=0;DIMS.forEach(d=>{const evidence=Math.abs(job.raw[d]);if(evidence>.01){const weight=.55+evidence;sum+=(100-Math.abs(user[d]-job.target[d]))*weight;w+=weight;}});
- return w?Math.round(sum/w):50;
-}
-function analyzeJob(){
- const el=document.getElementById('jobxText'), out=document.getElementById('jobxResult');if(!el||!out)return;const text=el.value.trim();if(text.length<80){out.innerHTML='<div class="jobx-flag"><b>Potrzebuję trochę więcej treści.</b> Wklej przynajmniej fragment zawierający obowiązki, wymagania i sposób pracy.</div>';return;}
- const {score}=calc(), job=jobSignals(text), fit=jobFit(score,job);
- const known=DIMS.map(d=>({d,e:Math.abs(job.raw[d]),diff:Math.abs(score[d]-job.target[d])})).filter(x=>x.e>.01).sort((a,b)=>b.e-a.e);
- const strongest=known.slice(0,4);const matches=strongest.filter(x=>x.diff<=18).slice(0,3);const tensions=strongest.filter(x=>x.diff>30).slice(0,3);
- let label=fit>=75?'WYSOKIE DOPASOWANIE':fit>=60?'WARTE SPRAWDZENIA':fit>=45?'MIESZANE DOPASOWANIE':'NISKIE DOPASOWANIE';let cls=fit>=75?'jobx-good':fit>=60?'jobx-warn':'jobx-low';
- let h='<div class="jobx-score"><div><b>'+label+'</b><small>heurystyczne dopasowanie sposobu działania do treści ogłoszenia</small></div><div class="jobx-fit '+cls+'">'+fit+'/100</div></div>';
- if(strongest.length){h+='<div class="jobx-chips">'+strongest.map(x=>'<span class="jobx-chip">'+L[x.d]+'</span>').join('')+'</div>';}
- h+='<div class="jobx-flags">';
- if(matches.length)h+='<div class="jobx-flag"><b>Co może działać</b>'+matches.map(x=>'• '+L[x.d]+': profil i ogłoszenie są po podobnej stronie.').join('<br>')+'</div>';
- if(tensions.length)h+='<div class="jobx-flag"><b>Co koniecznie sprawdzić</b>'+tensions.map(x=>'• '+L[x.d]+': ogłoszenie sugeruje inny sposób pracy niż Twój profil.').join('<br>')+'</div>';
- if(!matches.length&&!tensions.length)h+='<div class="jobx-flag"><b>Za mało sygnałów</b> Ogłoszenie nie zawiera wystarczająco jednoznacznych informacji o sposobie pracy. Nie traktuj wyniku jako negatywnego.</div>';
- h+='<div class="jobx-flag"><b>Najważniejsze pytanie na rozmowie</b> „Jak dużo samodzielnie decyduje osoba na tym stanowisku i na co realnie ma wpływ?”</div>';
- h+='</div><div class="confidence-help"><b>Ważne:</b> analiza działa tylko na tekście, który wkleisz. Nie zna firmy, przełożonego ani rzeczywistej kultury pracy. Przed decyzją porównaj wynik z pełnym ogłoszeniem i rozmową rekrutacyjną.</div>';
- out.innerHTML=h;out.scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-function loadJobExample(){document.getElementById('jobxText').value=`Business Development Manager — Polska\
-\
-Odpowiedzialność za rozwój rynku i budowanie sieci partnerów. Poszukiwanie nowych możliwości biznesowych, prowadzenie negocjacji z dystrybutorami i architektami, przygotowywanie rekomendacji produktowych oraz rozwijanie nowych kanałów sprzedaży. Samodzielne planowanie działań na powierzonym rynku i odpowiedzialność za realizację celów sprzedażowych. Współpraca z zespołem marketingu i produktu.\
-\
-Oczekujemy doświadczenia w sprzedaży B2B, znajomości branży budowlanej, umiejętności prowadzenia prezentacji i negocjacji oraz samodzielności.`;document.getElementById('jobxText').focus();}
 
-function report(){
- const {score,conf}=calc(), p=profile(score), con=connections(score), rr=roles(score);
- const sorted=[...DIMS].sort((a,b)=>score[b]-score[a]), core=sorted.slice(0,4);
- const plan=actionPlan(score,rr);
- let h=`<div class="card hero"><div class="kicker">TWOJE JOB DNA · 2.3</div><div class="profile">${p.name}</div><div class="profile-sub">${p.sub.join(" · ")}</div><div class="callout"><b>${p.desc}</b></div><p class="lead">${action(score)}</p><div class="result-image"><div class="result-caption">„Twój wynik powstaje z połączenia 12 sposobów działania.”</div></div><p class="small muted">To opis konfiguracji odpowiedzi w tym teście — nie stała etykieta człowieka ani diagnoza.</p></div>`;
- h+=`<div class="card"><h2>Twój rdzeń działania</h2><p class="muted">Nie są to „najlepsze cechy”. To sygnały, które najmocniej wyróżniają konfigurację tego wyniku.</p><div class="grid">`;
- core.forEach(d=>h+=`<div class="score"><div class="top"><span>${L[d]}</span><span>${score[d]}</span></div><div class="bar"><i style="width:${score[d]}%"></i></div><div class="small muted">${DESC[d]} · pewność ${conf[d]}%</div><div class="score-status">${band(score[d])} · ${status(score[d])}</div></div>`);
- h+=`</div><div class="insight"><b>Wniosek</b><p>${action(score)}</p></div></div>`;
- h+=`<div class="card"><h2>Twoje połączenia</h2><p class="muted">Najwięcej informacji powstaje nie z pojedynczego wymiaru, ale z tego, jak dwa lub więcej sygnałów współdziałają.</p><div class="connection-grid">`;
- con.forEach(x=>h+=`<div class="connection"><div class="tags"><span class="badge">${x.tags}</span></div><h3>${x.title}</h3><p>${x.text}</p></div>`); h+=`</div></div>`;
- const npc=naturalPreferredCost(score);
- h+=`<div class="card"><h2>Naturalne · Preferowane · Kosztowne</h2><p class="muted">Wynik nie mówi tylko „jaki jesteś”. Pokazuje też, jaki rodzaj pracy może być dla Ciebie naturalny, co prawdopodobnie zwiększa zaangażowanie i gdzie koszt może pojawić się szybciej.</p><div class="npcs"><div class="npc"><b>NATURALNE</b><p>Działanie oparte przede wszystkim na ${npc.natural.map(d=>L[d].toLowerCase()).join(", ")}.</p></div><div class="npc"><b>PREFEROWANE</b><p>${npc.preferred.length?npc.preferred.join("; "):"Wynik nie wskazuje jeszcze jednej wyraźnej preferencji środowiska."}</p></div><div class="npc"><b>KOSZTOWNE</b><p>${npc.costs.length?npc.costs.join("; "):"Brak jednego wyraźnego źródła kosztu — warto sprawdzić je na konkretnych ofertach pracy."}</p></div></div></div>`;
- h+=`<div class="card"><h2>Mapa JOB DNA</h2><div class="grid">`;
- DIMS.forEach(d=>h+=`<div class="score"><div class="top"><span>${L[d]}</span><span>${score[d]}</span></div><div class="bar"><i style="width:${score[d]}%"></i></div><div class="small muted">${band(score[d])} · spójność odpowiedzi ${conf[d]}%</div></div>`);
- h+=`</div><div class="confidence-help"><b>Co oznacza „spójność odpowiedzi”?</b> To wskaźnik tego, jak zgodne są odpowiedzi dotyczące danego wymiaru w ramach tego testu. Nie jest miarą naukowej trafności testu ani prawdopodobieństwa, że wynik jest „prawdziwy” w sensie diagnostycznym.</div></div>`;
- h+=`<div class="card"><h2>Kierunki zawodowe</h2><p class="muted">To nie są rekomendacje zawodów „na zawsze”. To rodziny ról, w których Twoja konfiguracja może mieć dobre zastosowanie.</p><div class="fit-explain"><b>Jak czytać dopasowanie?</b><br>To heurystyczne dopasowanie <b>sposobu działania</b> do typowego kontekstu danej rodziny ról. Nie ocenia Twoich kwalifikacji, doświadczenia ani szans w konkretnej rekrutacji. Wysoki wynik mówi: „warto sprawdzić”, a nie: „ta praca na pewno jest dla Ciebie”.</div>`;
- const roleIcons=["↗","◉","✦","⌁","▦"]; rr.forEach((r,i)=>{const level=r.fit>=68?"WYSOKIE":r.fit>=55?"DO SPRAWDZENIA":"WARUNKOWE"; const d=roleDetails(r.name,score); h+=`<div class="role-row ${r.fit<55?'low':r.fit<68?'conditional':''}"><div class="role-media">${roleIcons[i%roleIcons.length]}</div><div class="role-main"><h3>${r.name}</h3><div class="role-meta"><span class="badge">${level}</span><span class="fit-note">heurystyczne dopasowanie ${r.fit}/100</span></div><p>${r.why}.</p><details><summary>Sprawdź tę rolę</summary><div class="role-detail"><div><b>Dlaczego może działać</b><p>${d.why}</p></div><div><b>Szukaj w ogłoszeniu</b><ul>${d.look.map(x=>`<li>${x}</li>`).join("")}</ul></div><div><b>Uważaj na</b><ul>${d.avoid.map(x=>`<li>${x}</li>`).join("")}</ul></div></div></details></div><div class="arrow">›</div></div>`});
- h+=`</div>`;
- h+=`<div class="card jobx" id="jobx"><div class="kicker">JOB DNA × JOB</div><h2>Sprawdź konkretną ofertę pracy</h2><p class="lead">Wklej treść ogłoszenia, a JOB DNA porówna <b>Twój sposób działania</b> z tym, czego wymaga opisana rola.</p><div class="audit-note"><b>To jeszcze nie jest analiza AI ani ocena kwalifikacji.</b><br>System rozpoznaje sygnały z treści ogłoszenia i porównuje je z Twoim profilem. Wynik jest heurystyką: ma pomóc zdecydować, czy warto wejść w ofertę głębiej.</div><textarea id="jobxText" placeholder="Wklej tutaj całe ogłoszenie — najlepiej z zakresem obowiązków, wymaganiami i informacją o środowisku pracy..."></textarea><div class="jobx-actions"><button onclick="analyzeJob()">Sprawdź dopasowanie →</button><button class="secondary" onclick="loadJobExample()">Pokaż przykład</button></div><div id="jobxResult" class="jobx-result"></div></div>`;
- h+=`<div class="card action-card"><div class="kicker">NASTĘPNY KROK</div><h2>Nie szukaj „idealnego zawodu”. Szukaj właściwego kontekstu.</h2><p class="lead">Na podstawie Twojego profilu najsensowniej zacząć od: <b>${plan.top.join(", ")}</b>.</p><div class="plan-list">${plan.filters.map((x,i)=>`<div class="plan-row"><span>${i+1}</span><p>${x}.</p></div>`).join("")}</div><div class="insight"><b>JOB DNA ma pomagać podejmować decyzje.</b><p>Przy każdej ofercie zadaj sobie pytanie: <b>czy ta praca pozwoli mi wykorzystywać mój sposób działania, czy tylko wykorzysta moje umiejętności?</b></p></div></div>`;
- h+=`<div class="card"><h2>Na co zwrócić uwagę przy wyborze pracy?</h2><p>Nie patrz tylko na nazwę stanowiska. Przy ofertach sprawdzaj przede wszystkim <b>zakres wpływu, poziom samodzielności, sposób rozliczania wyniku, ilość ciągłego gaszenia pożarów oraz to, czy kontakt z ludźmi prowadzi do realnego efektu.</b></p><button onclick="location.reload()">Zrób test ponownie</button></div>`;
- document.getElementById("report").innerHTML=h;document.getElementById("report").classList.remove("hidden");window.scrollTo(0,0);
+const JOB_DNA_OFFER_NEGATIVE = {
+  "Autonomia": [/pod ścisłym nadzorem/i,/stały nadzór/i],
+  "Tempo": [/spokojne tempo/i,/bez presji czasu/i],
+  "Stabilność": [/częste zmian/i,/dynamicznie zmieniające/i,/niepewn/i],
+  "Różnorodność": [/powtarzaln/i,/rutynow/i],
+  "Eksploracja": [/ściśle określone procedury/i,/brak zmian/i],
+  "Relacyjność": [/bez kontaktu z klient/i,/praca całkowicie indywidualna/i]
+};
+
+function offerDetect(text, dim) {
+  const pos = (JOB_DNA_OFFER_RULES[dim]||[]).filter(r=>r.test(text)).length;
+  const neg = (JOB_DNA_OFFER_NEGATIVE[dim]||[]).filter(r=>r.test(text)).length;
+  if (!pos && !neg) return {state:"NIE WIEMY", score:null, evidence:[]};
+  if (pos > neg) return {state:"SYGNAŁ", score:1, evidence:["Oferta zawiera sygnały wspierające wymiar."]};
+  if (neg > pos) return {state:"SYGNAŁ PRZECIWNY", score:-1, evidence:["Oferta zawiera sygnały przeciwne wymiarowi."]};
+  return {state:"MIESZANE", score:0, evidence:["Oferta zawiera sygnały mieszane."]};
 }
 
+function analyzeOffer(text, profile) {
+  const clean=(text||"").trim();
+  const out={title:null,company:null,location:null,model:null,dims:{},unknowns:[],strengths:[],costs:[],questions:[]};
+  if(!clean) return out;
+
+  const lines=clean.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+  out.title=lines[0]||null;
+
+  for(const d of JOB_DNA_OFFER_DIMENSIONS) out.dims[d]=offerDetect(clean,d);
+
+  const metaChecks=[
+    ["company",/firma|company|pracodawca/i],
+    ["location",/Warszawa|Kraków|Wrocław|Poznań|Gdańsk|Łódź|zdaln|remote|hybryd/i],
+    ["model",/zdaln|remote|hybryd|stacjonarn/i]
+  ];
+  for(const [key,rx] of metaChecks) if(!rx.test(clean)) out.unknowns.push(key==="company"?"Firma":"Informacja o "+key);
+
+  for(const d of JOB_DNA_OFFER_DIMENSIONS){
+    const o=out.dims[d], p=Number(profile?.[d]||3);
+    if(o.score===null){out.unknowns.push(d);continue;}
+    if((p>=4 && o.score>0)||(p<=2 && o.score<0)) out.strengths.push(d);
+    if((p>=4 && o.score<0)||(p<=2 && o.score>0)) out.costs.push(d);
+  }
+
+  if(out.unknowns.length) out.questions=[
+    "Jaki jest rzeczywisty poziom samodzielności na tym stanowisku?",
+    "Jak wygląda typowy rytm pracy i presja terminów?",
+    "Które elementy stanowiska są stałe, a które zmieniają się najczęściej?"
+  ].slice(0,3);
+
+  return out;
+}
+
+function renderOfferAnalysis(text, profile){
+  const r=analyzeOffer(text,profile);
+  const verdict = r.costs.length>=4 ? "WARUNKOWE — sprawdź koszt środowiska"
+    : r.strengths.length>=3 ? "DOBRE SYGNAŁY DNA"
+    : "NIEJEDNOZNACZNE — POTRZEBNE DANE";
+  const unknown = r.unknowns.slice(0,8);
+  return {
+    verdict,
+    strengths:[...new Set(r.strengths)],
+    costs:[...new Set(r.costs)],
+    unknowns:unknown,
+    questions:r.questions,
+    dimensions:r.dims
+  };
+}
+window.JOB_DNA_OFFER_ENGINE={analyze:analyzeOffer,render:renderOfferAnalysis};
+</script>
+
+<script>
+(function(){
+  const btn=document.getElementById("job-dna-offer-run");
+  if(!btn) return;
+  btn.addEventListener("click",function(){
+    const text=document.getElementById("job-dna-offer-input").value;
+    let profile={};
+    // Reuse any current 12D values exposed by the prototype; otherwise neutral.
+    if(window.JOB_DNA_STATE?.profile?.scores) profile=window.JOB_DNA_STATE.profile.scores;
+    else if(window.jobDnaProfile?.scores) profile=window.jobDnaProfile.scores;
+    else { document.getElementById("job-dna-offer-output").innerHTML="<b>NAJPIERW UKOŃCZ TEST 48 PYTAŃ.</b>"; return; }
+    const r=window.JOB_DNA_OFFER_ENGINE.render(text,profile);
+    const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+    const chips=(arr,cls)=>arr.length?arr.map(x=>`<span style="display:inline-block;padding:6px 9px;margin:3px;border-radius:999px;background:${cls};">${esc(x)}</span>`).join(""):"<em>Brak</em>";
+    document.getElementById("job-dna-offer-output").innerHTML=`
+      <div style="font-size:20px;font-weight:700;margin-bottom:14px;">${esc(r.verdict)}</div>
+      <h3>Dobrze wspierane przez ofertę</h3>${chips(r.strengths,"#234b35")}
+      <h3 style="margin-top:18px;">Potencjalny koszt DNA</h3>${chips(r.costs,"#56302d")}
+      <h3 style="margin-top:18px;">NIE WIEMY</h3>${chips(r.unknowns,"#444")}
+      <h3 style="margin-top:18px;">Pytania do rekrutera</h3>
+      <ol>${(r.questions.length?r.questions:["Na podstawie samego ogłoszenia nie ma jeszcze pytań krytycznych."]).map(x=>`<li>${esc(x)}</li>`).join("")}</ol>
+    `;
+  });
+})();
+</script>
+
+<script>
+/* JOB DNA — REALIZABILITY / EVIDENCE ENGINE V1 */
+const JOB_DNA_EVIDENCE_TERMS = {
+  "sprzedaż":"Sprzedaż / rozwój biznesu","sales":"Sprzedaż / rozwój biznesu","b2b":"Sprzedaż B2B",
+  "key account":"KAM","kam":"KAM","business development":"Business Development",
+  "project manager":"Project / program","project":"Project / program","koordyn":"Project / program",
+  "zakup":"Zakupy / procurement","procurement":"Zakupy / procurement",
+  "chemia budowlana":"Branża budowlana","płytki":"Branża budowlana","gres":"Branża budowlana",
+  "armatura":"Wyposażenie / techniczne","oświetlen":"Wyposażenie / techniczne",
+  "lighting":"Wyposażenie / techniczne","construction":"Branża budowlana",
+  "angielski":"Język angielski","english":"Język angielski","niemiecki":"Język niemiecki",
+  "excel":"Excel / analiza","power bi":"Power BI / analiza","crm":"CRM",
+  "autocad":"CAD","sap":"ERP / SAP","erp":"ERP / SAP"
+};
+
+function jobDnaEvidenceAnalyze(cvText, offerText){
+  const cv=(cvText||"").toLowerCase();
+  const offer=(offerText||"").toLowerCase();
+  const requirements=[];
+
+  // Extract explicit requirement-like lines/phrases from offer.
+  const lines=offer.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+  for(const line of lines){
+    if(/wymag|oczek|doświadczen|experience|znajomość|umiejęt|skills|must|required|język|prawo jazdy|wykształcen/i.test(line)){
+      requirements.push(line);
+    }
+  }
+
+  const unique=[...new Set(requirements)].slice(0,25);
+  const evidence=[], gaps=[], unknown=[];
+  for(const req of unique){
+    const matched=[];
+    for(const [term,label] of Object.entries(JOB_DNA_EVIDENCE_TERMS)){
+      if(req.includes(term) && cv.includes(term)) matched.push(label);
+    }
+    if(matched.length) evidence.push({requirement:req,status:"UDOWODNIONE",evidence:[...new Set(matched)]});
+    else {
+      const recognizable=[...Object.keys(JOB_DNA_EVIDENCE_TERMS)].some(t=>req.includes(t));
+      if(recognizable) gaps.push({requirement:req,status:"BRAK",evidence:[]});
+      else unknown.push({requirement:req,status:"NIE WIEMY",evidence:[]});
+    }
+  }
+
+  // Transferable evidence: detect broad experience without claiming equivalence.
+  const transferable=[];
+  const transferableRules=[
+    [/koordyn|project|projekt/i,"Doświadczenie projektowe może być transferowalne do części zadań projektowych."],
+    [/sprzedaż|sales|klient|handlow/i,"Doświadczenie handlowe może być transferowalne do relacji/rozwoju biznesu."],
+    [/technicz|produkt|chemia|budowl/i,"Doświadczenie produktowo-techniczne może wspierać role techniczne."],
+    [/szkoleni|training/i,"Doświadczenie szkoleniowe może wspierać role wymagające przekazywania wiedzy."]
+  ];
+  for(const [rx,msg] of transferableRules) if(rx.test(cv)) transferable.push(msg);
+
+  const critical = gaps.filter(x=>/język|prawo jazdy|doświadczen|experience|wykształcen/i.test(x.requirement));
+  let verdict="WARUNKOWO — potrzebne więcej dowodów";
+  if(critical.length===0 && evidence.length>=2) verdict="DOBRA GOTOWOŚĆ — sprawdź luki";
+  if(critical.length>=2) verdict="DUŻE LUKI — oceń koszt wejścia";
+
+  return {verdict,evidence,gaps,unknown,transferable};
+}
+
+window.JOB_DNA_EVIDENCE_ENGINE={analyze:jobDnaEvidenceAnalyze};
+</script>
+
+<section id="job-dna-evidence-engine" style="margin-top:32px;padding:32px;border-radius:24px;background:#f3f1ec;color:#111;">
+  <h2 style="margin:0 0 8px;">JOB DNA × Oferta × CV</h2>
+  <p style="max-width:760px;">
+    Trzecia warstwa oddziela dopasowanie DNA od gotowości do wykonania pracy.
+    CV jest dowodem kompetencji — nie zmienia profilu DNA.
+  </p>
+  <textarea id="job-dna-cv-input" style="width:100%;min-height:180px;margin-top:16px;padding:16px;border-radius:14px;"
+    placeholder="Wklej CV / doświadczenie zawodowe..."></textarea>
+  <button id="job-dna-evidence-run" style="margin-top:12px;padding:12px 18px;border-radius:12px;border:0;cursor:pointer;">
+    Porównaj CV z ofertą
+  </button>
+  <div id="job-dna-evidence-output" style="margin-top:24px;"></div>
+</section>
+<script>
+(function(){
+ const btn=document.getElementById("job-dna-evidence-run");
+ if(!btn)return;
+ btn.addEventListener("click",()=>{
+   const cv=document.getElementById("job-dna-cv-input").value;
+   const offer=document.getElementById("job-dna-offer-input")?.value||"";
+   const r=window.JOB_DNA_EVIDENCE_ENGINE.analyze(cv,offer);
+   const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+   const list=(a,empty)=>a.length?`<ul>${a.map(x=>`<li>${esc(typeof x==="string"?x:x.requirement)}</li>`).join("")}</ul>`:`<em>${empty}</em>`;
+   document.getElementById("job-dna-evidence-output").innerHTML=
+   `<div style="font-size:20px;font-weight:700;margin-bottom:16px;">${esc(r.verdict)}</div>
+    <h3>🟢 UDOWODNIONE</h3>${list(r.evidence,"Brak jednoznacznych dowodów w tekście CV.")}
+    <h3>🟠 LUKI</h3>${list(r.gaps,"Brak rozpoznanych krytycznych luk.")}
+    <h3>⚪ NIE WIEMY</h3>${list(r.unknown,"Brak nierozpoznanych wymagań.")}
+    <h3>Transferowalne doświadczenie</h3>${list(r.transferable,"Nie wykryto oczywistych elementów transferowalnych.")}`;
+ });
+})();
+</script>
+
+<section id="job-dna-application-map" style="margin-top:32px;padding:32px;border-radius:24px;background:#111;color:#fff;">
+  <h2 style="margin:0 0 8px;">Application Map</h2>
+  <p style="opacity:.82;">Zanim zmienisz CV, system wskazuje co zachować, wzmocnić, dodać tylko jeśli prawdziwe oraz czego nie dopisywać.</p>
+  <div id="job-dna-application-map-content" style="margin-top:20px;">
+    <strong>KEEP</strong> — doświadczenia bezpośrednio związane z ofertą.<br>
+    <strong>STRENGTHEN</strong> — elementy ważne dla oferty, które są już częściowo widoczne.<br>
+    <strong>ADD</strong> — tylko prawdziwe informacje, których CV obecnie nie eksponuje.<br>
+    <strong>LIMIT</strong> — elementy mniej istotne dla tej konkretnej aplikacji.<br>
+    <strong>DO NOT ADD</strong> — niczego nie wymyślamy.
+  </div>
+</section>
+
+<style>
+.jd-report-print{background:#fff;color:#111;padding:28px;border-radius:18px;max-width:980px;margin:auto}.jd-report-head{border-bottom:1px solid #ddd;padding-bottom:20px;margin-bottom:24px}.jd-report-print h1{font-size:34px;margin:6px 0}.jd-report-print h2{margin-top:28px}.jd-report-print table{width:100%;border-collapse:collapse}.jd-report-print th,.jd-report-print td{text-align:left;padding:9px;border-bottom:1px solid #ddd}.jd-report-foot{margin-top:32px;padding-top:14px;border-top:1px solid #ddd;color:#777;font-size:12px}
+</style>
+
+<div id="job-dna-v23-status" style="position:fixed;right:14px;bottom:14px;z-index:9999;
+background:#171717;color:#fff;padding:9px 12px;border-radius:999px;font:600 11px/1.2 Arial,sans-serif;
+box-shadow:0 5px 18px rgba(0,0,0,.18);opacity:.92">
+JOB DNA · Candidate 2.6
+</div>
+<script>
+(function(){
+  const S = window.JOB_DNA_STATE;
+  if (!S) return;
+  const offerInputs = [...document.querySelectorAll('textarea,input')].filter(el =>
+    /offer|ofert|job/i.test((el.id||"")+" "+(el.name||"")+" "+(el.placeholder||""))
+  );
+  const cvInputs = [...document.querySelectorAll('textarea,input')].filter(el =>
+    /\bcv\b|curriculum/i.test((el.id||"")+" "+(el.name||"")+" "+(el.placeholder||""))
+  );
+  offerInputs.forEach(el => el.addEventListener("input",()=>S.syncOffer(el.value)));
+  cvInputs.forEach(el => el.addEventListener("input",()=>S.syncCV(el.value)));
+
+  // Expose a stable bridge for the report/offer/CV modules.
+  window.JOB_DNA_API = {
+    getState: ()=>S,
+    getProfile: ()=>S.profile || window.jobDnaProfile || window.JOB_DNA_PROFILE || null,
+    getOffer: ()=>S.offer.text || "",
+    getCV: ()=>S.cv.text || "",
+    setProfile: p=>S.syncProfile(p),
+    setOffer: t=>S.syncOffer(t),
+    setCV: t=>S.syncCV(t),
+    save: ()=>S.save()
+  };
+})();
+</script>
+
+<script id="job-dna-v24-report-engine">
+(function(){
+  const D=["Głębia","Analityczność","Decyzyjność","Autonomia","Struktura","Tempo","Eksploracja","Wynik","Stabilność","Różnorodność","Wpływ","Relacyjność"];
+  const clamp=(x,a=-1,b=1)=>Math.max(a,Math.min(b,x));
+  const esc=x=>String(x??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+  const side=x=>x>.25?"wysoko":x<-.25?"nisko":"umiarkowanie";
+  const scoreLabel=x=>side(x);
+  function state(){ return window.JOB_DNA_API?.getState?.() || window.JOB_DNA_STATE || {}; }
+  function profile(){
+    const p=state().profile||window.jobDnaProfile||window.JOB_DNA_PROFILE;
+    return p&&p.scores ? p : null;
+  }
+  function core(p){
+    return D.map(d=>[Math.abs(Number(p.scores[d]||0)),d]).sort((a,b)=>b[0]-a[0]).slice(0,3).map(x=>x[1]);
+  }
+  function counter(p){
+    const pairs=[["Autonomia","Struktura"],["Stabilność","Eksploracja"],["Tempo","Głębia"],["Wynik","Relacyjność"],["Wpływ","Relacyjność"],["Różnorodność","Stabilność"]];
+    return pairs.filter(([a,b])=>Math.abs((p.scores[a]||0)-(p.scores[b]||0))<.55)
+      .slice(0,3).map(([a,b])=>`${a} ↔ ${b}`);
+  }
+  function env(p){
+    const must=[],prefer=[],cost=[];
+    const x=p.scores;
+    if(x.Autonomia>.45) must.push("swoboda sposobu działania");
+    if(x.Struktura>.45) must.push("jasne zasady i ramy");
+    if(x.Wynik>.45) must.push("widoczny rezultat");
+    if(x.Relacyjność>.45) must.push("regularna współpraca");
+    if(x.Głębia>.45) must.push("czas na pogłębienie tematu");
+    if(x.Eksploracja>.45) prefer.push("przestrzeń do szukania nowych rozwiązań");
+    if(x.Różnorodność>.45) prefer.push("różnorodność tematów");
+    if(x.Stabilność>.45) prefer.push("przewidywalność");
+    if(x.Wpływ>.45) prefer.push("realny wpływ");
+    if(x.Tempo<-.45) cost.push("ciągła presja wysokiego tempa");
+    if(x.Tempo>.45) cost.push("długie okresy bez zmian");
+    if(x.Struktura<-.45) cost.push("sztywna proceduralność");
+    if(x.Autonomia<-.45) cost.push("pełna samotność decyzyjna");
+    if(x.Stabilność<-.45) cost.push("monotonia i brak zmian");
+    return {must,prefer,cost};
+  }
+  function offerSummary(){
+    const t=state().offer?.text||"";
+    if(!t.trim()) return {present:false,unknown:["cała oferta"]};
+    const low=t.toLowerCase(), unknown=[];
+    ["tempo","stabilność","styl zarządzania","autonomia","zakres decyzyjności"].forEach(k=>{
+      if(!low.includes(k)) unknown.push(k);
+    });
+    return {present:true,unknown};
+  }
+  function evidence(){
+    const cv=state().cv?.text||"", off=state().offer?.text||"";
+    if(!off.trim()) return {present:false};
+    const terms=["b2b","sprzedaż","sales","business development","project","projekt","architekt","dystrybut","angielski","english","construction","budowl"];
+    const c=cv.toLowerCase(), o=off.toLowerCase();
+    const found=terms.filter(t=>o.includes(t)&&c.includes(t));
+    return {present:!!cv.trim(),found};
+  }
+  function render(){
+    const p=profile();
+    if(!p) return {ok:false,message:"Najpierw ukończ test — raport wymaga rzeczywistego wyniku 12D."};
+    const e=env(p), o=offerSummary(), ev=evidence(), cr=core(p), cb=counter(p);
+    const lines=[];
+    lines.push(`<div class="jdrv24"><h2>JOB DNA — RAPORT KOŃCOWY</h2>`);
+    lines.push(`<p><b>Konfiguracja:</b> ${esc(p.configuration||"12D")}</p>`);
+    lines.push(`<h3>Executive Summary</h3><p>Profil opisuje naturalny sposób funkcjonowania. Nie jest prognozą sukcesu ani rekomendacją jednego zawodu.</p>`);
+    lines.push(`<h3>Rdzeń</h3><p>${cr.map(esc).join(" · ")}</p>`);
+    if(cb.length) lines.push(`<h3>Przeciwwagi</h3><ul>${cb.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`);
+    lines.push(`<h3>12 wymiarów</h3><table><tr><th>Wymiar</th><th>Pozycja</th></tr>${D.map(d=>`<tr><td>${esc(d)}</td><td>${scoreLabel(Number(p.scores[d]||0))}</td></tr>`).join("")}</table>`);
+    lines.push(`<h3>Środowisko pracy</h3>`);
+    lines.push(`<p><b>MUST:</b> ${e.must.length?e.must.map(esc).join("; "):"brak jednoznacznych MUST"}</p>`);
+    lines.push(`<p><b>PREFER:</b> ${e.prefer.length?e.prefer.map(esc).join("; "):"brak jednoznacznych PREFER"}</p>`);
+    lines.push(`<p><b>COST:</b> ${e.cost.length?e.cost.map(esc).join("; "):"brak wyraźnych kosztów"}</p>`);
+    lines.push(`<h3>Kierunki i rodziny ról</h3><p>${esc((document.getElementById("roles")?.innerText||"Nie wygenerowano jeszcze kierunków.").slice(0,5000))}</p>`);
+    if(o.present){
+      lines.push(`<h3>Oferta × DNA</h3><p><b>Stan:</b> oferta została wprowadzona.</p><p><b>NIE WIEMY:</b> ${o.unknown.length?o.unknown.map(esc).join(", "):"brak wykrytych luk informacyjnych"}</p>`);
+    } else lines.push(`<h3>Oferta × DNA</h3><p>NIE WIEMY — brak wprowadzonej oferty.</p>`);
+    if(ev.present) lines.push(`<h3>Oferta × CV</h3><p><b>Wspólne dowody:</b> ${ev.found.length?ev.found.map(esc).join(", "):"nie wykryto prostych dowodów słownikowych — wymaga ręcznej weryfikacji"}</p>`);
+    lines.push(`<h3>Strategia kariery</h3><p>Wybieraj role zgodne z konfiguracją DNA, a następnie weryfikuj realizowalność na podstawie doświadczenia, kompetencji, języków i wymagań konkretnej oferty.</p>`);
+    lines.push(`<p class="jdrv24note">JOB DNA nie zastępuje CV, rekrutera ani profesjonalnej diagnozy psychometrycznej. Ten raport wykorzystuje funkcjonalny silnik produktu.</p></div>`);
+    const holder=document.getElementById("job-dna-v24-report");
+    if(holder) holder.innerHTML=lines.join("");
+    return {ok:true,html:lines.join(""),core:cr,environment:e,unknowns:o.unknown};
+  }
+  window.JOB_DNA_REPORT_V24={render,profile};
+  document.addEventListener("DOMContentLoaded",()=>{
+    if(!document.getElementById("job-dna-v24-report")){
+      const b=document.createElement("section"); b.id="job-dna-v24-report"; b.style.margin="28px auto"; b.style.maxWidth="900px";
+      document.body.appendChild(b);
+    }
+
+  });
+})();
+</script>
+<style>
+.jdrv24{font-family:Arial,sans-serif;background:#fff;padding:28px;border:1px solid #e7e1d7;border-radius:18px}
+.jdrv24 h2{letter-spacing:.04em}.jdrv24 table{width:100%;border-collapse:collapse}.jdrv24 td,.jdrv24 th{padding:7px;border-bottom:1px solid #eee;text-align:left}.jdrv24 th{background:#f1eadc}.jdrv24note{font-size:12px;color:#777;margin-top:24px}
+</style>
+
+<script id="job-dna-v25-final-export">
+(function(){
+  function getProfile(){
+    return window.JOB_DNA_API?.getProfile?.() || window.jobDnaProfile || window.JOB_DNA_PROFILE || null;
+  }
+  function ensureReport(){
+    const p=getProfile();
+    if(!p || !p.scores) return null;
+    if(window.JOB_DNA_REPORT_V24?.render) {
+      const r=window.JOB_DNA_REPORT_V24.render();
+      if(r && r.html) return r.html;
+    }
+    return document.getElementById('job-dna-v24-report')?.innerHTML || null;
+  }
+  function downloadHTML(){
+    const p=getProfile();
+    if(!p || !p.scores){alert("Najpierw ukończ test 48 pytań.");return;}
+    const body=ensureReport();
+    if(!body){alert("Nie udało się wygenerować raportu.");return;}
+    const doc='<!doctype html><html lang="pl"><head><meta charset="utf-8"><title>JOB DNA — Career Profile</title><style>body{font-family:Arial,sans-serif;max-width:900px;margin:40px auto;padding:0 24px;color:#111;line-height:1.55}h2{margin-top:30px;border-bottom:1px solid #ddd;padding-bottom:8px}table{width:100%;border-collapse:collapse}th,td{padding:8px;border-bottom:1px solid #ddd;text-align:left}th{background:#eee}.jdrv24note{color:#666;font-size:12px}</style></head><body>'+body+'</body></html>';
+    const blob=new Blob([doc],{type:'text/html;charset=utf-8'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='JOB_DNA_Career_Profile.html';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  }
+  function printPDF(){
+    const p=getProfile();
+    if(!p || !p.scores){alert("Najpierw ukończ test 48 pytań.");return;}
+    ensureReport();
+    const report=document.getElementById('job-dna-v24-report');
+    if(!report){alert("Nie udało się wygenerować raportu.");return;}
+    const w=window.open('','_blank');
+    if(!w){alert("Przeglądarka zablokowała nowe okno. Użyj drukowania strony.");return;}
+    w.document.write('<!doctype html><html lang="pl"><head><meta charset="utf-8"><title>JOB DNA — Career Profile</title><style>@page{size:A4;margin:16mm}body{font-family:Arial,sans-serif;color:#111;line-height:1.5}table{width:100%;border-collapse:collapse}th,td{padding:7px;border-bottom:1px solid #ddd;text-align:left}th{background:#eee}.jdrv24{border:0!important;padding:0!important}.jdrv24note{color:#666;font-size:11px}</style></head><body>'+report.innerHTML+'</body></html>');
+    w.document.close();w.focus();setTimeout(()=>w.print(),350);
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    const host=document.getElementById('job-dna-v24-report')||document.body;
+    const bar=document.createElement('div');
+    bar.id='job-dna-v25-actions';
+    bar.style.cssText='display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:18px auto;max-width:900px';
+    bar.innerHTML='<button id="jd-v25-generate">Generuj raport z wyniku</button><button id="jd-v25-html">Pobierz raport HTML</button><button id="jd-v25-pdf">Drukuj / zapisz PDF</button>';
+    [...bar.querySelectorAll('button')].forEach(b=>b.style.cssText='padding:11px 16px;border-radius:999px;border:1px solid #222;background:#171717;color:#fff;font-weight:700;cursor:pointer');
+    host.parentNode.insertBefore(bar,host);
+    document.getElementById('jd-v25-generate').onclick=()=>ensureReport();
+    document.getElementById('jd-v25-html').onclick=downloadHTML;
+    document.getElementById('jd-v25-pdf').onclick=printPDF;
+  });
+})();
 </script>
 </body>
 </html>
