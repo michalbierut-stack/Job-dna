@@ -197,42 +197,58 @@ function action(s){
  if(!parts.length)parts.push("Twój wynik nie wskazuje jeszcze jednego dominującego sposobu działania");
  return parts.map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(". ")+".";
 }
+function naturalPreferredCost(s){
+ const natural=[...DIMS].sort((a,b)=>s[b]-s[a]).slice(0,4);
+ const preferred=[];
+ if(s.result>=60) preferred.push("praca, w której efekt jest widoczny i można domknąć temat");
+ if(s.relationality>=60) preferred.push("kontakt z ludźmi, który służy współpracy, negocjacji lub osiąganiu efektu");
+ if(s.influence>=58) preferred.push("realny wpływ na kierunek, decyzje albo wybór rozwiązania");
+ if(s.tempo>=58) preferred.push("sprawny rytm pracy bez konieczności działania w permanentnym pośpiechu");
+ if(s.depth>=55) preferred.push("wystarczająco dużo czasu na zrozumienie produktu lub problemu przed działaniem");
+ if(s.stability<42) preferred.push("środowisko, w którym jest ruch i możliwość zmiany zamiast pełnej przewidywalności");
+ if(s.autonomy<42) preferred.push("jasne ramy odpowiedzialności zamiast pełnej konieczności samodzielnego definiowania zasad");
+ const costs=[];
+ if(s.analytical<=35) costs.push("długie analizy, raportowanie i porównywanie wariantów bez przełożenia na działanie");
+ if(s.stability<=35) costs.push("środowisko oparte na przewidywalności, powtarzalności i małej zmianie");
+ if(s.autonomy<=35) costs.push("mikrozarządzanie i brak wpływu na sposób realizacji celu");
+ if(s.result>=65) costs.push("zadania, w których trudno zobaczyć konkretny efekt lub odpowiedzialność za rezultat");
+ if(s.relationality>=65) costs.push("praca niemal bez kontaktu z ludźmi, jeśli nie daje ona innego wyraźnego źródła zaangażowania");
+ if(s.tempo>=65) costs.push("ciągłe stanie w miejscu, wielotygodniowe oczekiwanie i brak domykania tematów");
+ if(s.depth>=65&&s.analytical<45) costs.push("praca wymagająca jednocześnie bardzo dużej głębi i bardzo intensywnej analizy danych");
+ return {natural,preferred:preferred.slice(0,3),costs:costs.slice(0,3)};
+}
 function costs(s){
- const c=[];
- if(s.tempo<=35)c.push("ciągłe gaszenie pożarów i presja na natychmiastowe decyzje");
- if(s.autonomy<=35)c.push("mikrozarządzanie lub bardzo mały wpływ na sposób pracy");
- if(s.stability<=35)c.push("środowisko, w którym zasady i priorytety stale zmieniają się bez wyraźnego kierunku");
- if(s.relationality<=35)c.push("praca oparta niemal wyłącznie na ciągłym kontakcie z ludźmi");
- if(s.relationality>=65&&s.result>=65)c.push("kontakt z ludźmi, który nie prowadzi do żadnego konkretnego efektu");
- if(s.depth>=65&&s.tempo>=70)c.push("konflikt między potrzebą zrozumienia tematu a koniecznością natychmiastowego działania");
- return c.length?c.join("; "):"wynik nie pokazuje jednego wyraźnego źródła kosztu — warto sprawdzić to na konkretnych ofertach pracy.";
+ const x=naturalPreferredCost(s).costs;
+ return x.length?x.join("; "):"wynik nie pokazuje jednego wyraźnego źródła kosztu — warto sprawdzić to na konkretnych ofertach pracy.";
 }
 function connections(s){
  const c=[];
- const add=(title,tags,text,weight)=>c.push({title,tags,text,weight});
+ const add=(title,tags,text,weight,type="synergy")=>c.push({title,tags,text,weight,type});
  if(s.result>=62&&s.relationality>=62)add("Relacja → rezultat","Wynik · Relacyjność","Kontakt z ludźmi może być dla Ciebie narzędziem osiągania efektu, a nie celem samym w sobie.",Math.min(s.result,s.relationality));
  if(s.influence>=58&&s.relationality>=58)add("Wpływ poprzez ludzi","Wpływ · Relacyjność","Najbardziej naturalny wpływ może pojawiać się przez rozmowę, przekonywanie, uzgadnianie i budowanie partnerstwa.",Math.min(s.influence,s.relationality));
- if(s.depth>=60&&s.analytical<50)add("Głębia bez nadmiaru analizy","Głębia · Analityczność","Chcesz rozumieć temat, ale niekoniecznie potrzebujesz bez końca rozbierać go na dane, warianty i zależności.",s.depth+(50-s.analytical));
- if(s.structure>=60&&s.autonomy<55)add("Ramy przed pełną swobodą","Struktura · Autonomia","Jasne zasady mogą dawać Ci punkt oparcia. Pełna dowolność nie jest sama w sobie wartością, jeśli nie wiadomo, w jakich ramach działać.",s.structure+(50-s.autonomy));
- if(s.result>=65&&Math.abs(s.tempo-50)<=12)add("Rezultat ważniejszy niż tempo","Wynik · Tempo","Ważne jest domknięcie i efekt, ale nie wynika z tego potrzeba pracy w permanentnym pośpiechu.",s.result);
- if(s.exploration>=55&&s.stability<=48)add("Zmiana bez potrzeby chaosu","Eksploracja · Stabilność","Jesteś otwarty na nowe rozwiązania, ale sama nowość nie musi być dla Ciebie wartością — liczy się sens zmiany.",s.exploration+(50-s.stability));
- if(s.influence>=60&&s.result>=65)add("Wpływ ma mieć konsekwencję","Wpływ · Wynik","Samo uczestniczenie w decyzjach może nie wystarczać. Chcesz widzieć, że wpływ przekłada się na realny efekt.",Math.min(s.influence,s.result));
- return c.sort((a,b)=>b.weight-a.weight).slice(0,6);
+ if(s.result>=65&&Math.abs(s.tempo-50)<=15)add("Rezultat ważniejszy niż tempo","Wynik · Tempo","Ważne jest domknięcie i efekt, ale nie wynika z tego potrzeba pracy w permanentnym pośpiechu.",s.result);
+ if(s.depth>=55&&s.analytical<=40)add("Głębia bez nadmiaru analizy","Głębia · Analityczność","Chcesz rozumieć produkt lub problem, ale niekoniecznie potrzebujesz bez końca rozbierać go na dane, warianty i zależności.",s.depth+(50-s.analytical));
+ if(s.exploration>=52&&s.stability<=45)add("Zmiana bez potrzeby chaosu","Eksploracja · Stabilność","Jesteś otwarty na nowe rozwiązania, ale sama nowość nie musi być wartością — liczy się sens zmiany.",s.exploration+(50-s.stability));
+ if(s.influence>=55&&s.result>=65)add("Wpływ ma mieć konsekwencję","Wpływ · Wynik","Samo uczestniczenie w decyzjach może nie wystarczać. Chcesz widzieć, że wpływ przekłada się na realny efekt.",Math.min(s.influence,s.result));
+ if(s.autonomy<=45&&s.structure>=50)add("Ramy przed pełną swobodą","Struktura · Autonomia","Jasne zasady mogą dawać Ci punkt oparcia. Pełna dowolność nie jest sama w sobie wartością, jeśli nie wiadomo, w jakich ramach działać.",s.structure+(50-s.autonomy));
+ return c.sort((a,b)=>b.weight-a.weight).slice(0,4);
 }
 function roleFit(s, req, avoid){
- let sum=0,n=0; Object.entries(req).forEach(([d,w])=>{sum+=s[d]*w;n+=w});
- let fit=sum/n; Object.entries(avoid||{}).forEach(([d,p])=>{if(s[d]>p)fit-=Math.max(0,s[d]-p)*.18});
+ let weighted=0,total=0;
+ Object.entries(req).forEach(([d,r])=>{const w=r.w||1,target=r.target; weighted+=Math.abs(s[d]-target)*w; total+=50*w;});
+ let fit=100-(weighted/total*100);
+ Object.entries(avoid||{}).forEach(([d,limit])=>{if(s[d]>limit)fit-=Math.min(12,(s[d]-limit)*0.3);});
  return Math.max(0,Math.min(100,Math.round(fit)));
 }
 function roles(s){
  const defs=[
-  ["Sprzedaż konsultacyjna / KAM / partnerstwo",{relationality:1.0,influence:.9,result:.9,depth:.55},{tempo:35},"kontakt, wpływ i mierzalny efekt są częścią samej pracy"],
-  ["Specification sales / sprzedaż techniczna",{depth:.95,result:.85,relationality:.65,influence:.7,structure:.55},{},"wymaga rozumienia produktu, pracy z ludźmi i wpływania na wybór rozwiązania"],
-  ["Business Development / rozwój rynku",{exploration:.9,influence:.85,result:.85,relationality:.6},{stability:65},"łączy szukanie możliwości z wpływem i odpowiedzialnością za rezultat"],
-  ["Product Specialist / Product Manager",{depth:.8,result:.75,influence:.65,structure:.6,relationality:.45},{},"łączy wiedzę produktową, decyzje i przekładanie potrzeb rynku na rozwiązania"],
-  ["Partner / Channel Manager",{relationality:.85,influence:.85,result:.8,structure:.5},{},"opiera wynik na relacjach, negocjacjach, rozwoju partnerów i wpływie na kierunek"],
-  ["Koordynacja projektów",{structure:.75,relationality:.7,result:.7,depth:.5},{tempo:35},"pasuje szczególnie wtedy, gdy koordynacja daje realny wpływ, a nie jest wyłącznie gaszeniem problemów"],
-  ["Analityka / praca badawcza",{analytical:1.0,depth:.8,structure:.65},{relationality:70},"wymaga większej potrzeby analizy i pracy na zależnościach niż pokazuje ten profil"]
+  ["Partner / Channel Manager",{relationality:{target:78,w:1},influence:{target:72,w:1},result:{target:72,w:.9},tempo:{target:58,w:.35},structure:{target:58,w:.3}}, {},"rozwój partnerów, negocjacje, wpływ na kierunek i odpowiedzialność za wynik"],
+  ["Specification sales / sprzedaż techniczna",{depth:{target:72,w:1},result:{target:72,w:.9},relationality:{target:68,w:.8},influence:{target:70,w:.8},structure:{target:60,w:.35},analytical:{target:50,w:.25}}, {},"rozumienie produktu, praca z ludźmi i wpływanie na wybór rozwiązania"],
+  ["Business Development / rozwój rynku",{exploration:{target:74,w:1},influence:{target:70,w:1},result:{target:75,w:.9},relationality:{target:62,w:.65},autonomy:{target:62,w:.5}}, {stability:55},"szukanie możliwości, uruchamianie nowych kierunków i odpowiedzialność za rezultat"],
+  ["Product Specialist / Product Manager",{depth:{target:72,w:.9},result:{target:70,w:.8},influence:{target:65,w:.65},structure:{target:64,w:.6},exploration:{target:58,w:.45},relationality:{target:55,w:.35}}, {},"łączenie wiedzy produktowej, decyzji i przekładania potrzeb rynku na rozwiązania"],
+  ["Sprzedaż konsultacyjna / KAM / partnerstwo",{relationality:{target:76,w:1},result:{target:74,w:1},influence:{target:70,w:.9},depth:{target:58,w:.45},tempo:{target:58,w:.3}}, {},"kontakt, wpływ i mierzalny efekt są częścią samej pracy"],
+  ["Koordynacja projektów",{structure:{target:72,w:.9},relationality:{target:65,w:.65},result:{target:68,w:.7},depth:{target:55,w:.3},autonomy:{target:55,w:.25}}, {tempo:40},"pasuje szczególnie wtedy, gdy koordynacja daje realny wpływ, a nie jest wyłącznie gaszeniem problemów"],
+  ["Analityka / praca badawcza",{analytical:{target:78,w:1},depth:{target:75,w:.9},structure:{target:65,w:.6},result:{target:55,w:.3}}, {relationality:65},"wymaga większej potrzeby analizy i pracy na zależnościach niż pokazuje ten profil"]
  ];
  return defs.map(d=>({name:d[0],fit:roleFit(s,d[1],d[2]),why:d[3]})).sort((a,b)=>b.fit-a.fit).slice(0,5);
 }
@@ -245,7 +261,8 @@ function report(){
  h+=`</div><div class="insight"><b>Wniosek</b><p>${action(score)}</p></div></div>`;
  h+=`<div class="card"><h2>Twoje połączenia</h2><p class="muted">Najwięcej informacji powstaje nie z pojedynczego wymiaru, ale z tego, jak dwa lub więcej sygnałów współdziałają.</p><div class="connection-grid">`;
  con.forEach(x=>h+=`<div class="connection"><div class="tags"><span class="badge">${x.tags}</span></div><h3>${x.title}</h3><p>${x.text}</p></div>`); h+=`</div></div>`;
- h+=`<div class="card"><h2>Naturalne · Preferowane · Kosztowne</h2><p class="muted">Wynik nie mówi tylko „jaki jesteś”. Pokazuje, gdzie określony sposób działania może być dla Ciebie naturalny, a gdzie może wymagać więcej energii.</p><div class="audit-note"><b>Naturalne:</b> ${core.map(d=>L[d]).join(", ")}.<br><b>Preferowane:</b> ${action(score)}<br><b>Potencjalny koszt:</b> ${costs(score)}</div></div>`;
+ const npc=naturalPreferredCost(score);
+h+=`<div class="card"><h2>Naturalne · Preferowane · Kosztowne</h2><p class="muted">Wynik nie mówi tylko „jaki jesteś”. Pokazuje też, jaki rodzaj pracy może być dla Ciebie naturalny, co prawdopodobnie zwiększa zaangażowanie i gdzie koszt może pojawić się szybciej.</p><div class="audit-note"><b>Naturalne:</b> działanie oparte przede wszystkim na ${npc.natural.map(d=>L[d].toLowerCase()).join(", ")}.<br><b>Preferowane:</b> ${npc.preferred.length?npc.preferred.join("; "):"wynik nie wskazuje jeszcze jednej wyraźnej preferencji środowiska"}.<br><b>Potencjalny koszt:</b> ${npc.costs.length?npc.costs.join("; "):"brak jednego wyraźnego źródła kosztu — warto sprawdzić je na konkretnych ofertach pracy"}.</div></div>`;
  h+=`<div class="card"><h2>Mapa JOB DNA</h2><div class="grid">`;
  DIMS.forEach(d=>h+=`<div class="score"><div class="top"><span>${L[d]}</span><span>${score[d]}</span></div><div class="bar"><i style="width:${score[d]}%"></i></div><div class="small muted">${band(score[d])} · pewność ${conf[d]}%</div></div>`);
  h+=`</div></div>`;
