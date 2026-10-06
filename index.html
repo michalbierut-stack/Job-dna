@@ -3,43 +3,49 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>JOB DNA 1.3</title>
+<title>JOB DNA 1.4</title>
 <style>
-:root{--bg:#f4f4f2;--card:#fff;--text:#171717;--muted:#707070;--line:#e5e5e2}
-*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
-.wrap{max-width:820px;margin:auto;padding:16px 14px 50px} .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;margin:14px 0}
-h1{font-size:42px;line-height:1.03;letter-spacing:-1.5px;margin:8px 0 12px} h2{font-size:25px;margin:0 0 12px}
-.muted{color:var(--muted)} .kicker{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#777}
-.progress{height:7px;background:#e9e9e6;border-radius:9px;overflow:hidden;margin:14px 0 22px} .progress i{display:block;height:100%;background:#171717;width:0}
-.q{font-size:22px;font-weight:750;line-height:1.28;margin:16px 0} .choices{display:grid;gap:10px;margin:14px 0 18px}.choice{border:1px solid var(--line);border-radius:16px;padding:15px 16px;background:#fafaf8}.choice b{display:block;font-size:13px;letter-spacing:.08em;margin-bottom:6px}.choice span{font-size:16px;line-height:1.35}.answers{display:grid;gap:10px}
-.answer{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;cursor:pointer;font-size:15px}
-.answer:hover{border-color:#999} .answer b{display:block;margin-bottom:4px}
-button{border:0;border-radius:14px;padding:13px 18px;background:#171717;color:#fff;font-weight:750;cursor:pointer}
-.secondary{background:#ededeb;color:#171717} .actions{display:flex;justify-content:space-between;margin-top:16px}
-.hidden{display:none!important} .hero{padding:28px} .profile{font-size:39px;font-weight:900;line-height:1.03;letter-spacing:-1.5px}
-.badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:12px;margin:3px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px} .score{border:1px solid var(--line);border-radius:15px;padding:13px}
-.top{display:flex;justify-content:space-between;font-weight:750} .bar{height:6px;background:#ececea;border-radius:8px;margin-top:8px;overflow:hidden} .bar i{display:block;height:100%;background:#171717}
-.small{font-size:13px} .callout{border-left:3px solid #171717;padding-left:14px;margin:15px 0}
-.role{border:1px solid var(--line);border-radius:15px;padding:14px;margin:9px 0}
-.sanity{display:grid;gap:10px} .sanity button{background:#fff;color:#171717;border:1px solid var(--line);text-align:left}
-@media(max-width:650px){h1{font-size:35px}.profile{font-size:33px}.q{font-size:20px}.grid{grid-template-columns:1fr}}
+:root{--bg:#f3f2ef;--card:#fff;--text:#171717;--muted:#73716d;--line:#e5e2dc;--soft:#f5f3ef;--accent:#6c63ff;--accent-soft:#efedff}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#eeece7 0%,#f7f6f3 55%,#efede9 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wrap{max-width:820px;margin:auto;padding:0 14px 60px}.topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 4px 8px;font-weight:800}.brand{font-size:14px;letter-spacing:.08em}.menu{width:38px;height:38px;border:1px solid var(--line);border-radius:12px;background:#fff;display:grid;place-items:center;font-size:18px}
+.card{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:26px;padding:26px;margin:14px 0;box-shadow:0 8px 30px rgba(25,25,25,.035)}
+h1{font-size:45px;line-height:1.01;letter-spacing:-2px;margin:10px 0 16px}h2{font-size:28px;letter-spacing:-.8px;margin:0 0 12px}.lead{font-size:19px;line-height:1.48}.muted{color:var(--muted)}.kicker{font-size:11px;font-weight:850;letter-spacing:.16em;text-transform:uppercase;color:#77736d}
+.hero{padding:28px 26px 22px;overflow:hidden;position:relative}.hero:after{content:"";display:block;height:150px;margin:26px -26px -22px;background:radial-gradient(circle at 70% 20%,rgba(108,99,255,.18),transparent 28%),linear-gradient(145deg,#eeeae3,#d9d4cc)}
+.hero-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:22px}.meta{background:#f5f3ef;border-radius:16px;padding:13px}.meta b{display:block;font-size:17px}.meta span{font-size:12px;color:var(--muted);line-height:1.3}.cta{display:flex;gap:10px;align-items:center;margin-top:20px}button{border:0;border-radius:15px;padding:14px 20px;background:#171717;color:#fff;font-weight:800;cursor:pointer;font-size:15px}.secondary{background:#eceae6;color:#171717}.small{font-size:13px;line-height:1.4}
+.intro-list{display:grid;gap:12px;margin:20px 0}.intro-row{display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:start}.num{width:38px;height:38px;border-radius:50%;background:#efede9;display:grid;place-items:center;font-weight:850}.intro-row b{display:block;margin:2px 0 4px}.intro-row span{font-size:14px;color:var(--muted);line-height:1.4}.audience{background:#f5f3ef;border-radius:18px;padding:16px;margin-top:18px}.audience ul{margin:8px 0 0;padding-left:18px;color:var(--muted);line-height:1.55}
+.test-head{display:flex;justify-content:space-between;align-items:center}.progress{height:7px;background:#e9e7e3;border-radius:9px;overflow:hidden;margin:12px 0 24px}.progress i{display:block;height:100%;background:#171717;width:0;transition:width .2s}.q{font-size:25px;font-weight:780;line-height:1.2;margin:18px 0 18px;letter-spacing:-.5px}.choice{border:1px solid var(--line);border-radius:18px;padding:17px 18px;background:#fff;margin:9px 0}.choice b{display:block;font-size:12px;letter-spacing:.1em;margin-bottom:7px}.choice span{font-size:16px;line-height:1.4}.answers{display:grid;gap:8px;margin-top:14px}.answer{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px 16px;cursor:pointer;font-size:15px;display:flex;justify-content:space-between;align-items:center}.answer:hover,.answer:active{border-color:#aaa}.answer b{font-size:14px}.answer span{color:var(--muted);font-size:13px}.actions{display:flex;justify-content:space-between;margin-top:18px}.back-disabled{opacity:.45;pointer-events:none}
+.hidden{display:none!important}.profile{font-size:44px;font-weight:900;line-height:1.02;letter-spacing:-1.8px;margin-top:8px}.profile-sub{font-size:18px;margin:10px 0 18px}.callout{border-left:4px solid #171717;padding-left:15px;margin:16px 0;font-size:18px;line-height:1.4}.result-visual{border-radius:22px;margin-top:22px;min-height:220px;padding:22px;display:flex;align-items:end;background:linear-gradient(150deg,#ece8e1,#bcb6ad 70%,#817b74);color:#fff;position:relative;overflow:hidden}.result-visual:after{content:"";position:absolute;width:230px;height:230px;border-radius:50%;right:-70px;top:-80px;background:rgba(255,255,255,.16)}.quote{font-size:24px;font-weight:850;max-width:480px;position:relative;z-index:1;letter-spacing:-.5px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.score{border:1px solid var(--line);border-radius:17px;padding:14px}.top{display:flex;justify-content:space-between;font-weight:800}.bar{height:6px;background:#eceae6;border-radius:8px;margin-top:9px;overflow:hidden}.bar i{display:block;height:100%;background:#171717}.badge{display:inline-block;border:1px solid #d8d3ff;background:#f1efff;color:#554bd2;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;margin:3px}.role{border:1px solid var(--line);border-radius:18px;padding:15px;margin:9px 0;display:grid;grid-template-columns:1fr auto;gap:4px 10px}.role p{grid-column:1/-1;margin:4px 0 0;color:var(--muted);font-size:14px;line-height:1.4}.insight{background:var(--accent-soft);border-radius:18px;padding:16px;margin-top:14px}.sanity{display:grid;gap:10px}.sanity button{background:#fff;color:#171717;border:1px solid var(--line);text-align:left}.footer-note{font-size:12px;color:var(--muted);text-align:center;padding:14px}
+@media(max-width:650px){h1{font-size:37px}.profile{font-size:36px}.q{font-size:22px}.grid{grid-template-columns:1fr}.hero-meta{grid-template-columns:1fr 1fr}.hero-meta .meta:last-child{grid-column:1/-1}.card{border-radius:23px;padding:22px}.lead{font-size:18px}}
 </style>
 </head>
 <body>
 <div class="wrap">
+<div class="topbar"><div class="brand">JOB DNA · 1.4</div><div class="menu">☰</div></div>
 <section id="start" class="card hero">
-<div class="kicker">JOB DNA · 1.3</div>
-<h1>Tak naturalnie działasz w pracy.</h1>
-<p class="muted">Nie szukaj najlepszej odpowiedzi. Wybierz tę, która jest bliższa temu, jak naprawdę działasz. Czasem obie będą pasować — wybierz tę, którą wybrałbyś częściej.</p>
-<p class="small muted">Prototyp narzędzia do odkrywania sposobu pracy. To nie jest diagnoza psychologiczna ani zwalidowany test psychometryczny.</p>
-<button onclick="start()">Rozpocznij</button>
+<div class="kicker">Twoje predyspozycje · realne możliwości</div>
+<h1>Odkryj swój naturalny sposób działania w pracy.</h1>
+<p class="lead">JOB DNA pomaga zobaczyć, <b>jak myślisz, podejmujesz decyzje i w jakim środowisku pracujesz najskuteczniej.</b></p>
+<div class="hero-meta"><div class="meta"><b>48 pytań</b><span>z życia zawodowego</span></div><div class="meta"><b>ok. 10 min</b><span>szczerych odpowiedzi</span></div><div class="meta"><b>indywidualny raport</b><span>profil + kierunki zawodowe</span></div></div>
+<div class="cta"><button onclick="showIntro()">Rozpocznij test →</button></div>
+<p class="small muted">Twoje odpowiedzi są poufne. To narzędzie rozwojowe, nie diagnoza psychologiczna ani zwalidowany test psychometryczny.</p>
+</section>
+
+<section id="intro" class="card hidden">
+<div class="kicker">KROK 1 Z 3</div><h2>Jak to działa?</h2>
+<p class="lead">Odpowiesz na 48 krótkich sytuacji z życia zawodowego. Nie sprawdzamy wiedzy ani „idealnej” osobowości.</p>
+<div class="intro-list">
+<div class="intro-row"><div class="num">1</div><div><b>Wybierz bliższą reakcję</b><span>Nawet jeśli żadna odpowiedź nie pasuje idealnie — liczy się ta, którą wybrałbyś częściej.</span></div></div>
+<div class="intro-row"><div class="num">2</div><div><b>Nie ma dobrych ani złych odpowiedzi</b><span>Największą wartość daje szczerość, nie próba pokazania się z najlepszej strony.</span></div></div>
+<div class="intro-row"><div class="num">3</div><div><b>Na końcu zobaczysz swój profil</b><span>Co Cię napędza, w jakim środowisku działasz najlepiej, co może Cię męczyć i jakie kierunki warto sprawdzić.</span></div></div>
+</div>
+<div class="audience"><b>Dla kogo?</b><ul><li>dla osób rozważających zmianę pracy lub kierunku,</li><li>dla tych, którzy chcą lepiej wykorzystać swoje mocne strony,</li><li>dla osób, które czują, że mogą działać lepiej — tylko nie wiedzą jeszcze gdzie.</li></ul></div>
+<div class="cta"><button onclick="start()">Przejdź do pytań →</button><button class="secondary" onclick="backToStart()">Wstecz</button></div>
 </section>
 
 <section id="test" class="card hidden">
-<div class="kicker" id="counter"></div><div class="progress"><i id="bar"></i></div>
-<div class="q" id="q"></div><div class="choices" id="choices"></div><div class="answers" id="answers"></div>
-<div class="actions"><button class="secondary" onclick="back()">Wstecz</button><span></span></div>
+<div class="test-head"><div class="kicker" id="counter"></div><span class="small muted" id="percent"></span></div><div class="progress"><i id="bar"></i></div>
+<div class="kicker">SYTUACJA ZAWODOWA</div><div class="q" id="q"></div><div class="choices" id="choices"></div><div class="answers" id="answers"></div>
+<div class="actions"><button class="secondary" id="backBtn" onclick="back()">← Wstecz</button><span></span></div>
 </section>
 
 <section id="sanity" class="card hidden">
@@ -124,16 +130,20 @@ const DESC = {
 };
 let A=Array(Q.length).fill(null), idx=0, sanity=null;
 
-function start(){document.getElementById("start").classList.add("hidden");document.getElementById("test").classList.remove("hidden");render();}
+function showIntro(){document.getElementById("start").classList.add("hidden");document.getElementById("intro").classList.remove("hidden");window.scrollTo(0,0);}
+function backToStart(){document.getElementById("intro").classList.add("hidden");document.getElementById("start").classList.remove("hidden");window.scrollTo(0,0);}
+function start(){document.getElementById("intro").classList.add("hidden");document.getElementById("start").classList.add("hidden");document.getElementById("test").classList.remove("hidden");render();window.scrollTo(0,0);}
 function sig(v){return v==="AD"?1:v==="AR"?.5:v==="BR"?-.5:-1;}
 function render(){
  document.getElementById("counter").textContent=`PYTANIE ${idx+1} Z ${Q.length}`;
- document.getElementById("bar").style.width=(idx/Q.length*100)+"%";
+ document.getElementById("percent").textContent=Math.round(((idx+1)/Q.length)*100)+"%";
+ document.getElementById("bar").style.width=((idx+1)/Q.length*100)+"%";
+ document.getElementById("backBtn").classList.toggle("back-disabled",idx===0);
  document.getElementById("q").textContent=Q[idx][0];
  const choices=document.getElementById("choices");
  choices.innerHTML=`<div class="choice"><b>A</b><span>${Q[idx][1]}</span></div><div class="choice"><b>B</b><span>${Q[idx][2]}</span></div>`;
  const box=document.getElementById("answers");box.innerHTML="";
- [["AD","A zdecydowanie","A jest wyraźnie bliższa"],["AR","A raczej","A jest trochę bliższa"],["BR","B raczej","B jest trochę bliższa"],["BD","B zdecydowanie","B jest wyraźnie bliższa"]].forEach(x=>{
+ [["AD","A","Zdecydowanie bliższa"],["AR","A","Trochę bliższa"],["BR","B","Trochę bliższa"],["BD","B","Zdecydowanie bliższa"]].forEach(x=>{
   const b=document.createElement("button");b.className="answer";
   b.innerHTML=`<b>${x[1]}</b><span class="muted">${x[2]}</span>`;
   b.onclick=()=>pick(x[0]);box.appendChild(b);
@@ -189,9 +199,9 @@ function profile(score){
 }
 function band(v){return v>=75?"bardzo wysoka":v>=65?"wysoka":v<=25?"bardzo niska":v<=35?"niska":"umiarkowana";}
 function action(s){
- const p=[];if(s.depth>=65)p.push("najpierw chcesz zrozumieć problem");if(s.autonomy>=65)p.push("potem potrzebujesz swobody w sposobie działania");if(s.result>=65)p.push("a efekt powinien być konkretny");if(s.tempo>=65)p.push("lubisz sprawnie zamykać etapy");if(s.tempo<=35)p.push("nie potrzebujesz ciągłego pośpiechu");if(s.variety>=65)p.push("energia rośnie przy nowych tematach");if(s.variety<=35)p.push("łatwiej Ci się skupić przy mniejszej liczbie równoległych tematów");return p.length?p.join(". ")+".":"Nie ma jeszcze jednego dominującego wzorca działania.";}
+ const p=[];if(s.exploration>=65)p.push("szybko zauważasz nowe możliwości i chcesz sprawdzić, co da się z nimi zrobić");if(s.influence>=65)p.push("zależy Ci, żeby mieć realny wpływ na kierunek i decyzje");if(s.result>=65)p.push("sama aktywność nie wystarcza — chcesz widzieć konkretny efekt");if(s.tempo<=35)p.push("nie potrzebujesz jednak pracy w trybie ciągłego pośpiechu");if(s.autonomy>=65)p.push("najlepiej działasz, gdy masz przestrzeń do decydowania po swojemu");if(s.variety>=65)p.push("nowe tematy pomagają Ci utrzymać zaangażowanie");return p.length?p.join(". ")+".":"Wynik nie pokazuje jeszcze jednego dominującego sposobu działania.";}
 function costs(s){
- const c=[];if(s.tempo<=35)c.push("ciągłe gaszenie pożarów");if(s.tempo>=65)c.push("przeciągające się decyzje");if(s.autonomy>=65)c.push("mikrozarządzanie");if(s.relationality<=35)c.push("praca oparta niemal wyłącznie na spotkaniach");if(s.relationality>=65)c.push("długotrwała praca bez kontaktu z ludźmi");if(s.stability>=70)c.push("duża nieprzewidywalność");return c.length?c.join(", "):"brak jednego wyraźnego kosztu w tym wyniku.";}
+ const c=[];if(s.tempo<=35)c.push("ciągłe gaszenie pożarów i presja na natychmiastowe decyzje");if(s.autonomy<=35)c.push("mikrozarządzanie lub brak wpływu na sposób pracy");if(s.stability<=35)c.push("środowisko, w którym wszystko zmienia się bez wyraźnego kierunku");if(s.relationality<=35)c.push("praca oparta niemal wyłącznie na ciągłych spotkaniach");if(s.relationality>=65)c.push("długie okresy pracy bez kontaktu z ludźmi");return c.length?c.join("; "):"na tym etapie nie widać jednego wyraźnego źródła kosztu.";}
 function roles(s){
  const r=[];
  if(s.depth>=62&&s.autonomy>=58&&s.result>=58)r.push(["Ekspertyza techniczna / Product / Solutions","WYSOKIE","łączy głębokie rozumienie produktu z samodzielnością i odpowiedzialnością za efekt"]);
@@ -205,17 +215,17 @@ function roles(s){
 function report(){
  const {score,conf}=calc(), p=profile(score);
  const sorted=[...DIMS].sort((a,b)=>score[b]-score[a]), core=sorted.filter(d=>conf[d]>=48).slice(0,4);
- let h=`<div class="card hero"><div class="kicker">TWOJE JOB DNA</div><div class="profile">${p.name}</div><p>${p.sub.join(" · ")}</p><div class="callout"><b>${p.desc}</b></div><p class="small muted">Wynik opisuje konfigurację odpowiedzi w tym teście. Nie jest stałą etykietą człowieka ani diagnozą.</p></div>`;
- h+=`<div class="card"><h2>Twój rdzeń</h2><div class="grid">`;
+ let h=`<div class="card hero"><div class="kicker">TWOJE JOB DNA</div><div class="profile">${p.name}</div><div class="profile-sub">${p.sub.join(" · ")}</div><div class="callout"><b>${p.desc}</b></div><p class="lead">W praktyce oznacza to, że najwięcej energii możesz mieć wtedy, gdy <b>możesz coś uruchomić, mieć wpływ na kierunek i zobaczyć efekt swojej pracy.</b></p><div class="result-visual"><div class="quote">„Nie czekasz na okazję.<br>Chcesz sprawdzić, co można z niej zbudować.”</div></div><p class="small muted">To opis konfiguracji odpowiedzi w tym teście — nie stała etykieta człowieka ani diagnoza.</p></div>`;
+ h+=`<div class="card"><h2>Twój rdzeń działania</h2><p class="muted">Te obszary najmocniej wyróżniają Twój sposób pracy w tym wyniku.</p><div class="grid">`;
  core.forEach(d=>h+=`<div class="score"><div class="top"><span>${L[d]}</span><span>${score[d]}</span></div><div class="bar"><i style="width:${score[d]}%"></i></div><div class="small muted">${DESC[d]} · pewność ${conf[d]}%</div></div>`);
- h+=`</div></div>`;
- h+=`<div class="card"><h2>Jak działasz</h2><p>${action(score)}</p><p><b>Potencjalny koszt:</b> ${costs(score)}</p></div>`;
+ h+=`</div><div class="insight"><b>Wniosek</b><p>${action(score)}</p></div></div>`;
+ h+=`<div class="card"><h2>Jak to wygląda w codziennej pracy?</h2><p>${action(score)}</p><p><b>Co może Cię męczyć:</b> ${costs(score)}</p></div>`;
  h+=`<div class="card"><h2>Mapa JOB DNA</h2><div class="grid">`;
  DIMS.forEach(d=>h+=`<div class="score"><div class="top"><span>${L[d]}</span><span>${score[d]}</span></div><div class="bar"><i style="width:${score[d]}%"></i></div><div class="small muted">${band(score[d])} · pewność ${conf[d]}%</div></div>`);
  h+=`</div></div>`;
- h+=`<div class="card"><h2>Kierunki zawodowe</h2><p class="muted">To kierunki do sprawdzenia, nie nakaz wyboru zawodu.</p>`;
+ h+=`<div class="card"><h2>Gdzie możesz działać najlepiej?</h2><p class="muted">Nie wybieramy za Ciebie zawodu. Szukamy miejsc, w których Twój sposób działania ma szansę dawać Ci energię i dobre rezultaty.</p>`;
  roles(score).forEach(r=>h+=`<div class="role"><b>${r[0]}</b> <span class="badge">${r[1]}</span><p>${r[2]}.</p></div>`);
- h+=`</div><div class="card"><h2>Jeszcze jedna rzecz</h2><p>Sanity check: <b>${sanity}</b>. W kolejnych wersjach porównamy go automatycznie z konfiguracją profilu i wykorzystamy do oceny spójności.</p><button onclick="location.reload()">Uruchom test ponownie</button></div>`;
+ h+=`</div><div class="card"><h2>Na co zwrócić uwagę przy wyborze pracy?</h2><p>Nie patrz tylko na nazwę stanowiska. Przy ofertach sprawdzaj przede wszystkim <b>zakres wpływu, poziom samodzielności, sposób rozliczania wyniku i ilość ciągłego gaszenia pożarów.</b></p><div class="insight"><b>Sanity check: ${sanity}</b><p class="small muted">W kolejnych wersjach ten wybór zostanie automatycznie porównany z konfiguracją profilu.</p></div><button onclick="location.reload()">Zrób test ponownie</button></div>`;
  document.getElementById("report").innerHTML=h;document.getElementById("report").classList.remove("hidden");window.scrollTo(0,0);
 }
 </script>
